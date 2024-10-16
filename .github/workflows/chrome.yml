@@ -20,10 +20,17 @@ jobs:
           VERSION=$(jq -r '.version' src/main/chrome/manifest.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: 'Print Version'
+        run: |
+          echo "Extracted version: $VERSION"
+
       - name: 'Compile and Zip'
         run: |
           mkdir -p dist
           zip -r dist/Osprey-$VERSION-chrome.zip src/main/chrome
+
+      - name: 'List Dist Directory'
+        run: ls -l dist
 
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v3
