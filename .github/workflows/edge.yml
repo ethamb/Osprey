@@ -28,9 +28,12 @@ jobs:
       - name: 'Compile and Zip'
         run: |
           mkdir -p dist
-          cd src/main
-          zip -r ../../dist/Osprey-$VERSION-edge.zip .
-          cd ../../
+          mkdir -p temp_dir
+          cp -r src/main/* temp_dir/
+          cd temp_dir
+          zip -r ../dist/Osprey-$VERSION-edge.zip .
+          cd ..
+          rm -rf temp_dir
 
       - name: 'List Dist Directory'
         run: ls -l dist
