@@ -19,6 +19,12 @@ When you visit a website, **Osprey** checks the URL with:
 - [TOTAL WebShield](https://dashboard.totalwebshield.com/products/totalwebshield)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
 
+## Settings
+
+You can configure the extension to use only the services you trust in the settings:
+
+![Osprey Settings](https://i.imgur.com/lHZHTas.png)
+
 ## Detections
 
 **Osprey** blocks websites that are classified as:
@@ -34,12 +40,6 @@ When you visit a website, **Osprey** checks the URL with:
 - [Compromised](https://malwarebytes.com/glossary/compromised)
 - [Fleeceware](https://blog.avast.com/how-to-spot-fleeceware)
 - [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
-
-## Settings
-
-You can configure the extension to use only the services you trust in the settings:
-
-![Osprey Settings](https://i.imgur.com/lHZHTas.png)
 
 ## Warning
 
