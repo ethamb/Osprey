@@ -1,4 +1,4 @@
-name: 'Compile for Chrome'
+name: 'Compile for Edge'
 
 on:
   push:
@@ -24,10 +24,15 @@ jobs:
         run: |
           echo "Extracted version: $VERSION"
 
+      - name: 'Remove update_url from manifest.json'
+        run: |
+          jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_edge.json
+
       - name: 'Compile and Zip'
         run: |
           mkdir -p dist
-          zip -r dist/Osprey-$VERSION-chrome.zip src/main
+          cp src/main/manifest_edge.json src/main/manifest.json
+          zip -r dist/Osprey-$VERSION-edge.zip src/main
 
       - name: 'List Dist Directory'
         run: ls -l dist
@@ -35,5 +40,5 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4
         with:
-          name: Osprey-${{ env.VERSION }}-chrome
-          path: dist/Osprey-${{ env.VERSION }}-chrome.zip
+          name: Osprey-${{ env.VERSION }}-edge
+          path: dist/Osprey-${{ env.VERSION }}-edge.zip
