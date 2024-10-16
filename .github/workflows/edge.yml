@@ -23,7 +23,7 @@ jobs:
       - name: 'Remove update_url from manifest.json'
         run: |
           jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_temp.json
-          mv src/main/manifest_temp.json src/main/manifest.json  # Overwrite the original manifest
+          mv src/main/manifest_temp.json src/main/manifest.json
 
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4

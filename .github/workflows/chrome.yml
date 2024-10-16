@@ -20,18 +20,8 @@ jobs:
           VERSION=$(jq -r '.version' src/main/manifest.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: 'Compile and Zip'
-        run: |
-          mkdir -p dist
-          cd src/main
-          zip -r ../../dist/Osprey-$VERSION-chrome.zip .
-          cd ../../
-
-      - name: 'List Dist Directory'
-        run: ls -l dist
-
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4
         with:
           name: Osprey-${{ env.VERSION }}-chrome
-          path: dist/Osprey-${{ env.VERSION }}-chrome.zip
+          path: src/main
