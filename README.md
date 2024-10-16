@@ -49,11 +49,11 @@ If the website is malicious, **Osprey** will block the page and display a warnin
 
 ## Installation
 
-You can install **Osprey** from the [Chrome Web Store]().
+You can install **Osprey** from the web stores listed above.
 
-If that doesn't work, you can install the extension manually:
+For other installations, you can install the extension manually:
 
-1. Download the latest release from the [Releases section](https://github.com/Foulest/Osprey/releases) or
+1. Download the latest build from the [Releases section](https://github.com/Foulest/Osprey/releases) or
    the [Actions section](https://github.com/Foulest/Osprey/actions/workflows).
 2. Extract the ZIP file to a folder on your computer.
 3. Navigate to `about://extensions` in your browser.
