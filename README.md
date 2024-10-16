@@ -54,8 +54,7 @@ You can install **Osprey** from the [Chrome Web Store]().
 If that doesn't work, you can install the extension manually:
 
 1. Download the latest release from the [Releases section](https://github.com/Foulest/Osprey/releases).
-    - If the latest release is unavailable or outdated, download the latest artifact from
-      the [Actions section](https://github.com/Foulest/Osprey/actions/workflows/chrome.yml).
+2. If you want a newer build, download the latest artifact from the [Actions section](https://github.com/Foulest/Osprey/actions/workflows/chrome.yml).
 2. Navigate to `chrome://extensions` or `edge://extensions` in your browser.
 3. Enable `Developer mode` and click `Load unpacked`.
 4. Select the downloaded ZIP file and click `Select Folder`.
