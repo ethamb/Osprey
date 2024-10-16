@@ -25,15 +25,8 @@ jobs:
           jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_temp.json
           mv src/main/manifest_temp.json src/main/manifest.json  # Overwrite the original manifest
 
-      - name: 'Compile and Zip'
-        run: |
-          mkdir -p dist
-          cd src/main
-          zip -r ../../dist/Osprey-$VERSION-edge.zip .
-          cd ../../
-
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4
         with:
           name: Osprey-${{ env.VERSION }}-edge
-          path: dist
+          path: src/main
