@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Osprey: Browser Protection</title>
+    <link rel="stylesheet" href="WarningPage.css">
+    <script src="../../protection/ProtectionResult.js" type="text/javascript"></script>
+    <script src="../../util/telemetry/MessageType.js" type="text/javascript"></script>
+    <script src="../../util/UrlHelpers.js" type="text/javascript"></script>
+    <script src="WarningPage.js" type="text/javascript"></script>
+</head>
+
+<body id="background" class="gray">
+
+<div id="banner" class="banner">
+    <img id="logo" class="logo" src="../../assets/icons/icon128.png" alt="Osprey Logo">
+    <span class="banner-text">Osprey: Browser Protection</span>
+</div>
+
+<div id="Wrapper">
+    <div id="msgBody" class="msgBody">
+        <h2 id="mainTitle" class="white">
+            Warning: This website is unsafe
+        </h2>
+
+        <p>
+            <id id="recommendation">
+                Osprey has blocked access to this website. It is unsafe to continue.
+            </id>
+        </p>
+
+        <p>
+            <id id="details">
+                If you are the owner of this website, please contact the security provider to resolve the issue.
+            </id>
+        </p>
+
+        <p>
+            <strong>Reported by: </strong><span id="reportedBy"></span><br>
+            <strong>Reason: </strong><span id="reason"></span>
+        </p>
+
+        <div style="margin: 24px 0 0 0;">
+            <button id="homepageButton" class="white-pushbutton" type="submit" data-bi-id="GoHomeButton">
+                <id id="goToHomePage">Back to safety</id>
+            </button>
+
+            <button id="continueButton" class="white-pushbutton" type="button" data-bi-id="ContinueToUrl">
+                <id id="continueToSite">Continue anyway</id>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
