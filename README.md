@@ -32,7 +32,7 @@ You can configure the extension to use only the services you trust in the settin
 - [Malware](https://us.norton.com/blog/malware/what-are-malicious-websites)
 - [Phishing](https://f-secure.com/us-en/articles/what-is-phishing)
 - [Fraud](https://usa.kaspersky.com/resource-center/preemptive-safety/scam-websites)
-- [Potentially Unwanted Applications](https://us.norton.com/blog/malware/what-are-puas-potentially-unwanted-applications)
+- [PUAs](https://us.norton.com/blog/malware/what-are-puas-potentially-unwanted-applications)
 - [Cryptojacking](https://kaspersky.com/resource-center/definitions/what-is-cryptojacking)
 - [Malvertising](https://malwarebytes.com/malvertising)
 - [Spam](https://developers.google.com/search/docs/essentials/spam-policies)
