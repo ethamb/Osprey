@@ -54,12 +54,15 @@ You can install **Osprey** from the [Chrome Web Store]().
 If that doesn't work, you can install the extension manually:
 
 1. Download the latest release from the [Releases section](https://github.com/Foulest/Osprey/releases).
-2. If that doesn't work, you can download the latest build from the [Actions section](https://github.com/Foulest/Osprey/actions/workflows/chrome.yml).
-3. Navigate to `chrome://extensions` or `edge://extensions` in your browser.
-4. Enable `Developer mode` and click `Load unpacked`.
-5. Select the downloaded ZIP file and click `Select Folder`.
+    - If the latest release is unavailable or out of date, you can download the latest artifact from
+      the [Actions section](https://github.com/Foulest/Osprey/actions/workflows/chrome.yml).
+2. Navigate to `chrome://extensions` or `edge://extensions` in your browser.
+3. Enable `Developer mode` and click `Load unpacked`.
+4. Select the downloaded ZIP file and click `Select Folder`.
 
 **Osprey** should now be installed in your browser.
+
+You can test the extension by visiting the [WICAR](https://wicar.org) website.
 
 ## Getting Help
 
