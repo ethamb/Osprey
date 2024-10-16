@@ -2,6 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![CodeQL](https://github.com/Foulest/Osprey/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Foulest/Osprey/actions/workflows/github-code-scanning/codeql)
+[![Downloads](https://img.shields.io/github/downloads/Foulest/Osprey/total.svg)](https://github.com/Foulest/Osprey/releases)
 
 **Osprey** is a browser extension that protects you from malicious websites.
 
