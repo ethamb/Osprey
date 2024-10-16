@@ -50,7 +50,7 @@ class CacheManager {
     // Function to check if the URL is in a specific cache and still valid
     isUrlInCache(url, cacheName) {
         try {
-            const normalizedUrl = this._normalizeUrl(url);
+            const normalizedUrl = this.normalizeUrl(url);
             const cache = this.caches[cacheName];
 
             if (cache && cache.has(normalizedUrl)) {
@@ -72,7 +72,7 @@ class CacheManager {
     // Function to add a URL to a specific cache
     addUrlToCache(url, cacheName) {
         try {
-            const normalizedUrl = this._normalizeUrl(new URL(url));
+            const normalizedUrl = this.normalizeUrl(new URL(url));
             const expirationDate = new Date();
             expirationDate.setDate(expirationDate.getDate() + 1); // Cache expires after 1 day
             const cache = this.caches[cacheName];
@@ -89,7 +89,7 @@ class CacheManager {
     }
 
     // Helper function to normalize URLs
-    _normalizeUrl(url) {
+    normalizeUrl(url) {
         let normalizedUrl = UrlHelpers.normalizeHostname(url.hostname + url.pathname);
 
         if (normalizedUrl.endsWith("/")) {
