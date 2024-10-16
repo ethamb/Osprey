@@ -89,14 +89,14 @@
             const currentState = settings[systemName];
             const newState = !currentState; // Toggle the protection state
 
-            // Log the toggle event
-            console.log(`${settings[systemName].title} has been ${newState ? "disabled" : "enabled"}.`);
-
             // Update UI with the new state
             updateProtectionStatusUI(systemName, newState);
 
             // Save the new state
             Settings.set({[systemName]: newState}, () => {
+                // Log the toggle event
+                console.debug(`${settings[systemName].title} has been ${newState ? "disabled" : "enabled"}.`);
+
                 // Send message to background after saving the state
                 chrome.runtime.sendMessage({
                     messageType: securitySystems.find((sys) => sys.name === systemName).messageType,

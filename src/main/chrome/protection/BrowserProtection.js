@@ -34,7 +34,7 @@ const BrowserProtection = function () {
             const checkUrlWithSmartScreen = async function () {
                 Settings.get(async (settings) => {
                     if (!settings.smartScreenEnabled) {
-                        console.log(`SmartScreen is disabled; bailing out early.`);
+                        console.debug(`SmartScreen is disabled; bailing out early.`);
                         return;
                     }
 
@@ -80,7 +80,7 @@ const BrowserProtection = function () {
 
                         // Check if we need to allow the URL
                         if (!response.ok) {
-                            console.log(`SmartScreen returned early: ${response.status}`);
+                            console.warn(`SmartScreen returned early: ${response.status}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -101,13 +101,13 @@ const BrowserProtection = function () {
                                 break;
 
                             case "Allowed":
-                                console.warn(`Added SmartScreen URL to cache: ` + url);
+                                console.debug(`Added SmartScreen URL to cache: ` + url);
                                 BrowserProtection.cacheManager.addUrlToCache(urlObject, "smartScreen");
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                                 break;
 
                             default:
-                                console.warn(`SmartScreen detected URL ${url}: ${apiResponse.responseCategory}`);
+                                console.warn(`SmartScreen returned an unexpected result for URL ${url}: ${apiResponse.responseCategory}`);
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                                 break;
                         }
@@ -124,7 +124,7 @@ const BrowserProtection = function () {
             const checkUrlWithComodo = async function () {
                 Settings.get(async (settings) => {
                     if (!settings.comodoEnabled) {
-                        console.log(`Comodo is disabled; bailing out early.`);
+                        console.debug(`Comodo is disabled; bailing out early.`);
                         return;
                     }
 
@@ -148,7 +148,7 @@ const BrowserProtection = function () {
 
                         // Return early if the response is not OK
                         if (!response.ok) {
-                            console.log(`Comodo returned early: ${response.status}`);
+                            console.warn(`Comodo returned early: ${response.status}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -163,7 +163,7 @@ const BrowserProtection = function () {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
                         } else if (url_result_text === "Safe"
                             || url_result_text === "Unknown") {
-                            console.warn(`Added Comodo URL to cache: ` + url);
+                            console.debug(`Added Comodo URL to cache: ` + url);
                             BrowserProtection.cacheManager.addUrlToCache(urlObject, "comodo");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
                         } else {
@@ -183,7 +183,7 @@ const BrowserProtection = function () {
             const checkUrlWithEmsisoft = async function () {
                 Settings.get(async (settings) => {
                     if (!settings.emsisoftEnabled) {
-                        console.log(`Emsisoft is disabled; bailing out early.`);
+                        console.debug(`Emsisoft is disabled; bailing out early.`);
                         return;
                     }
 
@@ -206,14 +206,14 @@ const BrowserProtection = function () {
 
                         // Return early if the response is not OK
                         if (!response.ok) {
-                            console.log(`Emsisoft returned early: ${response.status}`);
+                            console.warn(`Emsisoft returned early: ${response.status}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                             return;
                         }
 
                         // Allow if the hostname is in the bypass list
                         if (hostname.match(/alomar\.emsisoft\.com$/)) {
-                            console.warn(`Added Emsisoft URL to cache: ` + url);
+                            console.debug(`Added Emsisoft URL to cache: ` + url);
                             BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                             return;
@@ -239,7 +239,7 @@ const BrowserProtection = function () {
                         }
 
                         // If the URL is not blocked, allow it
-                        console.warn(`Added Emsisoft URL to cache: ` + url);
+                        console.debug(`Added Emsisoft URL to cache: ` + url);
                         BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                     } catch (error) {
@@ -255,7 +255,7 @@ const BrowserProtection = function () {
             const checkUrlWithBitdefender = async function () {
                 Settings.get(async (settings) => {
                     if (!settings.bitdefenderEnabled) {
-                        console.log(`Bitdefender is disabled; bailing out early.`);
+                        console.debug(`Bitdefender is disabled; bailing out early.`);
                         return;
                     }
 
@@ -305,11 +305,11 @@ const BrowserProtection = function () {
                         } else if (status_message.includes("untrusted")) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         } else if (status_message.includes("not found")) {
-                            console.warn(`Added Bitdefender URL to cache: ` + url);
+                            console.debug(`Added Bitdefender URL to cache: ` + url);
                             BrowserProtection.cacheManager.addUrlToCache(urlObject, "bitdefender");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         } else {
-                            console.warn(`Bitdefender detected URL ${url}: ${status_message}`);
+                            console.warn(`Bitdefender returned an unexpected result for URL ${url}: ${status_message}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         }
                     } catch (error) {
@@ -325,7 +325,7 @@ const BrowserProtection = function () {
             const checkUrlWithNorton = async function () {
                 Settings.get(async (settings) => {
                     if (!settings.nortonEnabled) {
-                        console.log(`Norton is disabled; bailing out early.`);
+                        console.debug(`Norton is disabled; bailing out early.`);
                         return;
                     }
 
@@ -350,7 +350,7 @@ const BrowserProtection = function () {
 
                         // Return early if the response is not OK
                         if (!response.ok) {
-                            console.log(`Norton returned early: ${response.status}`);
+                            console.warn(`Norton returned early: ${response.status}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -364,7 +364,7 @@ const BrowserProtection = function () {
                             || xmlString.includes('r="r"')
                             || xmlString.includes('r="w"')
                             || xmlString.includes('r="u"')) {
-                            console.warn(`Added Norton URL to cache: ` + url);
+                            console.debug(`Added Norton URL to cache: ` + url);
                             BrowserProtection.cacheManager.addUrlToCache(urlObject, "norton");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         } else {
@@ -384,7 +384,7 @@ const BrowserProtection = function () {
             const checkUrlWithTOTAL = async function () {
                 Settings.get(async (settings) => {
                     if (!settings.totalEnabled) {
-                        console.log(`TOTAL is disabled; bailing out early.`);
+                        console.debug(`TOTAL is disabled; bailing out early.`);
                         return;
                     }
 
@@ -402,7 +402,7 @@ const BrowserProtection = function () {
                             method: "POST",
                             headers: {
                                 "Content-Type": "multipart/form-data",
-                                "X-Categories": "adware,adware,call_center,compromised,crypto,fleeceware,low_trust,lowtrust,malware,phishing,pua,spam", // might need to be x-cateagories
+                                "X-Categories": "adware,adware,call_center,compromised,crypto,fleeceware,low_trust,lowtrust,malware,phishing,pua,spam",
                             },
                             body: JSON.stringify(payload),
                             signal
@@ -410,7 +410,7 @@ const BrowserProtection = function () {
 
                         // Return early if the response is not OK
                         if (!response.ok) {
-                            console.log(`TOTAL returned early: ${response.status}`);
+                            console.warn(`TOTAL returned early: ${response.status}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -437,7 +437,7 @@ const BrowserProtection = function () {
                         } else if (xmlString.includes('fleeceware')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FLEECEWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                         } else {
-                            console.warn(`Added TOTAL URL to cache: ` + url);
+                            console.debug(`Added TOTAL URL to cache: ` + url);
                             BrowserProtection.cacheManager.addUrlToCache(urlObject, "total");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                         }
@@ -454,7 +454,7 @@ const BrowserProtection = function () {
             const checkUrlWithGDATA = async function () {
                 Settings.get(async (settings) => {
                     if (!settings.gDataEnabled) {
-                        console.log(`G DATA is disabled; bailing out early.`);
+                        console.debug(`G DATA is disabled; bailing out early.`);
                         return;
                     }
 
@@ -484,7 +484,7 @@ const BrowserProtection = function () {
 
                         // Return early if the response is not OK
                         if (!response.ok) {
-                            console.log(`G DATA returned early: ${response.status}`);
+                            console.warn(`G DATA returned early: ${response.status}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -499,11 +499,11 @@ const BrowserProtection = function () {
                         } else if (data.includes("\"TRUSTED\"")
                             || data.includes("\"WHITELIST\"")
                             || data.includes("\"URLS\":[{}]}")) {
-                            console.warn(`Added G DATA URL to cache: ` + url);
+                            console.debug(`Added G DATA URL to cache: ` + url);
                             BrowserProtection.cacheManager.addUrlToCache(urlObject, "gData");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                         } else {
-                            console.warn(`G DATA detected URL ${url}: ${data}`);
+                            console.warn(`G DATA returned an unexpected result for URL ${url}: ${data}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                         }
                     } catch (error) {

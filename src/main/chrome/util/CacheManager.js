@@ -64,7 +64,7 @@ class CacheManager {
                 }
             }
         } catch (error) {
-            console.warn(error);
+            console.error(error);
         }
         return false; // Return false if URL is not in cache or an error occurred
     }
@@ -84,7 +84,7 @@ class CacheManager {
                 console.warn(`Cache ${cacheName} does not exist.`);
             }
         } catch (error) {
-            console.warn(error);
+            console.error(error);
         }
     }
 

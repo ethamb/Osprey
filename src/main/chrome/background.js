@@ -171,7 +171,7 @@
             BrowserProtection.abandonPendingRequests("Closed connection due to new navigation: " + navigationDetails.url);
 
             let malicious = false;
-            console.log(`Checking URL: ${currentUrl}`);
+            console.debug(`Checking URL: ${currentUrl}`);
 
             // Check if the URL is malicious.
             BrowserProtection.checkIfUrlIsMalicious(currentUrl, (result) => {
@@ -182,7 +182,7 @@
                     return;
                 }
 
-                console.log(`[${systemName}] Result for ${currentUrl}: ${result.result}`);
+                console.debug(`[${systemName}] Result for ${currentUrl}: ${result.result}`);
 
                 if (result.result !== ProtectionResult.ResultType.FAILED
                     && result.result !== ProtectionResult.ResultType.KNOWN_SAFE
@@ -191,14 +191,14 @@
 
                     chrome.tabs.get(tabId, (tab) => {
                         if (!tab) {
-                            console.log(`chrome.tabs.get(${tabId}) failed '${chrome.runtime.lastError?.message}'; bailing out.`);
+                            console.debug(`chrome.tabs.get(${tabId}) failed '${chrome.runtime.lastError?.message}'; bailing out.`);
                             return;
                         }
 
                         const pendingUrl = tab.pendingUrl || tab.url;
 
                         if (pendingUrl.startsWith("chrome-extension:")) {
-                            console.log(`[${systemName}] The tab is at an extension page; bailing out.`);
+                            console.debug(`[${systemName}] The tab is at an extension page; bailing out.`);
                             return;
                         }
 
@@ -207,11 +207,11 @@
                         if (targetUrl) {
                             Telemetry.getInstanceID((instanceId) => {
                                 const blockPageUrl = UrlHelpers.getBlockPageUrl(pendingUrl, result, instanceId, Telemetry.getSessionID());
-                                console.log(`[${systemName}] Navigating to block page: ${blockPageUrl}.`);
+                                console.debug(`[${systemName}] Navigating to block page: ${blockPageUrl}.`);
                                 chrome.tabs.update(tab.id, {url: blockPageUrl});
                             });
                         } else {
-                            console.warn(`chrome.tab '${tabId}' failed to supply a top-level URL; bailing out.`);
+                            console.debug(`chrome.tab '${tabId}' failed to supply a top-level URL; bailing out.`);
                         }
                     });
                 }
@@ -239,12 +239,14 @@
                     Telemetry.logWarningPageInteraction(message);
 
                     if (!message.continueUrl) {
-                        console.warn(`No continue URL was found!`);
+                        console.debug(`No continue URL was found; sending to new tab page.`);
+                        chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
                         return;
                     }
 
                     if (!message.origin) {
-                        console.warn(`No origin was found!`);
+                        console.debug(`No origin was found; sending to new tab page.`);
+                        chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
                         return;
                     }
 
@@ -252,43 +254,44 @@
 
                     // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
                     if (!validProtocols.includes(continueUrlObject.protocol)) {
+                        console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
                         chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
                         return;
                     }
 
                     switch (message.origin) {
                         case "1":
-                            console.warn(`Added SmartScreen URL to cache: ` + message.maliciousUrl);
+                            console.debug(`Added SmartScreen URL to cache: ` + message.maliciousUrl);
                             BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "smartScreen");
                             break;
 
                         case "2":
-                            console.warn(`Added Comodo URL to cache: ` + message.maliciousUrl);
+                            console.debug(`Added Comodo URL to cache: ` + message.maliciousUrl);
                             BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "comodo");
                             break;
 
                         case "3":
-                            console.warn(`Added Emsisoft URL to cache: ` + message.maliciousUrl);
+                            console.debug(`Added Emsisoft URL to cache: ` + message.maliciousUrl);
                             BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "emsisoft");
                             break;
 
                         case "4":
-                            console.warn(`Added Bitdefender URL to cache: ` + message.maliciousUrl);
+                            console.debug(`Added Bitdefender URL to cache: ` + message.maliciousUrl);
                             BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "bitdefender");
                             break;
 
                         case "5":
-                            console.warn(`Added Norton URL to cache: ` + message.maliciousUrl);
+                            console.debug(`Added Norton URL to cache: ` + message.maliciousUrl);
                             BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "norton");
                             break;
 
                         case "6":
-                            console.warn(`Added TOTAL URL to cache: ` + message.maliciousUrl);
+                            console.debug(`Added TOTAL URL to cache: ` + message.maliciousUrl);
                             BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "total");
                             break;
 
                         case "7":
-                            console.warn(`Added G Data URL to cache: ` + message.maliciousUrl);
+                            console.debug(`Added G Data URL to cache: ` + message.maliciousUrl);
                             BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
                             break;
 
