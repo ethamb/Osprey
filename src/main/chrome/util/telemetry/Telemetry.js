@@ -84,18 +84,6 @@ const Telemetry = function () {
         /**
          * Starts a new session by generating a new session ID.
          */
-        startNewSession: startNewSession,
-
-        // Placeholder function to log settings changes (can be expanded later).
-        logSettingsChanged: function (data) {
-        },
-
-        // Placeholder function to log user interactions in the popup (can be expanded later).
-        logPopupInteraction: function (interaction) {
-        },
-
-        // Placeholder function to log interactions on warning pages (can be expanded later).
-        logWarningPageInteraction: function (interaction) {
-        }
+        startNewSession: startNewSession
     };
 }();

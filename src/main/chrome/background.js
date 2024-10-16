@@ -236,8 +236,6 @@
         if (message && message.messageType) {
             switch (message.messageType) {
                 case Messages.MessageType.CONTINUE_TO_SITE:
-                    Telemetry.logWarningPageInteraction(message);
-
                     if (!message.continueUrl) {
                         console.debug(`No continue URL was found; sending to new tab page.`);
                         chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
@@ -304,25 +302,9 @@
                     break;
 
                 case Messages.MessageType.CONTINUE_TO_SAFETY:
-                    Telemetry.logWarningPageInteraction(message);
-
                     setTimeout(() => {
                         chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
                     }, 200);
-                    break;
-
-                case Messages.MessageType.SMARTSCREEN_TOGGLED:
-                case Messages.MessageType.COMODO_TOGGLED:
-                case Messages.MessageType.EMSISOFT_TOGGLED:
-                case Messages.MessageType.BITDEFENDER_TOGGLED:
-                case Messages.MessageType.NORTON_TOGGLED:
-                case Messages.MessageType.TOTAL_TOGGLED:
-                case Messages.MessageType.G_DATA_TOGGLED:
-                    Telemetry.logSettingsChanged(message);
-                    break;
-
-                case Messages.MessageType.POPUP_LAUNCHED:
-                    Telemetry.logPopupInteraction(message);
                     break;
 
                 default:
