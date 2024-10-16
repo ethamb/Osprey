@@ -1,0 +1,32 @@
+name: 'Compile for Opera'
+
+on:
+  push:
+    branches: [ 'main' ]
+  pull_request:
+    branches: [ 'main' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+
+      - name: 'Extract Version'
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' src/main/manifest.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: 'Remove update_url from manifest.json'
+        run: |
+          jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_temp.json
+          mv src/main/manifest_temp.json src/main/manifest.json
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Osprey-${{ env.VERSION }}-opera
+          path: src/main
