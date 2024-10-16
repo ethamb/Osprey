@@ -36,4 +36,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Osprey-version-chrome
-          path: dist/Osprey-$VERSION-chrome.zip
+          path: dist/Osprey-${{ env.VERSION }}-chrome.zip
