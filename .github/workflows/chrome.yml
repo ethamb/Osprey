@@ -33,7 +33,7 @@ jobs:
         run: ls -l dist
 
       - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: Osprey-$VERSION-chrome
+          name: Osprey-${{ env.VERSION }}-chrome
           path: dist/Osprey-${{ env.VERSION }}-chrome.zip
