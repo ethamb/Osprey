@@ -20,14 +20,12 @@ jobs:
           VERSION=$(jq -r '.version' src/main/manifest.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: 'Print Version'
-        run: |
-          echo "Extracted version: $VERSION"
-
       - name: 'Compile and Zip'
         run: |
           mkdir -p dist
-          zip -r dist/Osprey-$VERSION-chrome.zip src/main
+          cd src/main
+          zip -r ../../dist/Osprey-$VERSION-chrome.zip .
+          cd ../../
 
       - name: 'List Dist Directory'
         run: ls -l dist

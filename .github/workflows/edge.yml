@@ -1,4 +1,4 @@
-name: 'Compile for Edge'
+name: 'Compile Edge Extension'
 
 on:
   push:
@@ -20,19 +20,17 @@ jobs:
           VERSION=$(jq -r '.version' src/main/manifest.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: 'Print Version'
-        run: |
-          echo "Extracted version: $VERSION"
-
       - name: 'Remove update_url from manifest.json'
         run: |
-          jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_edge.json
+          jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_temp.json
+          mv src/main/manifest_temp.json src/main/manifest.json
 
       - name: 'Compile and Zip'
         run: |
           mkdir -p dist
-          cp src/main/manifest_edge.json src/main/manifest.json
-          zip -r dist/Osprey-$VERSION-edge.zip src/main
+          cd src/main
+          zip -r ../../dist/Osprey-$VERSION-edge.zip .
+          cd ../../
 
       - name: 'List Dist Directory'
         run: ls -l dist
