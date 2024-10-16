@@ -21,7 +21,7 @@ When you visit a website, **Osprey** checks the URL with:
 
 ## Settings
 
-You can configure the extension to use only the services you trust in the settings:
+You can configure the extension's protection options in the settings:
 
 ![Osprey Settings](https://i.imgur.com/lHZHTas.png)
 
