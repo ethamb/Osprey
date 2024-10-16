@@ -62,8 +62,6 @@ For other installations, you can install the extension manually:
 
 **Osprey** should now be installed in your browser.
 
-You can test the extension by visiting the [WICAR](https://wicar.org) website.
-
 ## Getting Help
 
 For support or queries, please open an issue in the [Issues section](https://github.com/Foulest/Osprey/issues).
