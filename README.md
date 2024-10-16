@@ -19,6 +19,22 @@ When you visit a website, **Osprey** checks the URL with:
 - [TOTAL WebShield](https://dashboard.totalwebshield.com/products/totalwebshield)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
 
+## Detections
+
+**Osprey** blocks websites that are classified as:
+
+- [Malware](https://us.norton.com/blog/malware/what-are-malicious-websites)
+- [Phishing](https://f-secure.com/us-en/articles/what-is-phishing)
+- [Fraud](https://usa.kaspersky.com/resource-center/preemptive-safety/scam-websites)
+- [Potentially Unwanted Applications](https://us.norton.com/blog/malware/what-are-puas-potentially-unwanted-applications)
+- [Cryptojacking](https://kaspersky.com/resource-center/definitions/what-is-cryptojacking)
+- [Malvertising](https://malwarebytes.com/malvertising)
+- [Spam](https://developers.google.com/search/docs/essentials/spam-policies)
+- [Adware](https://us.norton.com/blog/malware/adware)
+- [Compromised](https://malwarebytes.com/glossary/compromised)
+- [Fleeceware](https://blog.avast.com/how-to-spot-fleeceware)
+- [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
+
 ## Settings
 
 You can configure the extension to use only the services you trust in the settings:
@@ -30,22 +46,6 @@ You can configure the extension to use only the services you trust in the settin
 If the website is malicious, **Osprey** will block the page and display a warning:
 
 ![Osprey Warning](https://i.imgur.com/Avbwce5.png)
-
-## Detections
-
-**Osprey** blocks websites that are classified as:
-
-- [Malicious](https://us.norton.com/blog/malware/what-are-malicious-websites)
-- [Phishing](https://f-secure.com/us-en/articles/what-is-phishing)
-- [Fraud](https://usa.kaspersky.com/resource-center/preemptive-safety/scam-websites)
-- [Potentially Unwanted Applications](https://us.norton.com/blog/malware/what-are-puas-potentially-unwanted-applications)
-- [Cryptojacking](https://kaspersky.com/resource-center/definitions/what-is-cryptojacking)
-- [Malvertising](https://malwarebytes.com/malvertising)
-- [Spam](https://developers.google.com/search/docs/essentials/spam-policies)
-- [Adware](https://us.norton.com/blog/malware/adware)
-- [Compromised](https://malwarebytes.com/glossary/compromised)
-- [Fleeceware](https://blog.avast.com/how-to-spot-fleeceware)
-- [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
 
 ## Getting Help
 
