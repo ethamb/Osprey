@@ -1,0 +1,32 @@
+name: 'Compile Chrome Extension'
+
+on:
+  push:
+    branches: [ 'main' ]
+  pull_request:
+    branches: [ 'main' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+
+      - name: 'Extract Version'
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' src/main/chrome/manifest.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: 'Compile and Zip'
+        run: |
+          mkdir -p dist
+          zip -r dist/Osprey-$VERSION-chrome.zip src/main/chrome
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Osprey-version-chrome
+          path: dist/Osprey-$VERSION-chrome.zip
