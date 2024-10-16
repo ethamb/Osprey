@@ -23,28 +23,17 @@ jobs:
       - name: 'Remove update_url from manifest.json'
         run: |
           jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_temp.json
-          mv src/main/manifest_temp.json src/main/manifest.json
-
-      - name: 'Prepare Files for Zipping'
-        run: |
-          # Create a temporary directory
-          mkdir -p temp
-          # Copy all contents of src/main to the temporary directory
-          cp -r src/main/* temp/
+          mv src/main/manifest_temp.json src/main/manifest.json  # Overwrite the original manifest
 
       - name: 'Compile and Zip'
         run: |
           mkdir -p dist
-          # Zip the contents of the temporary directory
-          cd temp
-          zip -r ../dist/Osprey-${{ env.VERSION }}-edge.zip .
-          cd ..
-
-      - name: 'List Dist Directory'
-        run: ls -l dist
+          cd src/main
+          zip -r ../../dist/Osprey-$VERSION-edge.zip .
+          cd ../../
 
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v4
         with:
           name: Osprey-${{ env.VERSION }}-edge
-          path: dist/Osprey-${{ env.VERSION }}-edge.zip
+          path: dist
