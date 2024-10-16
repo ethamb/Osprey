@@ -49,7 +49,7 @@ If the website is malicious, **Osprey** will block the page and display a warnin
 
 ## Installation
 
-You can install **Osprey** from the web stores listed above.
+You can install **Osprey** from the web stores listed at the top.
 
 For other installations, you can install the extension manually:
 
