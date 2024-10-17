@@ -355,20 +355,20 @@ const BrowserProtection = function () {
                             return;
                         }
 
-                        const xmlString = await response.text();
+                        const data = await response.text();
 
                         // Check the response for malicious categories
-                        if (xmlString.includes('r="b"')) {
+                        if (data.includes('r="b"')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('r="g"')
-                            || xmlString.includes('r="r"')
-                            || xmlString.includes('r="w"')
-                            || xmlString.includes('r="u"')) {
+                        } else if (data.includes('r="g"')
+                            || data.includes('r="r"')
+                            || data.includes('r="w"')
+                            || data.includes('r="u"')) {
                             console.debug(`Added Norton URL to cache: ` + url);
                             BrowserProtection.cacheManager.addUrlToCache(urlObject, "norton");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         } else {
-                            console.warn(`Norton returned an unexpected result for URL ${url}: ${xmlString}`);
+                            console.warn(`Norton returned an unexpected result for URL ${url}: ${data}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         }
                     } catch (error) {
@@ -415,26 +415,26 @@ const BrowserProtection = function () {
                             return;
                         }
 
-                        const xmlString = await response.text();
+                        const data = await response.text();
 
                         // Check the response for malicious categories
-                        if (xmlString.includes('phishing')) {
+                        if (data.includes('phishing')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('malware')) {
+                        } else if (data.includes('malware')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('crypto')) {
+                        } else if (data.includes('crypto')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.CRYPTOJACKING, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('pua')) {
+                        } else if (data.includes('pua')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.PUA, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('call_center')) {
+                        } else if (data.includes('call_center')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('adware')) {
+                        } else if (data.includes('adware')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ADWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('spam')) {
+                        } else if (data.includes('spam')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.SPAM, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('compromised')) {
+                        } else if (data.includes('compromised')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (xmlString.includes('fleeceware')) {
+                        } else if (data.includes('fleeceware')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FLEECEWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                         } else {
                             console.debug(`Added TOTAL URL to cache: ` + url);
@@ -465,6 +465,7 @@ const BrowserProtection = function () {
                     }
 
                     const apiUrl = "https://dlarray-bp-europ-secsrv069.gdatasecurity.de/url/v3";
+
                     const payload = {
                         "REVOKEID": 0,
                         "CLIENT": "EXED",
