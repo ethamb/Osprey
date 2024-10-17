@@ -61,7 +61,7 @@
 
             // Check if the frame ID is not the main frame.
             if (frameId !== 0) {
-                console.warn(`Ignoring frame navigation: ${currentUrl}; bailing out.`);
+                console.debug(`Ignoring frame navigation: ${currentUrl}; bailing out.`);
                 return;
             }
 
@@ -306,6 +306,38 @@
                     setTimeout(() => {
                         chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
                     }, 200);
+                    break;
+
+                case Messages.MessageType.POPUP_LAUNCHED:
+                    console.debug("Popup has been launched.");
+                    break;
+
+                case Messages.MessageType.SMARTSCREEN_TOGGLED:
+                    console.debug(`SmartScreen protection toggled: ${message.enabled}`);
+                    break;
+
+                case Messages.MessageType.COMODO_TOGGLED:
+                    console.debug(`Comodo protection toggled: ${message.enabled}`);
+                    break;
+
+                case Messages.MessageType.EMSISOFT_TOGGLED:
+                    console.debug(`Emsisoft protection toggled: ${message.enabled}`);
+                    break;
+
+                case Messages.MessageType.BITDEFENDER_TOGGLED:
+                    console.debug(`Bitdefender protection toggled: ${message.enabled}`);
+                    break;
+
+                case Messages.MessageType.NORTON_TOGGLED:
+                    console.debug(`Norton protection toggled: ${message.enabled}`);
+                    break;
+
+                case Messages.MessageType.TOTAL_TOGGLED:
+                    console.debug(`TOTAL protection toggled: ${message.enabled}`);
+                    break;
+
+                case Messages.MessageType.G_DATA_TOGGLED:
+                    console.debug(`G DATA protection toggled: ${message.enabled}`);
                     break;
 
                 default:
