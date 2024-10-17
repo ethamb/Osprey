@@ -90,7 +90,7 @@
 
             // Check for valid protocols.
             if (!validProtocols.includes(urlObject.protocol)) {
-                console.warn(`Invalid protocol: ${urlObject.protocol}; bailing out.`);
+                console.debug(`Invalid protocol: ${urlObject.protocol}; bailing out.`);
                 return;
             }
 
@@ -123,7 +123,7 @@
             // Check if the hostname ends with a valid TLD.
             const tldRegex = /(\.[a-z]{2,63})$/i; // Matches any valid TLD (e.g., .com, .org, .co.uk, .io, etc.)
             if (!tldRegex.test(urlObject.hostname)) {
-                console.warn(`Invalid or missing TLD in URL: ${currentUrl}; bailing out.`);
+                console.debug(`Invalid or missing TLD in URL: ${currentUrl}; bailing out.`);
                 return;
             }
 
@@ -169,7 +169,7 @@
             }
 
             // Abandon any pending requests.
-            BrowserProtection.abandonPendingRequests("Closed connection due to new navigation: " + navigationDetails.url);
+            BrowserProtection.abandonPendingRequests("Closed connection due to new navigation: " + currentUrl);
 
             let malicious = false;
             console.debug(`Checking URL: ${currentUrl}`);
