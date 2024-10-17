@@ -140,7 +140,7 @@ const BrowserProtection = function () {
                         const response = await fetch(apiUrl, {
                             method: "POST",
                             headers: {
-                                "X-Api-Key": "5134461d-f366-405b-8cb3-de780ae67eee"
+                                "X-Api-Key": await ComodoUtil.getXApiKey()
                             },
                             body: JSON.stringify({url}),
                             signal

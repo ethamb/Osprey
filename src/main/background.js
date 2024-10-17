@@ -4,10 +4,15 @@
     // Import necessary scripts for functionality.
     importScripts(
         // Util
+        "util/Settings.js",
         "util/UrlHelpers.js",
         "util/CacheManager.js",
         "util/Storage.js",
-        "util/Settings.js",
+
+        // Other
+        "util/other/SmartScreenUtil.js",
+        "util/other/EmsisoftUtil.js",
+        "util/other/ComodoUtil.js",
 
         // Telemetry
         "util/telemetry/Telemetry.js",
@@ -16,10 +21,6 @@
         // Hashing
         "util/hashing/MD5.js",
         "util/hashing/RC4.js",
-
-        // Other
-        "util/other/SmartScreenUtil.js",
-        "util/other/EmsisoftUtil.js",
 
         // Protection
         "protection/ProtectionResult.js",
