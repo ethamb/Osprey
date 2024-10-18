@@ -1,6 +1,7 @@
 "use strict";
 
 !function (input) {
+
     /**
      * Adds two 32-bit integers with proper handling of carry bits.
      *
