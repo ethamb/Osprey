@@ -1,15 +1,16 @@
 "use strict";
 
-class EmsisoftUtil {
+const EmsisoftUtil = function () {
+
     /**
      * Creates an array of domains from a hostname.
      *
      * @param {string} hostname - The hostname.
      * @returns {string[]} The array of domains.
      */
-    static createHostnameArray(hostname) {
+    const createHostnameArray = function (hostname) {
         return hostname.split('.').map((_, i, arr) => arr.slice(i).join('.'));
-    }
+    };
 
     /**
      * Creates a string of hashes from an array of domains.
@@ -17,9 +18,9 @@ class EmsisoftUtil {
      * @param {string[]} arr - The array of domains.
      * @returns {string} The string of hashes.
      */
-    static getStringOfHashes(arr) {
-        return arr.map(EmsisoftUtil.createHash).join(',');
-    }
+    const getStringOfHashes = function (arr) {
+        return arr.map(createHash).join(',');
+    };
 
     /**
      * Creates a hash from a domain.
@@ -28,9 +29,9 @@ class EmsisoftUtil {
      * @param {string} domain - The domain to hash.
      * @returns {string} The hashed domain.
      */
-    static createHash(domain) {
-        return MD5("Kd3fIjAq" + domain.toLowerCase()).toUpperCase();
-    }
+    const createHash = function (domain) {
+        return MD5("Kd3fIjAq" + domain.toLowerCase(), null, false).toUpperCase();
+    };
 
     /**
      * Finds the subdomain by hash.
@@ -39,9 +40,9 @@ class EmsisoftUtil {
      * @param {string} hash - The hash to find.
      * @returns {string} The subdomain or an empty string if not found.
      */
-    static findSubdomainByHash(hostname, hash) {
+    const findSubdomainByHash = function (hostname, hash) {
         return EmsisoftUtil.createHostnameArray(hostname).find(domain => EmsisoftUtil.createHash(domain) === hash) || "";
-    }
+    };
 
     /**
      * Creates a new RegExp object.
@@ -51,7 +52,7 @@ class EmsisoftUtil {
      * @param {string} [flags=''] - The regex flags
      * @returns {RegExp|null} The RegExp object or null if invalid
      */
-    static newRegExp(value, convertFromPCRE = false, flags = '') {
+    const newRegExp = function (value, convertFromPCRE = false, flags = '') {
         try {
             // Handle PCRE conversion if required
             if (convertFromPCRE) {
@@ -77,5 +78,13 @@ class EmsisoftUtil {
                 return null;
             }
         }
-    }
-}
+    };
+
+    return {
+        createHostnameArray: createHostnameArray,
+        getStringOfHashes: getStringOfHashes,
+        createHash: createHash,
+        findSubdomainByHash: findSubdomainByHash,
+        newRegExp: newRegExp
+    };
+}();

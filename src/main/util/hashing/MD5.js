@@ -283,9 +283,8 @@
      * @returns {string} The MD5 hash of the input string.
      */
     function generateHash(input) {
-        let wordArray;
-        wordArray = convertToWordArray(prepareInput(input));
-        return convertToString(hashFunction(wordArray, 8 * wordArray.length));
+        let wordArray = prepareInput(input);
+        return convertToString(hashFunction(convertToWordArray(wordArray), 8 * wordArray.length));
     }
 
     /**
