@@ -27,10 +27,8 @@
   "permissions": [
     "tabs",
     "storage",
-    "webNavigation"
-  ],
-  "host_permissions": [
-    "*://*/*"
+    "webNavigation",
+    "activeTab"
   ],
   "update_url": "https://clients2.google.com/service/update2/crx"
 }
