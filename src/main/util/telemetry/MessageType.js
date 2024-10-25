@@ -4,6 +4,7 @@ const Messages = {
     MessageType: {
         CONTINUE_TO_SAFETY: "continueToSafety",
         CONTINUE_TO_SITE: "continueToSite",
+        REPORT_SITE: "reportSite",
         POPUP_LAUNCHED: "popupLaunched",
 
         // Security system toggles

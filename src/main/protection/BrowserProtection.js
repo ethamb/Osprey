@@ -260,7 +260,8 @@ const BrowserProtection = function () {
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "bitdefender")) {
+                    // Bitdefender operates on a hostname basis, so we need to check the hostname instead of the full URL
+                    if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "bitdefender")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -330,7 +331,8 @@ const BrowserProtection = function () {
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "norton")) {
+                    // Norton operates on a hostname basis, so we need to check the hostname instead of the full URL
+                    if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "norton")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         return;
                     }

@@ -69,6 +69,25 @@ class CacheManager {
         return false; // Return false if URL is not in cache or an error occurred
     }
 
+    // Function to check if the hostname is in a specific cache and still valid
+    isHostnameInCache(url, cacheName) {
+        try {
+            const hostname = new URL(url).hostname;
+            const cache = this.caches[cacheName];
+
+            if (cache) {
+                for (const [cachedUrl, expiration] of cache.entries()) {
+                    if (cachedUrl.includes(hostname.toString()) && expiration > Date.now()) {
+                        return true; // Cache is valid, URL is allowed
+                    }
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return false; // Return false if URL is not in cache or an error occurred
+    }
+
     // Function to add a URL to a specific cache
     addUrlToCache(url, cacheName) {
         try {

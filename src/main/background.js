@@ -308,6 +308,78 @@
                     }, 200);
                     break;
 
+                case Messages.MessageType.REPORT_SITE:
+                    // Ignores blank URLs.
+                    if (message.reportUrl === null || message.reportUrl === "") {
+                        console.debug(`Report URL is blank.`);
+                        break;
+                    }
+
+                    if (!message.origin) {
+                        console.debug(`No origin was found; sending to new tab page.`);
+                        chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                        break;
+                    }
+
+                    console.debug(message.reportUrl.protocol);
+
+                    let reportUrlObject = new URL(message.reportUrl);
+
+                    if (validProtocols.includes(reportUrlObject.protocol)) {
+                        switch (message.origin) {
+                            case "1":
+                                console.debug(`Added SmartScreen URL to cache: ` + message.maliciousUrl);
+                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "smartScreen");
+                                break;
+
+                            case "2":
+                                console.debug(`Added Comodo URL to cache: ` + message.maliciousUrl);
+                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "comodo");
+                                break;
+
+                            case "3":
+                                console.debug(`Added Emsisoft URL to cache: ` + message.maliciousUrl);
+                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "emsisoft");
+                                break;
+
+                            case "4":
+                                console.debug(`Added Bitdefender URL to cache: ` + message.maliciousUrl);
+                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "bitdefender");
+                                break;
+
+                            case "5":
+                                console.debug(`Added Norton URL to cache: ` + message.maliciousUrl);
+                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "norton");
+                                break;
+
+                            case "6":
+                                console.debug(`Added TOTAL URL to cache: ` + message.maliciousUrl);
+                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "total");
+                                break;
+
+                            case "7":
+                                console.debug(`Added G Data URL to cache: ` + message.maliciousUrl);
+                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
+                                break;
+
+                            default:
+                                console.warn(`Unknown origin: ${message.origin}`);
+                                break;
+                        }
+
+                        console.debug(`Navigating to report URL: ${message.reportUrl}`);
+                        chrome.tabs.update(sender.tab.id, {url: message.reportUrl});
+                    } else {
+                        // Ignore the mailto: protocol.
+                        if (reportUrlObject.protocol === "mailto:") {
+                            chrome.tabs.update(sender.tab.id, {url: message.reportUrl});
+                        } else {
+                            console.debug(`Invalid protocol in report URL: ${message.reportUrl}; sending to continue page.`);
+                            chrome.tabs.update(sender.tab.id, {url: message.continueUrl});
+                        }
+                    }
+                    break;
+
                 case Messages.MessageType.POPUP_LAUNCHED:
                     console.debug("Popup has been launched.");
                     break;
