@@ -260,8 +260,7 @@ const BrowserProtection = function () {
                     }
 
                     // Check if the URL is in the cache
-                    // Bitdefender operates on a hostname basis, so we need to check the hostname instead of the full URL
-                    if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "bitdefender")) {
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "bitdefender")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -289,6 +288,20 @@ const BrowserProtection = function () {
 
                         const data = await response.json();
                         const {status_message} = data;
+
+                        // Check if the hostname is in the cache
+                        if (status_message.includes("phishing")
+                            || status_message.includes("malware")
+                            || status_message.includes("fraud")
+                            || status_message.includes("pua")
+                            || status_message.includes("miner")
+                            || status_message.includes("malvertising")
+                            || status_message.includes("untrusted")) {
+                            if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "bitdefender")) {
+                                callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                                return;
+                            }
+                        }
 
                         // Check the response for malicious categories
                         if (status_message.includes("phishing")) {
@@ -331,8 +344,7 @@ const BrowserProtection = function () {
                     }
 
                     // Check if the URL is in the cache
-                    // Norton operates on a hostname basis, so we need to check the hostname instead of the full URL
-                    if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "norton")) {
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "norton")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -358,6 +370,14 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.text();
+
+                        // Check if the hostname is in the cache
+                        if (data.includes('r="b"')) {
+                            if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "norton")) {
+                                callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                                return;
+                            }
+                        }
 
                         // Check the response for malicious categories
                         if (data.includes('r="b"')) {
