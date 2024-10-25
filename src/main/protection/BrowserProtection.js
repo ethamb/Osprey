@@ -2,6 +2,7 @@
 
 // Main object for managing browser protection functionality
 const BrowserProtection = function () {
+
     let abortController = new AbortController();
 
     return {
@@ -233,6 +234,12 @@ const BrowserProtection = function () {
                             // If the URL matches the regex, block it
                             if (result.split("\t").some(value => value
                                 && EmsisoftUtil.newRegExp(value, true)?.test(url))) {
+                                // Check if the hostname is in the cache
+                                if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "emsisoft")) {
+                                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
+                                    return;
+                                }
+
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                                 return;
                             }
@@ -371,16 +378,14 @@ const BrowserProtection = function () {
 
                         const data = await response.text();
 
-                        // Check if the hostname is in the cache
+                        // Check the response for malicious categories
                         if (data.includes('r="b"')) {
+                            // Check if the hostname is in the cache
                             if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "norton")) {
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                                 return;
                             }
-                        }
 
-                        // Check the response for malicious categories
-                        if (data.includes('r="b"')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         } else if (data.includes('r="g"')
                             || data.includes('r="r"')
@@ -513,6 +518,15 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.text();
+
+                        // Check if the hostname is in the cache
+                        if (data.includes("\"PHISHING\"")
+                            || data.includes("\"MALWARE\"")) {
+                            if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "gData")) {
+                                callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
+                                return;
+                            }
+                        }
 
                         // Check the response for malicious categories
                         if (data.includes("\"PHISHING\"")) {
