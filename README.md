@@ -49,7 +49,7 @@ You can configure the extension's protection options in the settings:
 
 If the website is malicious, **Osprey** will block the page and display a warning:
 
-![Osprey Warning](https://i.imgur.com/Avbwce5.png)
+![Osprey Warning](https://i.imgur.com/FpPtbJh.png)
 
 ## Installation
 
