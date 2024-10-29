@@ -64,9 +64,11 @@ const EmsisoftUtil = function () {
                             flags += itm;
                         }
                     });
+
                     value = value.replace(/^\(\?([gmiu]+)\)/, '');
                 }
             }
+
             // Attempt to create a RegExp with the provided flags
             return new RegExp(value, flags);
         } catch {

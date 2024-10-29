@@ -13,6 +13,7 @@
  * @returns {string} The resulting encrypted or decrypted string.
  */
 function RC4(key, input) {
+
     const stateArray = [];
     let keyIndex = 0;
     let output = '';

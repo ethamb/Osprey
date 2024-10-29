@@ -162,7 +162,7 @@
 
                 try {
                     urlObject.hostname = urlObject.hostname.toASCII(); // Convert IDN to ASCII
-                } catch (error) {
+                } catch (ignored) {
                     console.warn(`Failed to convert IDN: ${currentUrl}; bailing out.`);
                     return;
                 }

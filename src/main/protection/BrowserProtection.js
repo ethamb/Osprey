@@ -55,8 +55,7 @@ const BrowserProtection = function () {
                             client: {version: chrome.runtime.getManifest().version.replace(/\./g, "")},
                             device: {id: settings.instanceID},
                             user: {locale: userLocale}
-                        },
-                        userAgent: navigator.userAgent
+                        }
                     });
 
                     // Generate the hash and authorization header
