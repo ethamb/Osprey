@@ -6,7 +6,8 @@
 
 **Osprey** is a browser extension that protects you from malicious websites.
 
-[Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn)
+[Chrome Web Store](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd)
+• [Microsoft Edge Addons](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn)
 • [Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
 
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
