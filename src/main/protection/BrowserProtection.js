@@ -443,6 +443,22 @@ const BrowserProtection = function () {
 
                         const data = await response.text();
 
+                        // Check if the hostname is in the cache
+                        if (data.includes('phishing')
+                            || data.includes('malware')
+                            || data.includes('crypto')
+                            || data.includes('pua')
+                            || data.includes('call_center')
+                            || data.includes('adware')
+                            || data.includes('spam')
+                            || data.includes('compromised')
+                            || data.includes('fleeceware')) {
+                            if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "total")) {
+                                callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                                return;
+                            }
+                        }
+
                         // Check the response for malicious categories
                         if (data.includes('phishing')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
