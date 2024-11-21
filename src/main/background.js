@@ -169,17 +169,17 @@
             }
 
             // Abandon any pending requests.
-            BrowserProtection.abandonPendingRequests("Closed connection due to new navigation: " + currentUrl);
+            BrowserProtection.abandonPendingRequests(tabId, "New navigation event detected.");
 
             let malicious = false;
             console.debug(`Checking URL: ${currentUrl}`);
 
             // Check if the URL is malicious.
-            BrowserProtection.checkIfUrlIsMalicious(currentUrl, (result) => {
+            BrowserProtection.checkIfUrlIsMalicious(tabId, currentUrl, (result) => {
                 const systemName = ProtectionResult.ResultOriginNames[result.origin];
 
                 if (malicious) {
-                    BrowserProtection.abandonPendingRequests("Malicious navigation already detected.");
+                    BrowserProtection.abandonPendingRequests(tabId, "Malicious navigation already detected.");
                     return;
                 }
 

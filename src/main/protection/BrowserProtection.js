@@ -3,23 +3,34 @@
 // Main object for managing browser protection functionality
 const BrowserProtection = function () {
 
-    let abortController = new AbortController();
+    let tabAbortControllers = new Map();
+
+    /**
+     * Closes all open connections for a specific tab.
+     */
+    const closeOpenConnections = function (tabId, reason) {
+        if (tabAbortControllers.has(tabId)) {
+            tabAbortControllers.get(tabId).abort(reason); // Abort all pending requests for the tab
+            tabAbortControllers.set(tabId, new AbortController()); // Create a new controller for future requests
+        }
+    };
 
     return {
         /**
-         * Abandons all pending requests.
+         * Abandons all pending requests for a specific tab.
          */
-        abandonPendingRequests: function (reason) {
-            abortController.abort(reason); // Abort all pending requests
-            abortController = new AbortController(); // Create a new controller for future requests
+        abandonPendingRequests: function (tabId, reason) {
+            closeOpenConnections(tabId, reason);
         },
 
         /**
          * Checks if a URL is malicious or trusted.
+         *
+         * @param {number} tabId - The ID of the tab that initiated the request.
          * @param {string} url - The URL to check.
          * @param {function} callback - The callback function to handle the result.
          */
-        checkIfUrlIsMalicious: function (url, callback) {
+        checkIfUrlIsMalicious: function (tabId, url, callback) {
             // Return early if URL or callback is not provided
             if (!url || !callback) {
                 return;
@@ -27,7 +38,13 @@ const BrowserProtection = function () {
 
             const startTime = (new Date()).getTime(); // Capture the current time for response measurement
             const urlObject = new URL(url); // Parse the URL
-            const signal = abortController.signal; // Get the signal from the current AbortController
+
+            // Ensure there is an AbortController for the tab
+            if (!tabAbortControllers.has(tabId)) {
+                tabAbortControllers.set(tabId, new AbortController());
+            }
+
+            const signal = tabAbortControllers.get(tabId).signal; // Get the signal from the current AbortController
 
             /**
              * Checks the URL with the SmartScreen API.
