@@ -61,10 +61,10 @@ For other installations, you can install the extension manually:
 
 1. Navigate to the [Actions section](https://github.com/Foulest/Osprey/actions/workflows) and click `Compile for Chrome` or `Compile for Edge`.
 2. Scroll down to the `Artifacts` section and download the artifact file.
-2. Extract the artifact's ZIP file to a folder on your computer.
-3. Navigate to `about://extensions` in your browser.
-4. Enable `Developer mode` and click `Load unpacked`.
-5. Select the downloaded ZIP file and click `Select Folder`.
+3. Extract the artifact's ZIP file to a folder on your computer.
+4. Navigate to `about://extensions` in your browser.
+5. Enable `Developer mode` and click `Load unpacked`.
+6. Select the downloaded ZIP file and click `Select Folder`.
 
 **Osprey** should now be installed in your browser.
 
