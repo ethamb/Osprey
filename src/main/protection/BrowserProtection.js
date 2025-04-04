@@ -118,8 +118,11 @@ const BrowserProtection = function () {
                                 break;
 
                             case "Allowed":
-                                console.debug(`Added SmartScreen URL to cache: ` + url);
-                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "smartScreen");
+                                if (url !== null) {
+                                    console.debug(`Added SmartScreen URL to cache: ` + url);
+                                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "smartScreen");
+                                }
+
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                                 break;
 
@@ -178,10 +181,12 @@ const BrowserProtection = function () {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
                         } else if (url_result_text === "Malware") {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
-                        } else if (url_result_text === "Safe"
-                            || url_result_text === "Unknown") {
-                            console.debug(`Added Comodo URL to cache: ` + url);
-                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "comodo");
+                        } else if (url_result_text === "Safe" || url_result_text === "Unknown") {
+                            if (url !== null) {
+                                console.debug(`Added Comodo URL to cache: ` + url);
+                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "comodo");
+                            }
+
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
                         } else {
                             console.warn(`Comodo returned an unexpected result for URL ${url}: ${url_result_text}`);
@@ -230,8 +235,11 @@ const BrowserProtection = function () {
 
                         // Allow if the hostname is in the bypass list
                         if (hostname.match(/alomar\.emsisoft\.com$/)) {
-                            console.debug(`Added Emsisoft URL to cache: ` + url);
-                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
+                            if (url !== null) {
+                                console.debug(`Added Emsisoft URL to cache: ` + url);
+                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
+                            }
+
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -262,8 +270,11 @@ const BrowserProtection = function () {
                         }
 
                         // If the URL is not blocked, allow it
-                        console.debug(`Added Emsisoft URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
+                        if (url !== null) {
+                            console.debug(`Added Emsisoft URL to cache: ` + url);
+                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
+                        }
+
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                     } catch (error) {
                         console.warn(`Failed to check URL with Emsisoft: ${error}`);
@@ -342,8 +353,11 @@ const BrowserProtection = function () {
                         } else if (status_message.includes("untrusted")) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         } else if (status_message.includes("not found")) {
-                            console.debug(`Added Bitdefender URL to cache: ` + url);
-                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "bitdefender");
+                            if (url !== null) {
+                                console.debug(`Added Bitdefender URL to cache: ` + url);
+                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "bitdefender");
+                            }
+
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         } else {
                             console.warn(`Bitdefender returned an unexpected result for URL ${url}: ${status_message}`);
@@ -407,8 +421,11 @@ const BrowserProtection = function () {
                             || data.includes('r="r"')
                             || data.includes('r="w"')
                             || data.includes('r="u"')) {
-                            console.debug(`Added Norton URL to cache: ` + url);
-                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "norton");
+                            if (url !== null) {
+                                console.debug(`Added Norton URL to cache: ` + url);
+                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "norton");
+                            }
+
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         } else {
                             console.warn(`Norton returned an unexpected result for URL ${url}: ${data}`);
@@ -496,8 +513,11 @@ const BrowserProtection = function () {
                         } else if (data.includes('fleeceware')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FLEECEWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                         } else {
-                            console.debug(`Added TOTAL URL to cache: ` + url);
-                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "total");
+                            if (url !== null) {
+                                console.debug(`Added TOTAL URL to cache: ` + url);
+                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "total");
+                            }
+
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                         }
                     } catch (error) {
@@ -568,8 +588,11 @@ const BrowserProtection = function () {
                         } else if (data.includes("\"TRUSTED\"")
                             || data.includes("\"WHITELIST\"")
                             || data.includes("\"URLS\":[{}]}")) {
-                            console.debug(`Added G DATA URL to cache: ` + url);
-                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "gData");
+                            if (url !== null) {
+                                console.debug(`Added G DATA URL to cache: ` + url);
+                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "gData");
+                            }
+
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                         } else {
                             console.warn(`G DATA returned an unexpected result for URL ${url}: ${data}`);
