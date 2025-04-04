@@ -15,7 +15,7 @@ window.addEventListener("load", () => {
                 break;
 
             case ProtectionResult.ResultType.MALICIOUS:
-                reasonText = "Malware";
+                reasonText = "Malicious";
                 break;
 
             case ProtectionResult.ResultType.FRAUD:
