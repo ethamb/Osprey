@@ -385,31 +385,31 @@
                     break;
 
                 case Messages.MessageType.SMARTSCREEN_TOGGLED:
-                    console.debug(`SmartScreen protection toggled: ${message.enabled}`);
+                    console.debug(`SmartScreen protection toggled: ${message.toggleState}`);
                     break;
 
                 case Messages.MessageType.COMODO_TOGGLED:
-                    console.debug(`Comodo protection toggled: ${message.enabled}`);
+                    console.debug(`Comodo protection toggled: ${message.toggleState}`);
                     break;
 
                 case Messages.MessageType.EMSISOFT_TOGGLED:
-                    console.debug(`Emsisoft protection toggled: ${message.enabled}`);
+                    console.debug(`Emsisoft protection toggled: ${message.toggleState}`);
                     break;
 
                 case Messages.MessageType.BITDEFENDER_TOGGLED:
-                    console.debug(`Bitdefender protection toggled: ${message.enabled}`);
+                    console.debug(`Bitdefender protection toggled: ${message.toggleState}`);
                     break;
 
                 case Messages.MessageType.NORTON_TOGGLED:
-                    console.debug(`Norton protection toggled: ${message.enabled}`);
+                    console.debug(`Norton protection toggled: ${message.toggleState}`);
                     break;
 
                 case Messages.MessageType.TOTAL_TOGGLED:
-                    console.debug(`TOTAL protection toggled: ${message.enabled}`);
+                    console.debug(`TOTAL protection toggled: ${message.toggleState}`);
                     break;
 
                 case Messages.MessageType.G_DATA_TOGGLED:
-                    console.debug(`G DATA protection toggled: ${message.enabled}`);
+                    console.debug(`G DATA protection toggled: ${message.toggleState}`);
                     break;
 
                 default:
