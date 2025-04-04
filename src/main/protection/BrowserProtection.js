@@ -261,8 +261,8 @@ const BrowserProtection = function () {
                             // If the URL matches the regex, block it
                             if (result.split("\t").some(value => value
                                 && EmsisoftUtil.newRegExp(value, true)?.test(url))) {
-                                // Check if the hostname is in the cache
-                                if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "emsisoft")) {
+                                // Check if the URL is in the cache
+                                if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "emsisoft")) {
                                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                                     return;
                                 }
@@ -327,7 +327,7 @@ const BrowserProtection = function () {
                         const {status_message} = data;
                         console.debug(`Bitdefender response: ` + JSON.stringify(data));
 
-                        // Check if the hostname is in the cache
+                        // Check if the URL is in the cache
                         if (status_message.includes("phishing")
                             || status_message.includes("malware")
                             || status_message.includes("fraud")
@@ -335,7 +335,7 @@ const BrowserProtection = function () {
                             || status_message.includes("miner")
                             || status_message.includes("malvertising")
                             || status_message.includes("untrusted")) {
-                            if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "bitdefender")) {
+                            if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "bitdefender")) {
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                                 return;
                             }
@@ -415,8 +415,8 @@ const BrowserProtection = function () {
 
                         // Check the response for malicious categories
                         if (data.includes('r="b"')) {
-                            // Check if the hostname is in the cache
-                            if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "norton")) {
+                            // Check if the URL is in the cache
+                            if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "norton")) {
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                                 return;
                             }
@@ -483,7 +483,7 @@ const BrowserProtection = function () {
                         const data = await response.text();
                         console.debug(`TOTAL response: ` + data);
 
-                        // Check if the hostname is in the cache
+                        // Check if the URL is in the cache
                         if (data.includes('phishing')
                             || data.includes('malware')
                             || data.includes('crypto')
@@ -492,8 +492,10 @@ const BrowserProtection = function () {
                             || data.includes('adware')
                             || data.includes('spam')
                             || data.includes('compromised')
-                            || data.includes('fleeceware')) {
-                            if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "total")) {
+                            || data.includes('fleeceware')
+                            || data.includes('low_trust')
+                            || data.includes('lowtrust')) {
+                            if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "total")) {
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                                 return;
                             }
@@ -578,10 +580,10 @@ const BrowserProtection = function () {
                         const data = await response.text();
                         console.debug(`G DATA response: ` + data);
 
-                        // Check if the hostname is in the cache
+                        // Check if the URL is in the cache
                         if (data.includes("\"PHISHING\"")
                             || data.includes("\"MALWARE\"")) {
-                            if (BrowserProtection.cacheManager.isHostnameInCache(urlObject, "gData")) {
+                            if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "gData")) {
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                                 return;
                             }
