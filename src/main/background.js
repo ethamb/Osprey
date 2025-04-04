@@ -222,14 +222,27 @@
 
     // Listener for before navigating events.
     chrome.webNavigation.onBeforeNavigate.addListener((navigationDetails) => {
-        handleNavigation(navigationDetails);
+        console.debug("onBeforeNavigate");
+        handleNavigation(navigationDetails, false);
     });
 
     // Listener for committed navigation events.
     chrome.webNavigation.onCommitted.addListener((navigationDetails) => {
+        console.debug(navigationDetails.transitionQualifiers);
+
         if (navigationDetails.transitionQualifiers.includes("server_redirect")) {
-            handleNavigation(navigationDetails);
+            console.debug("onCommitted (server_redirect)");
+            handleNavigation(navigationDetails, false);
+        } else if (navigationDetails.transitionQualifiers.includes("client_redirect")) {
+            console.debug("onCommitted (client_redirect)");
+            handleNavigation(navigationDetails, false);
         }
+    });
+
+    // Listener for created navigation target events.
+    chrome.webNavigation.onCreatedNavigationTarget.addListener((navigationDetails) => {
+        console.debug("onCreatedNavigationTarget");
+        handleNavigation(navigationDetails, false);
     });
 
     // Listener for incoming messages.
