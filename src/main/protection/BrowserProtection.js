@@ -467,7 +467,7 @@ const BrowserProtection = function () {
                             method: "POST",
                             headers: {
                                 "Content-Type": "multipart/form-data",
-                                "X-Categories": "adware,adware,call_center,compromised,crypto,fleeceware,low_trust,lowtrust,malware,phishing,pua,spam",
+                                // "X-Categories": "adware,adware,call_center,compromised,crypto,fleeceware,low_trust,lowtrust,malware,phishing,pua,spam"
                             },
                             body: JSON.stringify(payload),
                             signal
@@ -520,6 +520,8 @@ const BrowserProtection = function () {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                         } else if (data.includes('fleeceware')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FLEECEWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                        } else if (data.includes('low_trust') || data.includes('lowtrust')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                         } else {
                             if (url !== null) {
                                 console.debug(`Added TOTAL URL to cache: ` + url);
