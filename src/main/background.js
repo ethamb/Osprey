@@ -326,46 +326,46 @@
                     let reportUrlObject = new URL(message.reportUrl);
 
                     if (validProtocols.includes(reportUrlObject.protocol)) {
-                        switch (message.origin) {
-                            case "1":
-                                console.debug(`Added SmartScreen URL to cache: ` + message.maliciousUrl);
-                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "smartScreen");
-                                break;
-
-                            case "2":
-                                console.debug(`Added Comodo URL to cache: ` + message.maliciousUrl);
-                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "comodo");
-                                break;
-
-                            case "3":
-                                console.debug(`Added Emsisoft URL to cache: ` + message.maliciousUrl);
-                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "emsisoft");
-                                break;
-
-                            case "4":
-                                console.debug(`Added Bitdefender URL to cache: ` + message.maliciousUrl);
-                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "bitdefender");
-                                break;
-
-                            case "5":
-                                console.debug(`Added Norton URL to cache: ` + message.maliciousUrl);
-                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "norton");
-                                break;
-
-                            case "6":
-                                console.debug(`Added TOTAL URL to cache: ` + message.maliciousUrl);
-                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "total");
-                                break;
-
-                            case "7":
-                                console.debug(`Added G Data URL to cache: ` + message.maliciousUrl);
-                                BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
-                                break;
-
-                            default:
-                                console.warn(`Unknown origin: ${message.origin}`);
-                                break;
-                        }
+                        // switch (message.origin) {
+                        //     case "1":
+                        //         console.debug(`Added SmartScreen URL to cache: ` + message.maliciousUrl);
+                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "smartScreen");
+                        //         break;
+                        //
+                        //     case "2":
+                        //         console.debug(`Added Comodo URL to cache: ` + message.maliciousUrl);
+                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "comodo");
+                        //         break;
+                        //
+                        //     case "3":
+                        //         console.debug(`Added Emsisoft URL to cache: ` + message.maliciousUrl);
+                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "emsisoft");
+                        //         break;
+                        //
+                        //     case "4":
+                        //         console.debug(`Added Bitdefender URL to cache: ` + message.maliciousUrl);
+                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "bitdefender");
+                        //         break;
+                        //
+                        //     case "5":
+                        //         console.debug(`Added Norton URL to cache: ` + message.maliciousUrl);
+                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "norton");
+                        //         break;
+                        //
+                        //     case "6":
+                        //         console.debug(`Added TOTAL URL to cache: ` + message.maliciousUrl);
+                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "total");
+                        //         break;
+                        //
+                        //     case "7":
+                        //         console.debug(`Added G Data URL to cache: ` + message.maliciousUrl);
+                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
+                        //         break;
+                        //
+                        //     default:
+                        //         console.warn(`Unknown origin: ${message.origin}`);
+                        //         break;
+                        // }
 
                         console.debug(`Navigating to report URL: ${message.reportUrl}`);
                         chrome.tabs.create({url: message.reportUrl});
