@@ -321,8 +321,6 @@
                         break;
                     }
 
-                    console.debug(message.reportUrl.protocol);
-
                     let reportUrlObject = new URL(message.reportUrl);
 
                     if (validProtocols.includes(reportUrlObject.protocol)) {
@@ -414,6 +412,7 @@
 
                 default:
                     console.warn(`Received unknown message type: ${message.messageType}`);
+                    console.debug(`Message: ${JSON.stringify(message)}`);
                     break;
             }
         }

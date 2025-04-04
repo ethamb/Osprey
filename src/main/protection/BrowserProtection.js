@@ -102,9 +102,10 @@ const BrowserProtection = function () {
                             return;
                         }
 
-                        const apiResponse = await response.json();
+                        const data = await response.json();
+                        console.debug(`SmartScreen response: ` + JSON.stringify(data));
 
-                        switch (apiResponse.responseCategory) {
+                        switch (data.responseCategory) {
                             case "Phishing":
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                                 break;
@@ -127,7 +128,7 @@ const BrowserProtection = function () {
                                 break;
 
                             default:
-                                console.warn(`SmartScreen returned an unexpected result for URL ${url}: ${apiResponse.responseCategory}`);
+                                console.warn(`SmartScreen returned an unexpected result for URL ${url}: ${data.responseCategory}`);
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                                 break;
                         }
@@ -175,6 +176,7 @@ const BrowserProtection = function () {
 
                         const data = await response.json();
                         const {url_result_text} = data;
+                        console.debug(`Comodo response: ` + JSON.stringify(data));
 
                         // Check the response for malicious categories
                         if (url_result_text === "Phishing") {
@@ -245,6 +247,7 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.json();
+                        console.debug(`Emsisoft response: ` + JSON.stringify(data));
 
                         // Check if the URL should be blocked
                         for (const match of data.matches) {
@@ -322,6 +325,7 @@ const BrowserProtection = function () {
 
                         const data = await response.json();
                         const {status_message} = data;
+                        console.debug(`Bitdefender response: ` + JSON.stringify(data));
 
                         // Check if the hostname is in the cache
                         if (status_message.includes("phishing")
@@ -407,6 +411,7 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.text();
+                        console.debug(`Norton response: ` + data);
 
                         // Check the response for malicious categories
                         if (data.includes('r="b"')) {
@@ -476,6 +481,7 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.text();
+                        console.debug(`TOTAL response: ` + data);
 
                         // Check if the hostname is in the cache
                         if (data.includes('phishing')
@@ -570,6 +576,7 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.text();
+                        console.debug(`G DATA response: ` + data);
 
                         // Check if the hostname is in the cache
                         if (data.includes("\"PHISHING\"")
