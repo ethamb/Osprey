@@ -317,7 +317,7 @@
 
                     if (!message.origin) {
                         console.debug(`No origin was found; sending to new tab page.`);
-                        chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                        chrome.tabs.create({url: "about:newtab"});
                         break;
                     }
 
@@ -368,14 +368,14 @@
                         }
 
                         console.debug(`Navigating to report URL: ${message.reportUrl}`);
-                        chrome.tabs.update(sender.tab.id, {url: message.reportUrl});
+                        chrome.tabs.create({url: message.reportUrl});
                     } else {
                         // Ignore the mailto: protocol.
                         if (reportUrlObject.protocol === "mailto:") {
-                            chrome.tabs.update(sender.tab.id, {url: message.reportUrl});
+                            chrome.tabs.create({url: message.reportUrl});
                         } else {
-                            console.debug(`Invalid protocol in report URL: ${message.reportUrl}; sending to continue page.`);
-                            chrome.tabs.update(sender.tab.id, {url: message.continueUrl});
+                            console.warn(`Invalid protocol in report URL: ${message.reportUrl}; sending to new tab page.`);
+                            chrome.tabs.create({url: "about:newtab"});
                         }
                     }
                     break;
