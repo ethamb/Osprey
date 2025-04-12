@@ -174,12 +174,14 @@ li {
     color: rgb(243, 186, 34);
 }
 
-#reportSafe {
+#reportSafe,
+#allowHostname {
     color: rgb(243, 186, 34);
     text-decoration: underline;
 }
 
-#reportSafe:hover {
+#reportSafe:hover,
+#allowHostname:hover {
     cursor: pointer;
 }
 

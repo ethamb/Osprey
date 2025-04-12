@@ -18,7 +18,7 @@
 By default, when you visit a website, **Osprey** checks the URL with:
 
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
-- [Comodo Valkyrie](https://valkyrie.comodo.com)
+- [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
 - [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
 - [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
 - [Norton SafeWeb](https://safeweb.norton.com)
@@ -35,7 +35,7 @@ You can configure the extension's protection options in the settings:
 
 **Osprey** blocks websites that are classified as:
 
-- [Malware](https://us.norton.com/blog/malware/what-are-malicious-websites)
+- [Malicious](https://us.norton.com/blog/malware/what-are-malicious-websites)
 - [Phishing](https://f-secure.com/us-en/articles/what-is-phishing)
 - [Fraud](https://usa.kaspersky.com/resource-center/preemptive-safety/scam-websites)
 - [PUAs](https://us.norton.com/blog/malware/what-are-puas-potentially-unwanted-applications)

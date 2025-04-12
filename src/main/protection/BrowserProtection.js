@@ -51,13 +51,15 @@ const BrowserProtection = function () {
              */
             const checkUrlWithSmartScreen = async function () {
                 Settings.get(async (settings) => {
+                    // Check if SmartScreen is enabled
                     if (!settings.smartScreenEnabled) {
                         console.debug(`SmartScreen is disabled; bailing out early.`);
                         return;
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "smartScreen")) {
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "smartScreen")
+                        || BrowserProtection.cacheManager.isStringInCache(urlObject.hostname + " (allowed)", "smartScreen")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -67,7 +69,11 @@ const BrowserProtection = function () {
                     // Prepare request data
                     const requestData = JSON.stringify({
                         correlationId: Telemetry.generateGuid(),
-                        destination: {uri: UrlHelpers.normalizeHostname(urlObject.hostname + urlObject.pathname)},
+
+                        destination: {
+                            uri: UrlHelpers.normalizeHostname(urlObject.hostname + urlObject.pathname)
+                        },
+
                         identity: {
                             client: {version: chrome.runtime.getManifest().version.replace(/\./g, "")},
                             device: {id: settings.instanceID},
@@ -95,7 +101,7 @@ const BrowserProtection = function () {
                             signal
                         });
 
-                        // Check if we need to allow the URL
+                        // Return early if the response is not OK
                         if (!response.ok) {
                             console.warn(`SmartScreen returned early: ${response.status}`);
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
@@ -103,7 +109,6 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.json();
-                        console.debug(`SmartScreen response: ` + JSON.stringify(data));
 
                         switch (data.responseCategory) {
                             case "Phishing":
@@ -119,84 +124,126 @@ const BrowserProtection = function () {
                                 break;
 
                             case "Allowed":
-                                if (url !== null) {
-                                    console.debug(`Added SmartScreen URL to cache: ` + url);
-                                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "smartScreen");
-                                }
-
+                                console.debug(`Added SmartScreen URL to cache: ` + url);
+                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "smartScreen");
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                                 break;
 
                             default:
-                                console.warn(`SmartScreen returned an unexpected result for URL ${url}: ${data.responseCategory}`);
+                                console.warn(`SmartScreen returned an unexpected result for URL ${url}: ` + JSON.stringify(data));
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                                 break;
                         }
                     } catch (error) {
-                        console.warn(`Failed to check URL with SmartScreen: ${error}`);
+                        console.debug(`Failed to check URL with SmartScreen: ${error}`);
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                     }
                 });
             };
 
             /**
-             * Checks the URL with the Comodo API.
+             * Checks the URL with the Symantec API.
              */
-            const checkUrlWithComodo = async function () {
+            const checkUrlWithSymantec = async function () {
                 Settings.get(async (settings) => {
-                    if (!settings.comodoEnabled) {
-                        console.debug(`Comodo is disabled; bailing out early.`);
+                    // Check if Symantec is enabled
+                    if (!settings.symantecEnabled) {
+                        console.debug(`Symantec is disabled; bailing out early.`);
                         return;
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "comodo")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "symantec")
+                        || BrowserProtection.cacheManager.isStringInCache(urlObject.hostname + " (allowed)", "symantec")) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                         return;
                     }
 
-                    const apiUrl = `https://verdict.valkyrie.comodo.com/api/v1/url/query?url=${encodeURIComponent(url)}`;
+                    // Replaces the http:// and https:// with nothing
+                    const trimmedUrl = url.replace(/^(http|https):\/\//, "");
+
+                    // Adds "/80/" after the first "/" character it sees
+                    // Example: malware.wicar.org/data/ms14_064_ole_xp.html becomes malware.wicar.org/80/data/ms14_064_ole_xp.html
+                    const trimmedUrlWithPort = trimmedUrl.replace(/\//, "/80/");
+
+                    // Checks if the URL has "/80/" in it. If it doesn't, it adds it to the end
+                    // Example: wicar.org becomes wicar.org/80/
+                    const trimmedUrlWithPortAndSlash = trimmedUrlWithPort.includes("/80/") ? trimmedUrlWithPort : trimmedUrlWithPort + "/80/";
+
+                    const apiUrl = `https://ent-shasta-rrs.symantec.com/webpulse/2/R/CA45FE7076BBCE1812A859E0AB82B49F/BRDSBPNWA1/-/GET/https/${trimmedUrlWithPortAndSlash}`;
 
                     try {
                         const response = await fetch(apiUrl, {
-                            method: "POST",
-                            headers: {
-                                "X-Api-Key": await ComodoUtil.getXApiKey()
-                            },
-                            body: JSON.stringify({url}),
+                            method: "GET",
                             signal
                         });
 
                         // Return early if the response is not OK
                         if (!response.ok) {
-                            console.warn(`Comodo returned early: ${response.status}`);
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
+                            console.warn(`Symantec returned early: ${response.status}`);
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                             return;
                         }
 
-                        const data = await response.json();
-                        const {url_result_text} = data;
-                        console.debug(`Comodo response: ` + JSON.stringify(data));
+                        const data = await response.text();
 
-                        // Check the response for malicious categories
-                        if (url_result_text === "Phishing") {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
-                        } else if (url_result_text === "Malware") {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
-                        } else if (url_result_text === "Safe" || url_result_text === "Unknown") {
-                            if (url !== null) {
-                                console.debug(`Added Comodo URL to cache: ` + url);
-                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "comodo");
-                            }
+                        // Keeping this for debugging purposes
+                        console.debug(`Symantec response: ${data}`);
 
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
-                        } else {
-                            console.warn(`Comodo returned an unexpected result for URL ${url}: ${url_result_text}`);
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
+                        // Compromised Sites
+                        // TODO: Determine the HTML structure of the response
+                        if (data.includes(">7C") || data.includes("7C<")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                            return;
                         }
+
+                        // Malicious Sources
+                        // TODO: Determine the HTML structure of the response
+                        if (data.includes(">2B") || data.includes("2B<")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Malicious Outbound Data
+                        // TODO: Determine the HTML structure of the response
+                        if (data.includes(">2C") || data.includes("2C<")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Phishing
+                        if (data.includes("<FileC>6C") || data.includes("6C</FileC>")
+                            || data.includes("<DomC>12") || data.includes("12</DomC>")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Potentially Unwanted Applications
+                        if (data.includes("<DomC>66") || data.includes("66</DomC>")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PUA, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Scam/Questionable Legality
+                        // TODO: Determine the HTML structure of the response
+                        if (data.includes(">09") || data.includes("09<")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Spam
+                        if (data.includes("<DomC>65") || data.includes("65</DomC>")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.SPAM, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Safe/Trusted
+                        console.debug(`Added Symantec URL to cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "symantec");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                     } catch (error) {
-                        console.warn(`Failed to check URL with Comodo: ${error}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.COMODO), (new Date()).getTime() - startTime);
+                        console.debug(`Failed to check URL with Symantec: ${error}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                     }
                 });
             };
@@ -206,13 +253,15 @@ const BrowserProtection = function () {
              */
             const checkUrlWithEmsisoft = async function () {
                 Settings.get(async (settings) => {
+                    // Check if Emsisoft is enabled
                     if (!settings.emsisoftEnabled) {
                         console.debug(`Emsisoft is disabled; bailing out early.`);
                         return;
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "emsisoft")) {
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "emsisoft")
+                        || BrowserProtection.cacheManager.isStringInCache(urlObject.hostname + " (allowed)", "emsisoft")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -237,11 +286,8 @@ const BrowserProtection = function () {
 
                         // Allow if the hostname is in the bypass list
                         if (hostname.match(/alomar\.emsisoft\.com$/)) {
-                            if (url !== null) {
-                                console.debug(`Added Emsisoft URL to cache: ` + url);
-                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
-                            }
-
+                            console.debug(`Added Emsisoft URL to cache: ` + url);
+                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -258,29 +304,20 @@ const BrowserProtection = function () {
                             const key = MD5("Kd3fIjAq" + perUrlSalt + subdomain, null, true);
                             const result = RC4(key, encryptedRegex);
 
-                            // If the URL matches the regex, block it
+                            // Malicious
                             if (result.split("\t").some(value => value
                                 && EmsisoftUtil.newRegExp(value, true)?.test(url))) {
-                                // Check if the URL is in the cache
-                                if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "emsisoft")) {
-                                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                                    return;
-                                }
-
                                 callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                                 return;
                             }
                         }
 
-                        // If the URL is not blocked, allow it
-                        if (url !== null) {
-                            console.debug(`Added Emsisoft URL to cache: ` + url);
-                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
-                        }
-
+                        // Safe/Trusted
+                        console.debug(`Added Emsisoft URL to cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                     } catch (error) {
-                        console.warn(`Failed to check URL with Emsisoft: ${error}`);
+                        console.debug(`Failed to check URL with Emsisoft: ${error}`);
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                     }
                 });
@@ -291,13 +328,15 @@ const BrowserProtection = function () {
              */
             const checkUrlWithBitdefender = async function () {
                 Settings.get(async (settings) => {
+                    // Check if Bitdefender is enabled
                     if (!settings.bitdefenderEnabled) {
                         console.debug(`Bitdefender is disabled; bailing out early.`);
                         return;
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "bitdefender")) {
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "bitdefender")
+                        || BrowserProtection.cacheManager.isStringInCache(urlObject.hostname + " (allowed)", "bitdefender")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -325,50 +364,62 @@ const BrowserProtection = function () {
 
                         const data = await response.json();
                         const {status_message} = data;
-                        console.debug(`Bitdefender response: ` + JSON.stringify(data));
 
-                        // Check if the URL is in the cache
-                        if (status_message.includes("phishing")
-                            || status_message.includes("malware")
-                            || status_message.includes("fraud")
-                            || status_message.includes("pua")
-                            || status_message.includes("miner")
-                            || status_message.includes("malvertising")
-                            || status_message.includes("untrusted")) {
-                            if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "bitdefender")) {
-                                callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                                return;
-                            }
-                        }
-
-                        // Check the response for malicious categories
+                        // Phishing
                         if (status_message.includes("phishing")) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                        } else if (status_message.includes("malware")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                        } else if (status_message.includes("fraud")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                        } else if (status_message.includes("pua")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PUA, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                        } else if (status_message.includes("miner")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.CRYPTOJACKING, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                        } else if (status_message.includes("malvertising")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALVERTISING, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                        } else if (status_message.includes("untrusted")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                        } else if (status_message.includes("not found")) {
-                            if (url !== null) {
-                                console.debug(`Added Bitdefender URL to cache: ` + url);
-                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "bitdefender");
-                            }
-
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
-                        } else {
-                            console.warn(`Bitdefender returned an unexpected result for URL ${url}: ${status_message}`);
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                            return;
                         }
+
+                        // Malware
+                        if (status_message.includes("malware")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Fraud
+                        if (status_message.includes("fraud")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Potentially Unwanted Applications
+                        if (status_message.includes("pua")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PUA, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Cryptojacking
+                        if (status_message.includes("miner")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.CRYPTOJACKING, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Malvertising
+                        if (status_message.includes("malvertising")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALVERTISING, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Untrusted
+                        if (status_message.includes("untrusted")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Safe/Trusted
+                        if (status_message.includes("not found")) {
+                            console.debug(`Added Bitdefender URL to cache: ` + url);
+                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "bitdefender");
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Unexpected result
+                        console.warn(`Bitdefender returned an unexpected result for URL ${url}: ` + JSON.stringify(data));
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                     } catch (error) {
-                        console.warn(`Failed to check URL with Bitdefender: ${error}`);
+                        console.debug(`Failed to check URL with Bitdefender: ${error}`);
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                     }
                 });
@@ -379,13 +430,15 @@ const BrowserProtection = function () {
              */
             const checkUrlWithNorton = async function () {
                 Settings.get(async (settings) => {
+                    // Check if Norton is enabled
                     if (!settings.nortonEnabled) {
                         console.debug(`Norton is disabled; bailing out early.`);
                         return;
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "norton")) {
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "norton")
+                        || BrowserProtection.cacheManager.isStringInCache(urlObject.hostname + " (allowed)", "norton")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -411,33 +464,29 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.text();
-                        console.debug(`Norton response: ` + data);
 
-                        // Check the response for malicious categories
+                        // Malicious
                         if (data.includes('r="b"')) {
-                            // Check if the URL is in the cache
-                            if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "norton")) {
-                                callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
-                                return;
-                            }
-
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
-                        } else if (data.includes('r="g"')
+                            return;
+                        }
+
+                        // Safe/Trusted
+                        if (data.includes('r="g"')
                             || data.includes('r="r"')
                             || data.includes('r="w"')
                             || data.includes('r="u"')) {
-                            if (url !== null) {
-                                console.debug(`Added Norton URL to cache: ` + url);
-                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "norton");
-                            }
-
+                            console.debug(`Added Norton URL to cache: ` + url);
+                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "norton");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
-                        } else {
-                            console.warn(`Norton returned an unexpected result for URL ${url}: ${data}`);
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                            return;
                         }
+
+                        // Unexpected result
+                        console.warn(`Norton returned an unexpected result for URL ${url}: ${data}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                     } catch (error) {
-                        console.warn(`Failed to check URL with Norton: ${error}`);
+                        console.debug(`Failed to check URL with Norton: ${error}`);
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                     }
                 });
@@ -448,13 +497,15 @@ const BrowserProtection = function () {
              */
             const checkUrlWithTOTAL = async function () {
                 Settings.get(async (settings) => {
+                    // Check if TOTAL is enabled
                     if (!settings.totalEnabled) {
                         console.debug(`TOTAL is disabled; bailing out early.`);
                         return;
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "total")) {
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "total")
+                        || BrowserProtection.cacheManager.isStringInCache(urlObject.hostname + " (allowed)", "total")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -467,7 +518,6 @@ const BrowserProtection = function () {
                             method: "POST",
                             headers: {
                                 "Content-Type": "multipart/form-data",
-                                // "X-Categories": "adware,adware,call_center,compromised,crypto,fleeceware,low_trust,lowtrust,malware,phishing,pua,spam"
                             },
                             body: JSON.stringify(payload),
                             signal
@@ -481,57 +531,80 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.text();
-                        console.debug(`TOTAL response: ` + data);
 
-                        // Check if the URL is in the cache
-                        if (data.includes('phishing')
-                            || data.includes('malware')
-                            || data.includes('crypto')
-                            || data.includes('pua')
-                            || data.includes('call_center')
-                            || data.includes('adware')
-                            || data.includes('spam')
-                            || data.includes('compromised')
-                            || data.includes('fleeceware')
-                            || data.includes('low_trust')
-                            || data.includes('lowtrust')) {
-                            if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "total")) {
-                                callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                                return;
-                            }
-                        }
-
-                        // Check the response for malicious categories
+                        // Phishing
                         if (data.includes('phishing')) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('malware')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('crypto')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.CRYPTOJACKING, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('pua')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PUA, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('call_center')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('adware')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ADWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('spam')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.SPAM, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('compromised')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('fleeceware')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FLEECEWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else if (data.includes('low_trust') || data.includes('lowtrust')) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        } else {
-                            if (url !== null) {
-                                console.debug(`Added TOTAL URL to cache: ` + url);
-                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "total");
-                            }
-
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
                         }
+
+                        // Malicious
+                        if (data.includes('malware')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Cryptojacking
+                        if (data.includes('crypto')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.CRYPTOJACKING, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Potentially Unwanted Applications
+                        if (data.includes('pua')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PUA, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Call Centers
+                        if (data.includes('call_center')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Adware
+                        if (data.includes('adware')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ADWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Spam
+                        if (data.includes('spam')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.SPAM, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Compromised
+                        if (data.includes('compromised')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Fleeceware
+                        if (data.includes('fleeceware')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.FLEECEWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Untrusted
+                        if (data.includes('low_trust') || data.includes('lowtrust')) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Safe/Trusted
+                        if (data === "") {
+                            console.debug(`Added TOTAL URL to cache: ` + url);
+                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "total");
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
+                            return;
+                        }
+
+                        // Unexpected result
+                        console.warn(`TOTAL returned an unexpected result for URL ${url}: ${data}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                     } catch (error) {
-                        console.warn(`Failed to check URL with TOTAL: ${error}`);
+                        console.debug(`Failed to check URL with TOTAL: ${error}`);
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
                     }
                 });
@@ -542,13 +615,15 @@ const BrowserProtection = function () {
              */
             const checkUrlWithGDATA = async function () {
                 Settings.get(async (settings) => {
+                    // Check if G DATA is enabled
                     if (!settings.gDataEnabled) {
                         console.debug(`G DATA is disabled; bailing out early.`);
                         return;
                     }
 
                     // Check if the URL is in the cache
-                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "gData")) {
+                    if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "gData")
+                        || BrowserProtection.cacheManager.isStringInCache(urlObject.hostname + " (allowed)", "gData")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -580,44 +655,42 @@ const BrowserProtection = function () {
                         }
 
                         const data = await response.text();
-                        console.debug(`G DATA response: ` + data);
 
-                        // Check if the URL is in the cache
-                        if (data.includes("\"PHISHING\"")
-                            || data.includes("\"MALWARE\"")) {
-                            if (BrowserProtection.cacheManager.isUrlInCache(urlObject, "gData")) {
-                                callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
-                                return;
-                            }
-                        }
-
-                        // Check the response for malicious categories
+                        // Phishing
                         if (data.includes("\"PHISHING\"")) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
-                        } else if (data.includes("\"MALWARE\"")) {
+                            return;
+                        }
+
+                        // Malicious
+                        if (data.includes("\"MALWARE\"")) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
-                        } else if (data.includes("\"TRUSTED\"")
+                            return;
+                        }
+
+                        // Safe/Allowed
+                        if (data.includes("\"TRUSTED\"")
                             || data.includes("\"WHITELIST\"")
                             || data.includes("\"URLS\":[{}]}")) {
-                            if (url !== null) {
-                                console.debug(`Added G DATA URL to cache: ` + url);
-                                BrowserProtection.cacheManager.addUrlToCache(urlObject, "gData");
-                            }
-
+                            console.debug(`Added G DATA URL to cache: ` + url);
+                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "gData");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
-                        } else {
-                            console.warn(`G DATA returned an unexpected result for URL ${url}: ${data}`);
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
+                            return;
                         }
+
+                        // Unexpected result
+                        console.warn(`G DATA returned an unexpected result for URL ${url}: ${data}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                     } catch (error) {
-                        console.warn(`Failed to check URL with G DATA: ${error}`);
+                        console.debug(`Failed to check URL with G DATA: ${error}`);
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                     }
                 });
             };
 
-            Settings.get(checkUrlWithSmartScreen);
-            checkUrlWithComodo();
+            // Call all the check functions in parallel
+            checkUrlWithSmartScreen();
+            checkUrlWithSymantec();
             checkUrlWithEmsisoft();
             checkUrlWithBitdefender();
             checkUrlWithNorton();

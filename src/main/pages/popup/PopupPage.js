@@ -14,11 +14,11 @@
             messageType: Messages.MessageType.SMARTSCREEN_TOGGLED,
         },
         {
-            name: "comodoEnabled",
-            title: "Comodo Valkyrie",
-            labelElementId: "comodoStatus",
-            switchElementId: "comodoSwitch",
-            messageType: Messages.MessageType.COMODO_TOGGLED,
+            name: "symantecEnabled",
+            title: "Symantec Browser Protection",
+            labelElementId: "symantecStatus",
+            switchElementId: "symantecSwitch",
+            messageType: Messages.MessageType.SYMANTEC_TOGGLED,
         },
         {
             name: "emsisoftEnabled",
@@ -50,11 +50,11 @@
         },
         {
             name: "gDataEnabled",
-            title: "G Data WebProtection",
+            title: "G DATA WebProtection",
             labelElementId: "gDataStatus",
             switchElementId: "gDataSwitch",
             messageType: Messages.MessageType.G_DATA_TOGGLED,
-        },
+        }
     ];
 
     /**

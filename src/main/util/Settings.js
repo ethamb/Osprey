@@ -2,18 +2,18 @@
 
 // Manages user preferences and configurations.
 const Settings = (function () {
-    const settingsKey = "Settings"; // Key for storing settings in local storage.
+    const settingsKey = "Settings"; // Key for storing settings in local storage
 
     let defaultSettings = {
-        smartScreenEnabled: true, // Default state for SmartScreen.
-        comodoEnabled: true, // Default state for Comodo.
-        emsisoftEnabled: true, // Default state for Emsisoft.
-        bitdefenderEnabled: true, // Default state for Bitdefender.
-        nortonEnabled: true, // Default state for Norton.
-        totalEnabled: true, // Default state for TOTAL.
-        gDataEnabled: true, // Default state for G Data.
-        isInstanceIDInitialized: false, // Flag to check if instance ID is initialized.
-        instanceID: 0 // Default instance ID.
+        smartScreenEnabled: true, // Default state for SmartScreen
+        symantecEnabled: true, // Default state for Symantec
+        emsisoftEnabled: true, // Default state for Emsisoft
+        bitdefenderEnabled: true, // Default state for Bitdefender
+        nortonEnabled: true, // Default state for Norton
+        totalEnabled: true, // Default state for TOTAL
+        gDataEnabled: true, // Default state for G DATA
+        isInstanceIDInitialized: false, // Flag to check if instance ID is initialized
+        instanceID: 0 // Default instance ID
     };
 
     /**
@@ -26,16 +26,16 @@ const Settings = (function () {
         let hasChanges = false;
 
         if (source) {
-            // Iterate through the source object properties.
+            // Iterate through the source object properties
             for (let key in source) {
-                // If the values differ, update the target and mark changes.
+                // If the values differ, update the target and mark changes
                 if (source[key] !== target[key]) {
                     target[key] = source[key];
                     hasChanges = true;
                 }
             }
         }
-        return hasChanges; // Return whether any changes were made.
+        return hasChanges; // Return whether any changes were made
     };
 
     return {
@@ -45,13 +45,13 @@ const Settings = (function () {
          */
         get: function (callback) {
             Storage.getFromLocalStore(settingsKey, (function (storedSettings) {
-                // Clone the default settings object.
+                // Clone the default settings object
                 let mergedSettings = JSON.parse(JSON.stringify(defaultSettings));
 
-                // Merge any stored settings into the cloned default settings.
+                // Merge any stored settings into the cloned default settings
                 updateIfChanged(mergedSettings, storedSettings);
 
-                // Invoke the callback with the merged settings.
+                // Invoke the callback with the merged settings
                 callback && callback(mergedSettings);
             }));
         },
@@ -63,14 +63,14 @@ const Settings = (function () {
          */
         set: function (newSettings, callback) {
             Storage.getFromLocalStore(settingsKey, (function (storedSettings) {
-                // Clone the default settings object.
+                // Clone the default settings object
                 let mergedSettings = JSON.parse(JSON.stringify(defaultSettings));
 
-                // Merge stored settings and new settings into the cloned default settings.
+                // Merge stored settings and new settings into the cloned default settings
                 storedSettings && updateIfChanged(mergedSettings, storedSettings);
                 updateIfChanged(mergedSettings, newSettings);
 
-                // Save the merged settings back to local storage.
+                // Save the merged settings back to local storage
                 Storage.setToLocalStore(settingsKey, mergedSettings, callback);
             }));
         }

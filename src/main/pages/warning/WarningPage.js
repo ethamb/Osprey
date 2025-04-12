@@ -5,61 +5,9 @@ window.addEventListener("load", () => {
     // Extract the threat code from the current page URL
     const result = UrlHelpers.extractResult(window.document.URL);
 
-    // Set the reason text based on the detected threat
-    let reasonText;
-
+    // Set the reason text based on the result
     if (result) {
-        switch (result) {
-            case ProtectionResult.ResultType.PHISHING:
-                reasonText = "Phishing";
-                break;
-
-            case ProtectionResult.ResultType.MALICIOUS:
-                reasonText = "Malicious";
-                break;
-
-            case ProtectionResult.ResultType.FRAUD:
-                reasonText = "Fraud";
-                break;
-
-            case ProtectionResult.ResultType.PUA:
-                reasonText = "Potentially Unwanted Applications";
-                break;
-
-            case ProtectionResult.ResultType.CRYPTOJACKING:
-                reasonText = "Cryptojacking";
-                break;
-
-            case ProtectionResult.ResultType.MALVERTISING:
-                reasonText = "Malvertising";
-                break;
-
-            case ProtectionResult.ResultType.SPAM:
-                reasonText = "Spam";
-                break;
-
-            case ProtectionResult.ResultType.ADWARE:
-                reasonText = "Adware";
-                break;
-
-            case ProtectionResult.ResultType.COMPROMISED:
-                reasonText = "Compromised";
-                break;
-
-            case ProtectionResult.ResultType.FLEECEWARE:
-                reasonText = "Fleeceware";
-                break;
-
-            case ProtectionResult.ResultType.UNTRUSTED:
-                reasonText = "Untrusted";
-                break;
-
-            default:
-                reasonText = "Unknown";
-                break;
-        }
-
-        document.getElementById("reason").innerText = reasonText;
+        document.getElementById("reason").innerText = result;
     } else {
         return;
     }
@@ -83,15 +31,16 @@ window.addEventListener("load", () => {
             document.getElementById("reportedBy").innerText = systemName;
             break;
 
-        case ProtectionResult.ResultOrigin.COMODO.valueOf().toString():
-            reportUrl = new URL("https://comodo.com/home/internet-security/submit.php?url=" + maliciousUrl + "&submissionType=2");
+        case ProtectionResult.ResultOrigin.SYMANTEC.valueOf().toString():
+            reportUrl = new URL("https://sitereview.symantec.com/sitereview.jsp?referrer=sedsbp&url="
+                + encodeURIComponent(maliciousUrl));
             document.getElementById("reportedBy").innerText = systemName;
             break;
 
         case ProtectionResult.ResultOrigin.EMSISOFT.valueOf().toString():
             reportUrl = new URL("mailto:fp@emsisoft.com?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
                 + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20Emsisoft%20Browser%20Security%0AURL%3A%20"
-                + encodeURIComponent(maliciousUrl) + "%0ADetected%20as%3A%20" + encodeURIComponent(reasonText)
+                + encodeURIComponent(maliciousUrl) + "%0ADetected%20as%3A%20" + encodeURIComponent(result)
                 + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
             document.getElementById("reportedBy").innerText = systemName;
             break;
@@ -127,6 +76,16 @@ window.addEventListener("load", () => {
         await chrome.runtime.sendMessage({
             messageType: Messages.MessageType.REPORT_SITE,
             reportUrl: reportUrl,
+            origin: origin
+        });
+    });
+
+    // Add event listener to "Add hostname to allowlist" button
+    document.getElementById("allowHostname").addEventListener("click", async () => {
+        await chrome.runtime.sendMessage({
+            messageType: Messages.MessageType.ALLOW_HOSTNAME,
+            maliciousUrl: maliciousUrl,
+            continueUrl: continueUrl,
             origin: origin
         });
     });

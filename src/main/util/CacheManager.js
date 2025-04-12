@@ -5,7 +5,7 @@ class CacheManager {
     constructor(storageKey = 'allowedCache', debounceDelay = 5000) {
         this.caches = {
             smartScreen: new Map(),
-            comodo: new Map(),
+            symantec: new Map(),
             emsisoft: new Map(),
             bitdefender: new Map(),
             norton: new Map(),
@@ -17,11 +17,9 @@ class CacheManager {
         this.debounceDelay = debounceDelay;
         this.timeoutId = null;
 
-        // Retrieve session cache from Chrome storage when the service worker wakes up
-        chrome.storage.session.get([this.storageKey], (sessionData) => {
-            if (sessionData[this.storageKey]) {
-                const storedCaches = sessionData[this.storageKey];
-
+        // Retrieve cache from local storage when the service worker wakes up
+        Storage.getFromLocalStore(this.storageKey, (storedCaches) => {
+            if (storedCaches) {
                 Object.keys(this.caches).forEach((cacheName) => {
                     if (storedCaches[cacheName]) {
                         this.caches[cacheName] = new Map(Object.entries(storedCaches[cacheName]));
@@ -31,8 +29,8 @@ class CacheManager {
         });
     }
 
-    // Debounced function to update session storage with all caches
-    updateSessionStorage() {
+    // Debounced function to update local storage with all caches
+    updateStorage() {
         if (!this.timeoutId) {
             this.timeoutId = setTimeout(() => {
                 this.timeoutId = null;
@@ -42,7 +40,7 @@ class CacheManager {
                     cacheDataToStore[cacheName] = Object.fromEntries(this.caches[cacheName]);
                 });
 
-                chrome.storage.session.set({[this.storageKey]: cacheDataToStore});
+                Storage.setToLocalStore(this.storageKey, cacheDataToStore);
             }, this.debounceDelay);
         }
     }
@@ -60,7 +58,7 @@ class CacheManager {
                     return true; // Cache is valid, URL is allowed
                 } else {
                     cache.delete(normalizedUrl); // Cache expired, remove entry
-                    this.updateSessionStorage();
+                    this.updateStorage();
                 }
             }
         } catch (error) {
@@ -69,23 +67,25 @@ class CacheManager {
         return false; // Return false if URL is not in cache or an error occurred
     }
 
-    // Function to check if the hostname is in a specific cache and still valid
-    isHostnameInCache(url, cacheName) {
+    // Function to check if a string is in a specific cache and still valid
+    isStringInCache(string, cacheName) {
         try {
-            const hostname = new URL(url).hostname;
             const cache = this.caches[cacheName];
 
-            if (cache) {
-                for (const [cachedUrl, expiration] of cache.entries()) {
-                    if (cachedUrl.includes(hostname.toString()) && expiration > Date.now()) {
-                        return true; // Cache is valid, URL is allowed
-                    }
+            if (cache && cache.has(string)) {
+                const expiration = cache.get(string);
+
+                if (expiration > Date.now()) {
+                    return true; // Cache is valid, string is allowed
+                } else {
+                    cache.delete(string); // Cache expired, remove entry
+                    this.updateStorage();
                 }
             }
         } catch (error) {
             console.error(error);
         }
-        return false; // Return false if URL is not in cache or an error occurred
+        return false; // Return false if string is not in cache or an error occurred
     }
 
     // Function to add a URL to a specific cache
@@ -98,7 +98,25 @@ class CacheManager {
 
             if (cache) {
                 cache.set(normalizedUrl, expirationDate.getTime());
-                this.updateSessionStorage();
+                this.updateStorage();
+            } else {
+                console.warn(`Cache ${cacheName} does not exist.`);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // Function to add a string to a specific cache
+    addStringToCache(string, cacheName) {
+        try {
+            const expirationDate = new Date();
+            expirationDate.setDate(expirationDate.getDate() + 1); // Cache expires after 1 day
+            const cache = this.caches[cacheName];
+
+            if (cache) {
+                cache.set(string, expirationDate.getTime());
+                this.updateStorage();
             } else {
                 console.warn(`Cache ${cacheName} does not exist.`);
             }

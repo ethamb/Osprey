@@ -15,38 +15,38 @@ class ProtectionResult {
 }
 
 ProtectionResult.ResultType = {
-    KNOWN_SAFE: "knownsafe",
-    FAILED: "failed",
-    ALLOWED: "allowed",
-    PHISHING: "phishing",
-    MALICIOUS: "malicious",
-    FRAUD: "fraud",
-    PUA: "pua",
-    CRYPTOJACKING: "cryptojacking",
-    MALVERTISING: "malvertising",
-    SPAM: "spam",
-    ADWARE: "adware",
-    COMPROMISED: "compromised",
-    FLEECEWARE: "fleeceware",
-    UNTRUSTED: "untrusted"
+    KNOWN_SAFE: "Known Safe",
+    FAILED: "Failed",
+    ALLOWED: "Allowed",
+    PHISHING: "Phishing",
+    MALICIOUS: "Malicious",
+    FRAUD: "Fraud",
+    PUA: "Potentially Unwanted Applications",
+    CRYPTOJACKING: "Cryptojacking",
+    MALVERTISING: "Malvertising",
+    SPAM: "Spam",
+    ADWARE: "Adware",
+    COMPROMISED: "Compromised",
+    FLEECEWARE: "Fleeceware",
+    UNTRUSTED: "Untrusted"
 };
 
 ProtectionResult.ResultOrigin = {
     MICROSOFT: 1, // The result was determined via Microsoft SmartScreen
-    COMODO: 2, // The result was determined via Comodo Valkyrie
+    SYMANTEC: 2, // The result was determined via Symantec
     EMSISOFT: 3, // The result was determined via Emsisoft
     BITDEFENDER: 4, // The result was determined via Bitdefender
     NORTON: 5, // The result was determined via Norton
     TOTAL: 6, // The total was determined via TOTAL WebShield
-    G_DATA: 7 // The result was determined via G Data
+    G_DATA: 7, // The result was determined via G DATA
 };
 
 ProtectionResult.ResultOriginNames = {
     1: "Microsoft SmartScreen",
-    2: "Comodo Valkyrie",
+    2: "Symantec Browser Protection",
     3: "Emsisoft Web Protection",
     4: "Bitdefender TrafficLight",
     5: "Norton SafeWeb",
     6: "TOTAL WebShield",
-    7: "G Data WebProtection"
+    7: "G DATA WebProtection",
 };

@@ -12,7 +12,6 @@
         // Other
         "util/other/SmartScreenUtil.js",
         "util/other/EmsisoftUtil.js",
-        "util/other/ComodoUtil.js",
 
         // Telemetry
         "util/telemetry/Telemetry.js",
@@ -38,7 +37,7 @@
         Settings.get((settings) => {
             // Retrieve settings to check if protection is enabled.
             if (!settings.smartScreenEnabled
-                && !settings.comodoEnabled
+                && !settings.symantecEnabled
                 && !settings.emsisoftEnabled
                 && !settings.bitdefenderEnabled
                 && !settings.nortonEnabled
@@ -61,7 +60,7 @@
 
             // Check if the frame ID is not the main frame.
             if (frameId !== 0) {
-                console.debug(`Ignoring frame navigation: ${currentUrl}; bailing out.`);
+                console.debug(`Ignoring frame navigation: ${currentUrl} #${frameId}; bailing out.`);
                 return;
             }
 
@@ -172,7 +171,7 @@
             BrowserProtection.abandonPendingRequests(tabId, "New navigation event detected.");
 
             let malicious = false;
-            console.debug(`Checking URL: ${currentUrl}`);
+            console.info(`Checking URL: ${currentUrl}`);
 
             // Check if the URL is malicious.
             BrowserProtection.checkIfUrlIsMalicious(tabId, currentUrl, (result) => {
@@ -183,7 +182,7 @@
                     return;
                 }
 
-                console.debug(`[${systemName}] Result for ${currentUrl}: ${result.result}`);
+                console.info(`[${systemName}] Result for ${currentUrl}: ${result.result}`);
 
                 if (result.result !== ProtectionResult.ResultType.FAILED
                     && result.result !== ProtectionResult.ResultType.KNOWN_SAFE
@@ -207,9 +206,29 @@
 
                         if (targetUrl) {
                             Telemetry.getInstanceID((instanceId) => {
+                                // Navigate to the block page
                                 const blockPageUrl = UrlHelpers.getBlockPageUrl(pendingUrl, result, instanceId, Telemetry.getSessionID());
                                 console.debug(`[${systemName}] Navigating to block page: ${blockPageUrl}.`);
                                 chrome.tabs.update(tab.id, {url: blockPageUrl});
+
+                                // Build the warning notification options
+                                const notificationOptions = {
+                                    type: "basic",
+                                    iconUrl: "assets/icons/icon128.png",
+                                    title: "Unsafe Website Blocked",
+                                    message: `URL: ${currentUrl}\nReason: ${result.result}`,
+                                    contextMessage: `Reported by: ${systemName}`,
+                                    priority: 2,
+                                };
+
+                                // Create a unique notification ID based on a random number
+                                const randomNumber = Math.floor(Math.random() * 100000000);
+                                const notificationId = `warning-` + randomNumber;
+
+                                // Display the warning notification
+                                chrome.notifications.create(notificationId, notificationOptions, (notificationId) => {
+                                    console.debug(`Notification created with ID: ${notificationId}`);
+                                });
                             });
                         } else {
                             console.debug(`chrome.tab '${tabId}' failed to supply a top-level URL; bailing out.`);
@@ -220,36 +239,52 @@
         });
     };
 
-    // Listener for before navigating events.
+    // Listener for onBeforeNavigate events.
     chrome.webNavigation.onBeforeNavigate.addListener((navigationDetails) => {
-        console.debug("onBeforeNavigate");
-        handleNavigation(navigationDetails, false);
+        console.debug(`[onBeforeNavigate] ${navigationDetails.url}`);
+        handleNavigation(navigationDetails);
     });
 
-    // Listener for committed navigation events.
+    // Listener for onCommitted events.
     chrome.webNavigation.onCommitted.addListener((navigationDetails) => {
-        console.debug(navigationDetails.transitionQualifiers);
-
         if (navigationDetails.transitionQualifiers.includes("server_redirect")) {
-            console.debug("onCommitted (server_redirect)");
-            handleNavigation(navigationDetails, false);
+            console.debug(`[server_redirect] ${navigationDetails.url}`);
+            handleNavigation(navigationDetails);
         } else if (navigationDetails.transitionQualifiers.includes("client_redirect")) {
-            console.debug("onCommitted (client_redirect)");
-            handleNavigation(navigationDetails, false);
+            console.debug(`[client_redirect] ${navigationDetails.url}`);
+            handleNavigation(navigationDetails);
         }
     });
 
-    // Listener for created navigation target events.
+    // Listener for onCreatedNavigationTarget events.
     chrome.webNavigation.onCreatedNavigationTarget.addListener((navigationDetails) => {
-        console.debug("onCreatedNavigationTarget");
-        handleNavigation(navigationDetails, false);
+        console.debug(`[onCreatedNavigationTarget] ${navigationDetails.url}`);
+        handleNavigation(navigationDetails);
+    });
+
+    // Listener for onHistoryStateUpdated events.
+    chrome.webNavigation.onHistoryStateUpdated.addListener((navigationDetails) => {
+        console.debug(`[onHistoryStateUpdated] ${navigationDetails.url}`);
+        handleNavigation(navigationDetails);
+    });
+
+    // Listener for onReferenceFragmentUpdated events.
+    chrome.webNavigation.onReferenceFragmentUpdated.addListener((navigationDetails) => {
+        console.debug(`[onReferenceFragmentUpdated] ${navigationDetails.url}`);
+        handleNavigation(navigationDetails);
+    });
+
+    // Listener for onTabReplaced events.
+    chrome.webNavigation.onTabReplaced.addListener((navigationDetails) => {
+        console.debug(`[onTabReplaced] ${navigationDetails.url}`);
+        handleNavigation(navigationDetails);
     });
 
     // Listener for incoming messages.
     chrome.runtime.onMessage.addListener((message, sender) => {
         if (message && message.messageType) {
             switch (message.messageType) {
-                case Messages.MessageType.CONTINUE_TO_SITE:
+                case Messages.MessageType.CONTINUE_TO_SITE: {
                     if (!message.continueUrl) {
                         console.debug(`No continue URL was found; sending to new tab page.`);
                         chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
@@ -278,8 +313,8 @@
                             break;
 
                         case "2":
-                            console.debug(`Added Comodo URL to cache: ` + message.maliciousUrl);
-                            BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "comodo");
+                            console.debug(`Added Symantec URL to cache: ` + message.maliciousUrl);
+                            BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "symantec");
                             break;
 
                         case "3":
@@ -303,7 +338,7 @@
                             break;
 
                         case "7":
-                            console.debug(`Added G Data URL to cache: ` + message.maliciousUrl);
+                            console.debug(`Added G DATA URL to cache: ` + message.maliciousUrl);
                             BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
                             break;
 
@@ -314,14 +349,16 @@
 
                     chrome.tabs.update(sender.tab.id, {url: message.continueUrl});
                     break;
+                }
 
-                case Messages.MessageType.CONTINUE_TO_SAFETY:
+                case Messages.MessageType.CONTINUE_TO_SAFETY: {
                     setTimeout(() => {
                         chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
                     }, 200);
                     break;
+                }
 
-                case Messages.MessageType.REPORT_SITE:
+                case Messages.MessageType.REPORT_SITE: {
                     // Ignores blank URLs.
                     if (message.reportUrl === null || message.reportUrl === "") {
                         console.debug(`Report URL is blank.`);
@@ -337,47 +374,6 @@
                     let reportUrlObject = new URL(message.reportUrl);
 
                     if (validProtocols.includes(reportUrlObject.protocol)) {
-                        // switch (message.origin) {
-                        //     case "1":
-                        //         console.debug(`Added SmartScreen URL to cache: ` + message.maliciousUrl);
-                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "smartScreen");
-                        //         break;
-                        //
-                        //     case "2":
-                        //         console.debug(`Added Comodo URL to cache: ` + message.maliciousUrl);
-                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "comodo");
-                        //         break;
-                        //
-                        //     case "3":
-                        //         console.debug(`Added Emsisoft URL to cache: ` + message.maliciousUrl);
-                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "emsisoft");
-                        //         break;
-                        //
-                        //     case "4":
-                        //         console.debug(`Added Bitdefender URL to cache: ` + message.maliciousUrl);
-                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "bitdefender");
-                        //         break;
-                        //
-                        //     case "5":
-                        //         console.debug(`Added Norton URL to cache: ` + message.maliciousUrl);
-                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "norton");
-                        //         break;
-                        //
-                        //     case "6":
-                        //         console.debug(`Added TOTAL URL to cache: ` + message.maliciousUrl);
-                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "total");
-                        //         break;
-                        //
-                        //     case "7":
-                        //         console.debug(`Added G Data URL to cache: ` + message.maliciousUrl);
-                        //         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
-                        //         break;
-                        //
-                        //     default:
-                        //         console.warn(`Unknown origin: ${message.origin}`);
-                        //         break;
-                        // }
-
                         console.debug(`Navigating to report URL: ${message.reportUrl}`);
                         chrome.tabs.create({url: message.reportUrl});
                     } else {
@@ -390,6 +386,85 @@
                         }
                     }
                     break;
+                }
+
+                case Messages.MessageType.ALLOW_HOSTNAME: {
+                    // Ignores blank URLs.
+                    if (message.maliciousUrl === null || message.maliciousUrl === "") {
+                        console.debug(`Malicious URL is blank.`);
+                        break;
+                    }
+
+                    if (!message.continueUrl) {
+                        console.debug(`No continue URL was found; sending to new tab page.`);
+                        chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                        return;
+                    }
+
+                    if (!message.origin) {
+                        console.debug(`No origin was found; sending to new tab page.`);
+                        chrome.tabs.create({url: "about:newtab"});
+                        break;
+                    }
+
+                    let continueUrlObject = new URL(message.continueUrl);
+                    let hostnameUrlObject = new URL(message.maliciousUrl);
+                    const hostnameString = hostnameUrlObject.hostname + " (allowed)";
+
+                    // Adds the hostname to the cache.
+                    console.debug("Adding hostname to cache: " + hostnameString);
+
+                    switch (message.origin) {
+                        case "1":
+                            console.debug(`Added SmartScreen hostname to cache: ` + message.maliciousUrl);
+                            BrowserProtection.cacheManager.addStringToCache(hostnameString, "smartScreen");
+                            break;
+
+                        case "2":
+                            console.debug(`Added Symantec hostname to cache: ` + message.maliciousUrl);
+                            BrowserProtection.cacheManager.addStringToCache(hostnameString, "symantec");
+                            break;
+
+                        case "3":
+                            console.debug(`Added Emsisoft hostname to cache: ` + message.maliciousUrl);
+                            BrowserProtection.cacheManager.addStringToCache(hostnameString, "emsisoft");
+                            break;
+
+                        case "4":
+                            console.debug(`Added Bitdefender hostname to cache: ` + message.maliciousUrl);
+                            BrowserProtection.cacheManager.addStringToCache(hostnameString, "bitdefender");
+                            break;
+
+                        case "5":
+                            console.debug(`Added Norton hostname to cache: ` + message.maliciousUrl);
+                            BrowserProtection.cacheManager.addStringToCache(hostnameString, "norton");
+                            break;
+
+                        case "6":
+                            console.debug(`Added TOTAL hostname to cache: ` + message.maliciousUrl);
+                            BrowserProtection.cacheManager.addStringToCache(hostnameString, "total");
+                            break;
+
+                        case "7":
+                            console.debug(`Added G DATA hostname to cache: ` + message.maliciousUrl);
+                            BrowserProtection.cacheManager.addStringToCache(hostnameString, "gData");
+                            break;
+
+                        default:
+                            console.warn(`Unknown origin: ${message.origin}`);
+                            break;
+                    }
+
+                    // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
+                    if (!validProtocols.includes(continueUrlObject.protocol)) {
+                        console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
+                        chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                        return;
+                    }
+
+                    chrome.tabs.update(sender.tab.id, {url: message.continueUrl});
+                    break;
+                }
 
                 case Messages.MessageType.POPUP_LAUNCHED:
                     console.debug("Popup has been launched.");
@@ -399,8 +474,8 @@
                     console.debug(`SmartScreen protection toggled: ${message.toggleState}`);
                     break;
 
-                case Messages.MessageType.COMODO_TOGGLED:
-                    console.debug(`Comodo protection toggled: ${message.toggleState}`);
+                case Messages.MessageType.SYMANTEC_TOGGLED:
+                    console.debug(`Symantec protection toggled: ${message.toggleState}`);
                     break;
 
                 case Messages.MessageType.EMSISOFT_TOGGLED:
