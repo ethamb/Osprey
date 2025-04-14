@@ -3,109 +3,116 @@
 // Event listener for page load
 window.addEventListener("load", () => {
     // Extract the threat code from the current page URL
-    const result = UrlHelpers.extractResult(window.document.URL);
+    const pageUrl = window.document.URL;
+    const result = UrlHelpers.extractResult(pageUrl);
 
     // Set the reason text based on the result
-    if (result) {
-        document.getElementById("reason").innerText = result;
-    } else {
+    if (!result) {
+        console.warn("No result found in the URL.");
         return;
     }
 
+    // Cache for DOM elements
+    const domElements = Object.fromEntries(
+        ["reason", "url", "reportedBy", "reportSafe", "allowHostname", "homepageButton", "continueButton"]
+            .map(id => [id, document.getElementById(id)])
+    );
+
+    domElements.reason.innerText = result;
+
     // Extract the malicious & continue-to-site URLs from the current page URL
-    const maliciousUrl = UrlHelpers.extractMaliciousUrl(window.document.URL);
-    const continueUrl = UrlHelpers.extractContinueUrl(window.document.URL);
+    const maliciousUrl = UrlHelpers.extractMaliciousUrl(pageUrl);
+    const continueUrl = UrlHelpers.extractContinueUrl(pageUrl);
+
+    // Encode the URLs for safe use in other contexts
+    const encodedMaliciousUrl = encodeURIComponent(maliciousUrl);
+    const encodedResult = encodeURIComponent(result);
 
     // Set the URL text to the current page URL
-    document.getElementById("url").innerText = maliciousUrl;
+    domElements.url.innerText = maliciousUrl;
 
-    // Modify the "Reported by" text based on the origin of the protection result
-    const origin = UrlHelpers.extractOrigin(window.document.URL);
-    const systemName = ProtectionResult.ResultOriginNames[parseInt(origin)];
+    // Get origin information
+    const origin = UrlHelpers.extractOrigin(pageUrl);
+    const originInt = parseInt(origin);
+    const systemName = ProtectionResult.ResultOriginNames[originInt];
 
-    let reportUrl;
+    // Set reported by text
+    domElements.reportedBy.innerText = systemName || "Unknown";
 
-    switch (origin) {
-        case ProtectionResult.ResultOrigin.MICROSOFT.valueOf().toString():
-            reportUrl = new URL("https://feedback.smartscreen.microsoft.com/feedback.aspx?t=16&url=" + maliciousUrl);
-            document.getElementById("reportedBy").innerText = systemName;
-            break;
+    // Create a function to get the report URL lazily when needed
+    const getReportUrl = () => {
+        switch (originInt) {
+            case ProtectionResult.ResultOrigin.MICROSOFT:
+                return new URL("https://feedback.smartscreen.microsoft.com/feedback.aspx?t=16&url=" + maliciousUrl);
 
-        case ProtectionResult.ResultOrigin.SYMANTEC.valueOf().toString():
-            reportUrl = new URL("https://sitereview.symantec.com/sitereview.jsp?referrer=sedsbp&url="
-                + encodeURIComponent(maliciousUrl));
-            document.getElementById("reportedBy").innerText = systemName;
-            break;
+            case ProtectionResult.ResultOrigin.SYMANTEC:
+                return new URL("https://sitereview.symantec.com/sitereview.jsp?referrer=sedsbp&url=" + encodedMaliciousUrl);
 
-        case ProtectionResult.ResultOrigin.EMSISOFT.valueOf().toString():
-            reportUrl = new URL("mailto:fp@emsisoft.com?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
-                + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20Emsisoft%20Browser%20Security%0AURL%3A%20"
-                + encodeURIComponent(maliciousUrl) + "%0ADetected%20as%3A%20" + encodeURIComponent(result)
-                + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
-            document.getElementById("reportedBy").innerText = systemName;
-            break;
+            case ProtectionResult.ResultOrigin.EMSISOFT:
+                return new URL("mailto:fp@emsisoft.com?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
+                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20Emsisoft%20Browser%20Security%0AURL%3A%20"
+                    + encodedMaliciousUrl + "%0ADetected%20as%3A%20" + encodedResult
+                    + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
-        case ProtectionResult.ResultOrigin.BITDEFENDER.valueOf().toString():
-            reportUrl = new URL("https://bitdefender.com/consumer/support/answer/29358/#scroll-to-heading-2");
-            document.getElementById("reportedBy").innerText = systemName;
-            break;
+            case ProtectionResult.ResultOrigin.BITDEFENDER:
+                return new URL("https://bitdefender.com/consumer/support/answer/29358/#scroll-to-heading-2");
 
-        case ProtectionResult.ResultOrigin.NORTON.valueOf().toString():
-            reportUrl = new URL("https://safeweb.norton.com/report?url=" + encodeURIComponent(maliciousUrl));
-            document.getElementById("reportedBy").innerText = systemName;
-            break;
+            case ProtectionResult.ResultOrigin.NORTON:
+                return new URL("https://safeweb.norton.com/report?url=" + encodedMaliciousUrl);
 
-        case ProtectionResult.ResultOrigin.TOTAL.valueOf().toString():
-            reportUrl = new URL("https://totalwebshield.com/submit-file#false-positive-website");
-            document.getElementById("reportedBy").innerText = systemName;
-            break;
+            case ProtectionResult.ResultOrigin.TOTAL:
+                return new URL("https://totalwebshield.com/submit-file#false-positive-website");
 
-        case ProtectionResult.ResultOrigin.G_DATA.valueOf().toString():
-            reportUrl = new URL("https://submit.gdatasoftware.com/url?key=NWNjNWIzY2RlMGE0ZDA5YzkyNzJmMTA3MTRmZTYwMjBi"
-                + "NmZmOWNjZDQ1MTQ1NjQ3F9FNhTj0IOo0u_jyw7nqx5c7jZxGFVmoR7X_4r7__CZJnGtqJsIzn-tN&lang=en");
-            document.getElementById("reportedBy").innerText = systemName;
-            break;
+            case ProtectionResult.ResultOrigin.G_DATA:
+                return new URL("https://submit.gdatasoftware.com/url?key=NWNjNWIzY2RlMGE0ZDA5YzkyNzJmMTA3MTRmZTYwMjBi"
+                    + "NmZmOWNjZDQ1MTQ1NjQ3F9FNhTj0IOo0u_jyw7nqx5c7jZxGFVmoR7X_4r7__CZJnGtqJsIzn-tN&lang=en");
 
-        default:
-            document.getElementById("reportedBy").innerText = "Unknown";
-            break;
-    }
+            default:
+                return null;
+        }
+    };
+
+    // Unified message sending function with error handling
+    const sendMessage = async (messageType, additionalData = {}) => {
+        try {
+            const message = {
+                messageType,
+                maliciousUrl,
+                origin,
+                ...additionalData
+            };
+
+            await chrome.runtime.sendMessage(message);
+        } catch (error) {
+            console.error(`Error sending message ${messageType}:`, error);
+        }
+    };
 
     // Add event listener to "Report this site" button
-    document.getElementById("reportSafe").addEventListener("click", async () => {
-        await chrome.runtime.sendMessage({
-            messageType: Messages.MessageType.REPORT_SITE,
-            reportUrl: reportUrl,
-            origin: origin
+    domElements.reportSafe.addEventListener("click", async () => {
+        await sendMessage(Messages.MessageType.REPORT_SITE, {
+            reportUrl: getReportUrl()
         });
     });
 
     // Add event listener to "Add hostname to allowlist" button
-    document.getElementById("allowHostname").addEventListener("click", async () => {
-        await chrome.runtime.sendMessage({
-            messageType: Messages.MessageType.ALLOW_HOSTNAME,
-            maliciousUrl: maliciousUrl,
-            continueUrl: continueUrl,
-            origin: origin
+    domElements.allowHostname.addEventListener("click", async () => {
+        await sendMessage(Messages.MessageType.ALLOW_HOSTNAME, {
+            continueUrl
         });
     });
 
     // Add event listener to "Back to safety" button
-    document.getElementById("homepageButton").addEventListener("click", async () => {
-        await chrome.runtime.sendMessage({
-            messageType: Messages.MessageType.CONTINUE_TO_SAFETY,
-            maliciousUrl: maliciousUrl,
+    domElements.homepageButton.addEventListener("click", async () => {
+        await sendMessage(Messages.MessageType.CONTINUE_TO_SAFETY, {
             hostUrl: continueUrl
         });
     });
 
     // Add event listener to "Continue anyway" button
-    document.getElementById("continueButton").addEventListener("click", async () => {
-        await chrome.runtime.sendMessage({
-            messageType: Messages.MessageType.CONTINUE_TO_SITE,
-            maliciousUrl: maliciousUrl,
-            continueUrl: continueUrl,
-            origin: origin
+    domElements.continueButton.addEventListener("click", async () => {
+        await sendMessage(Messages.MessageType.CONTINUE_TO_SITE, {
+            continueUrl
         });
     });
 }, {once: true});

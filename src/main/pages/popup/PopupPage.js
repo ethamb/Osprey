@@ -1,10 +1,17 @@
 "use strict";
 
-(function () {
-    // Send a message to indicate that the popup has been launched.
-    chrome.runtime.sendMessage({messageType: Messages.MessageType.POPUP_LAUNCHED});
+// Use a global singleton pattern to ensure we don't duplicate resources
+window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
+    // Track initialization state
+    let isInitialized = false;
 
-    // Security systems configuration
+    // Cache for DOM elements
+    const domElements = {};
+
+    // Reference to event listeners for easy removal
+    const eventListeners = new Map();
+
+    // Security systems configuration - only defined once
     const securitySystems = [
         {
             name: "smartScreenEnabled",
@@ -58,77 +65,190 @@
     ];
 
     /**
-     * Updates the UI for a specific security system.
+     * Get DOM elements for a system, caching them for future use
      *
-     * @param {string} systemName - The name of the system being updated.
+     * @param {Object} system - The system object
+     * @returns {Object} Object containing the label and switch elements
+     */
+    const getSystemElements = function (system) {
+        if (!domElements[system.name]) {
+            domElements[system.name] = {
+                label: document.getElementById(system.labelElementId),
+                switchElement: document.getElementById(system.switchElementId)
+            };
+        }
+        return domElements[system.name];
+    };
+
+    /**
+     * Safely add event listener with tracking for cleanup
+     *
+     * @param {EventTarget} target - Element to attach listener to
+     * @param {string} type - Event type
+     * @param {Function} listener - Event handler
+     */
+    const safeAddEventListener = function (target, type, listener) {
+        target.addEventListener(type, listener);
+
+        if (!eventListeners.has(target)) {
+            eventListeners.set(target, new Map());
+        }
+
+        eventListeners.get(target).set(type, listener);
+    };
+
+    /**
+     * Remove all tracked event listeners
+     */
+    const removeAllEventListeners = function () {
+        eventListeners.forEach((typeListeners, target) => {
+            typeListeners.forEach((listener, type) => {
+                target.removeEventListener(type, listener);
+            });
+        });
+
+        eventListeners.clear();
+    };
+
+    /**
+     * Batch updates UI elements for better performance
+     *
+     * @param {Array} updates - Array of update operations to perform
+     */
+    const batchDomUpdates = function (updates) {
+        window.requestAnimationFrame(() => {
+            updates.forEach(update => update());
+        });
+    };
+
+    /**
+     * Updates the UI for a specific security system using batched DOM operations.
+     *
+     * @param {Object} system - The system object being updated.
      * @param {boolean} isOn - Whether the protection is enabled for the system.
      */
-    const updateProtectionStatusUI = function (systemName, isOn) {
-        const system = securitySystems.find((sys) => sys.name === systemName);
-        const label = document.getElementById(system.labelElementId);
-        const switchElement = document.getElementById(system.switchElementId);
+    const updateProtectionStatusUI = function (system, isOn) {
+        const updates = [];
 
-        if (isOn) {
-            label.textContent = "On";
-            switchElement.classList.add("on");
-            switchElement.classList.remove("off");
-        } else {
-            label.textContent = "Off";
-            switchElement.classList.remove("on");
-            switchElement.classList.add("off");
-        }
+        // Get cached DOM elements or fetch them if not cached
+        const elements = getSystemElements(system);
+
+        updates.push(() => {
+            if (elements.label) {
+                elements.label.textContent = isOn ? "On" : "Off";
+            }
+
+            if (elements.switchElement) {
+                if (isOn) {
+                    elements.switchElement.classList.add("on");
+                    elements.switchElement.classList.remove("off");
+                } else {
+                    elements.switchElement.classList.remove("on");
+                    elements.switchElement.classList.add("off");
+                }
+            }
+        });
+
+        batchDomUpdates(updates);
     };
 
     /**
      * Toggles the state of a security system and updates its UI.
-     * @param {string} systemName - The name of the system being toggled.
+     *
+     * @param {Object} system - The system object being toggled.
+     * @param {Object} settings - The current settings object.
      */
-    const toggleProtection = function (systemName) {
-        // Get the current state directly from Settings before toggling
+    const toggleProtection = function (system, settings) {
         Settings.get((settings) => {
-            const currentState = settings[systemName];
-            const newState = !currentState; // Toggle the protection state
+            const currentState = settings[system.name];
+            const newState = !currentState;
 
-            // Update UI with the new state
-            updateProtectionStatusUI(systemName, newState);
+            Settings.set({[system.name]: newState}, () => {
+                updateProtectionStatusUI(system, newState);
+                console.debug(`${system.title} has been ${newState ? "disabled" : "enabled"}.`);
 
-            // Save the new state
-            Settings.set({[systemName]: newState}, () => {
-                // Log the toggle event
-                console.debug(`${settings[systemName].title} has been ${newState ? "disabled" : "enabled"}.`);
-
-                // Send message to background after saving the state
                 chrome.runtime.sendMessage({
-                    messageType: securitySystems.find((sys) => sys.name === systemName).messageType,
+                    messageType: system.messageType,
                     toggleState: newState,
                 });
             });
         });
     };
 
-    // Add event listeners for each security system's switch
-    document.addEventListener("DOMContentLoaded", () => {
+    /**
+     * Reset to initial state to prevent memory leaks
+     */
+    const reset = function () {
+        // Remove all event listeners we've registered
+        removeAllEventListeners();
+
+        // Remove click handlers from all switches
         securitySystems.forEach((system) => {
-            const switchElement = document.getElementById(system.switchElementId);
-            if (switchElement) {
-                switchElement.onclick = () => toggleProtection(system.name);
+            const elements = domElements[system.name];
+
+            if (elements && elements.switchElement) {
+                elements.switchElement.onclick = null;
             }
         });
 
-        // Retrieve the protection states from settings and update the UI accordingly.
+        // Keep the DOM elements cache but reset initialization
+        isInitialized = false;
+    };
+
+    /**
+     * Initialize the popup or refresh if already initialized
+     */
+    const initialize = function () {
+        // If already initialized, reset first
+        if (isInitialized) {
+            reset();
+        }
+
+        // Mark as initialized
+        isInitialized = true;
+
+        // Let background script know we're open
+        chrome.runtime.sendMessage({messageType: Messages.MessageType.POPUP_LAUNCHED});
+
+        // Set up switch elements and click handlers
+        securitySystems.forEach((system) => {
+            const elements = getSystemElements(system);
+
+            if (elements.switchElement) {
+                elements.switchElement.onclick = () => toggleProtection(system);
+            }
+        });
+
+        // Load and apply settings
         Settings.get((settings) => {
             securitySystems.forEach((system) => {
                 const isEnabled = settings[system.name];
-                updateProtectionStatusUI(system.name, isEnabled); // Update the UI based on the state
+                updateProtectionStatusUI(system, isEnabled);
             });
         });
 
-        // Adds the version number to the popup page.
+        // Update version display
         const versionElement = document.getElementById("version");
         if (versionElement) {
             const manifest = chrome.runtime.getManifest();
             const version = manifest.version;
             versionElement.textContent += version;
         }
-    });
+
+        // Register for page unload - but only for cleanup, not prevention
+        safeAddEventListener(window, 'unload', () => {
+            chrome.runtime.sendMessage({messageType: Messages.MessageType.POPUP_CLOSED});
+        });
+    };
+
+    // Public API
+    return {
+        initialize,
+        reset
+    };
 })();
+
+// Initialize when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+    window.SecurityPopupSingleton.initialize();
+});

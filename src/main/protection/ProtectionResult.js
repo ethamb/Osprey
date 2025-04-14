@@ -32,6 +32,7 @@ ProtectionResult.ResultType = {
 };
 
 ProtectionResult.ResultOrigin = {
+    UNKNOWN: 0, // The result was determined via an unknown origin
     MICROSOFT: 1, // The result was determined via Microsoft SmartScreen
     SYMANTEC: 2, // The result was determined via Symantec
     EMSISOFT: 3, // The result was determined via Emsisoft
@@ -42,6 +43,7 @@ ProtectionResult.ResultOrigin = {
 };
 
 ProtectionResult.ResultOriginNames = {
+    0: "Unknown",
     1: "Microsoft SmartScreen",
     2: "Symantec Browser Protection",
     3: "Emsisoft Web Protection",

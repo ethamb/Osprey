@@ -34,8 +34,8 @@ class CacheManager {
         if (!this.timeoutId) {
             this.timeoutId = setTimeout(() => {
                 this.timeoutId = null;
-
                 const cacheDataToStore = {};
+
                 Object.keys(this.caches).forEach((cacheName) => {
                     cacheDataToStore[cacheName] = Object.fromEntries(this.caches[cacheName]);
                 });
@@ -98,7 +98,11 @@ class CacheManager {
 
             if (cache) {
                 cache.set(normalizedUrl, expirationDate.getTime());
-                this.updateStorage();
+
+                // Clean expired entries and update storage
+                if (this.cleanExpiredEntries() === 0) {
+                    this.updateStorage();
+                }
             } else {
                 console.warn(`Cache ${cacheName} does not exist.`);
             }
@@ -116,7 +120,11 @@ class CacheManager {
 
             if (cache) {
                 cache.set(string, expirationDate.getTime());
-                this.updateStorage();
+
+                // Clean expired entries and update storage
+                if (this.cleanExpiredEntries() === 0) {
+                    this.updateStorage();
+                }
             } else {
                 console.warn(`Cache ${cacheName} does not exist.`);
             }
@@ -125,13 +133,39 @@ class CacheManager {
         }
     }
 
+    // Add a method to clean expired entries all at once
+    cleanExpiredEntries() {
+        const now = Date.now();
+        let entriesRemoved = 0;
+
+        Object.keys(this.caches).forEach((cacheName) => {
+            const cache = this.caches[cacheName];
+            const keysToDelete = [];
+
+            cache.forEach((expiration, url) => {
+                if (expiration < now) {
+                    keysToDelete.push(url);
+                    entriesRemoved++;
+                }
+            });
+
+            keysToDelete.forEach((url) => {
+                cache.delete(url);
+            });
+        });
+
+        if (entriesRemoved > 0) {
+            console.debug(`Removed ${entriesRemoved} expired entries from caches.`);
+            this.updateStorage();
+        }
+        return entriesRemoved;
+    }
+
     // Helper function to normalize URLs
     normalizeUrl(url) {
-        let normalizedUrl = UrlHelpers.normalizeHostname(url.hostname + url.pathname);
-
-        if (normalizedUrl.endsWith("/")) {
-            normalizedUrl = normalizedUrl.slice(0, -1);
-        }
-        return normalizedUrl;
+        // Parse URL only if it's a string
+        const urlObj = typeof url === 'string' ? new URL(url) : url;
+        let normalizedUrl = UrlHelpers.normalizeHostname(urlObj.hostname + urlObj.pathname);
+        return normalizedUrl.endsWith("/") ? normalizedUrl.slice(0, -1) : normalizedUrl;
     }
 }
