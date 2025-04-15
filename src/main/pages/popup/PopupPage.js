@@ -12,7 +12,7 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
     const eventListeners = new Map();
 
     // Browser API compatibility between Chrome and Firefox
-    const browserAPI = chrome || browser;
+    const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
     // Security systems configuration - only defined once
     const securitySystems = [

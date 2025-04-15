@@ -10,7 +10,7 @@ const Storage = {
      */
     getFromLocalStore: function (key, callback) {
         // Browser API compatibility between Chrome and Firefox
-        const browserAPI = chrome || browser;
+        const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
         /**
          * Internal function to handle the retrieval process from local storage.
@@ -38,7 +38,7 @@ const Storage = {
      */
     setToLocalStore: function (key, value, callback) {
         // Browser API compatibility between Chrome and Firefox
-        const browserAPI = chrome || browser;
+        const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
         /**
          * Internal function to handle the saving process to local storage.

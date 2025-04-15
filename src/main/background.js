@@ -2,7 +2,7 @@
     "use strict";
 
     // Browser API compatibility between Chrome and Firefox
-    const browserAPI = chrome || browser;
+    const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
     // Import necessary scripts for functionality
     try {

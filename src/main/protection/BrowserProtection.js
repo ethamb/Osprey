@@ -20,7 +20,7 @@ const BrowserProtection = function () {
      */
     const cleanupTabControllers = function () {
         // Browser API compatibility between Chrome and Firefox
-        const browserAPI = chrome || browser;
+        const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
         // Remove controllers for tabs that no longer exist
         browserAPI.tabs.query({}, (tabs) => {
@@ -57,7 +57,7 @@ const BrowserProtection = function () {
             }
 
             // Browser API compatibility between Chrome and Firefox
-            const browserAPI = chrome || browser;
+            const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
             // Capture the current time for response measurement
             const startTime = (new Date()).getTime();

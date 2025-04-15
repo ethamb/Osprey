@@ -42,7 +42,7 @@ const UrlHelpers = {
      */
     getBlockPageUrl: (continueUrl, protectionResult, instanceId, sessionId) => {
         // Browser API compatibility between Chrome and Firefox
-        const browserAPI = chrome || browser;
+        const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
         // Base URL for the block page
         const blockPageBaseUrl = browserAPI.runtime.getURL("pages/warning/WarningPage.html");

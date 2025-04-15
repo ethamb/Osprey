@@ -13,7 +13,7 @@ window.addEventListener("load", () => {
     }
 
     // Browser API compatibility between Chrome and Firefox
-    const browserAPI = chrome || browser;
+    const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
     // Cache for DOM elements
     const domElements = Object.fromEntries(
