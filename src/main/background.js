@@ -312,20 +312,17 @@
             return;
         }
 
-        // Use "about:newtab" for Chrome and "firefox://newtab" for Firefox as the new tab page URL.
-        const newTabPageUrl = isFirefox ? "firefox://newtab" : "about:newtab";
-
         switch (message.messageType) {
             case Messages.MessageType.CONTINUE_TO_SITE: {
                 if (!message.continueUrl) {
                     console.debug(`No continue URL was found; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
+                    sendToNewTabPage(sender.tab.id);
                     return;
                 }
 
                 if (!message.origin) {
                     console.debug(`No origin was found; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
+                    sendToNewTabPage(sender.tab.id);
                     return;
                 }
 
@@ -334,7 +331,7 @@
                 // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
                 if (!validProtocols.includes(continueUrlObject.protocol)) {
                     console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
+                    sendToNewTabPage(sender.tab.id);
                     return;
                 }
 
@@ -385,7 +382,7 @@
 
             case Messages.MessageType.CONTINUE_TO_SAFETY: {
                 setTimeout(() => {
-                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
+                    sendToNewTabPage(sender.tab.id);
                 }, 200);
                 break;
             }
@@ -398,8 +395,7 @@
                 }
 
                 if (!message.origin) {
-                    console.debug(`No origin was found; sending to new tab page.`);
-                    browserAPI.tabs.create({url: newTabPageUrl});
+                    console.debug(`No origin was found; doing nothing.`);
                     break;
                 }
 
@@ -413,8 +409,7 @@
                     if (reportUrlObject.protocol === "mailto:") {
                         browserAPI.tabs.create({url: message.reportUrl});
                     } else {
-                        console.warn(`Invalid protocol in report URL: ${message.reportUrl}; sending to new tab page.`);
-                        browserAPI.tabs.create({url: newTabPageUrl});
+                        console.warn(`Invalid protocol in report URL: ${message.reportUrl}; doing nothing.`);
                     }
                 }
                 break;
@@ -429,13 +424,13 @@
 
                 if (!message.continueUrl) {
                     console.debug(`No continue URL was found; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
+                    sendToNewTabPage(sender.tab.id);
                     return;
                 }
 
                 if (!message.origin) {
                     console.debug(`No origin was found; sending to new tab page.`);
-                    browserAPI.tabs.create({url: newTabPageUrl});
+                    sendToNewTabPage(sender.tab.id);
                     break;
                 }
 
@@ -490,7 +485,7 @@
                 // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
                 if (!validProtocols.includes(continueUrlObject.protocol)) {
                     console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
+                    sendToNewTabPage(sender.tab.id);
                     return;
                 }
 
@@ -540,4 +535,14 @@
                 break;
         }
     });
+
+    // Function to send the user to the new tab page.
+    function sendToNewTabPage(tabId) {
+        if (isFirefox) {
+            browserAPI.tabs.remove(tabId);
+            browserAPI.tabs.create({});
+        } else {
+            browserAPI.tabs.update(tabId, {url: "about:newtab"});
+        }
+    }
 })();
