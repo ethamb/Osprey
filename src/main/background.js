@@ -29,6 +29,9 @@
     // Start a new telemetry session.
     Telemetry.startNewSession();
 
+    // Browser API compatibility between Chrome and Firefox
+    const browserAPI = chrome || browser;
+
     // List of valid protocols (e.g., HTTP, HTTPS).
     const validProtocols = ['http:', 'https:'];
 
@@ -199,15 +202,17 @@
                     && resultType !== ProtectionResult.ResultType.ALLOWED) {
                     malicious = true;
 
-                    chrome.tabs.get(tabId, (tab) => {
+                    browserAPI.tabs.get(tabId, (tab) => {
                         if (!tab) {
-                            console.debug(`chrome.tabs.get(${tabId}) failed '${chrome.runtime.lastError?.message}'; bailing out.`);
+                            console.debug(`tabs.get(${tabId}) failed '${browserAPI.runtime.lastError?.message}'; bailing out.`);
                             return;
                         }
 
                         const pendingUrl = tab.pendingUrl || tab.url;
 
-                        if (pendingUrl.startsWith("chrome-extension:")) {
+                        if (pendingUrl.startsWith("chrome-extension:")
+                            || pendingUrl.startsWith("moz-extension:")
+                            || pendingUrl.startsWith("extension:")) {
                             console.debug(`[${systemName}] The tab is at an extension page; bailing out.`);
                             return;
                         }
@@ -219,7 +224,7 @@
                                 // Navigate to the block page
                                 const blockPageUrl = UrlHelpers.getBlockPageUrl(pendingUrl, result, instanceId, Telemetry.getSessionID());
                                 console.debug(`[${systemName}] Navigating to block page: ${blockPageUrl}.`);
-                                chrome.tabs.update(tab.id, {url: blockPageUrl});
+                                browserAPI.tabs.update(tab.id, {url: blockPageUrl});
 
                                 // Build the warning notification options
                                 const notificationOptions = {
@@ -236,12 +241,12 @@
                                 const notificationId = `warning-` + randomNumber;
 
                                 // Display the warning notification
-                                chrome.notifications.create(notificationId, notificationOptions, (notificationId) => {
+                                browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
                                     console.debug(`Notification created with ID: ${notificationId}`);
                                 });
                             });
                         } else {
-                            console.debug(`chrome.tab '${tabId}' failed to supply a top-level URL; bailing out.`);
+                            console.debug(`Tab '${tabId}' failed to supply a top-level URL; bailing out.`);
                         }
                     });
                 }
@@ -250,13 +255,13 @@
     };
 
     // Listener for onBeforeNavigate events.
-    chrome.webNavigation.onBeforeNavigate.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onBeforeNavigate.addListener((navigationDetails) => {
         console.debug(`[onBeforeNavigate] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onCommitted events.
-    chrome.webNavigation.onCommitted.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onCommitted.addListener((navigationDetails) => {
         if (navigationDetails.transitionQualifiers.includes("server_redirect")) {
             console.debug(`[server_redirect] ${navigationDetails.url}`);
             handleNavigation(navigationDetails);
@@ -267,31 +272,31 @@
     });
 
     // Listener for onCreatedNavigationTarget events.
-    chrome.webNavigation.onCreatedNavigationTarget.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onCreatedNavigationTarget.addListener((navigationDetails) => {
         console.debug(`[onCreatedNavigationTarget] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onHistoryStateUpdated events.
-    chrome.webNavigation.onHistoryStateUpdated.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onHistoryStateUpdated.addListener((navigationDetails) => {
         console.debug(`[onHistoryStateUpdated] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onReferenceFragmentUpdated events.
-    chrome.webNavigation.onReferenceFragmentUpdated.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onReferenceFragmentUpdated.addListener((navigationDetails) => {
         console.debug(`[onReferenceFragmentUpdated] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onTabReplaced events.
-    chrome.webNavigation.onTabReplaced.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onTabReplaced.addListener((navigationDetails) => {
         console.debug(`[onTabReplaced] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for incoming messages.
-    chrome.runtime.onMessage.addListener((message, sender) => {
+    browserAPI.runtime.onMessage.addListener((message, sender) => {
         // Check if the message is valid and has a message type.
         if (!(message && message.messageType)) {
             return;
@@ -301,13 +306,13 @@
             case Messages.MessageType.CONTINUE_TO_SITE: {
                 if (!message.continueUrl) {
                     console.debug(`No continue URL was found; sending to new tab page.`);
-                    chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
                     return;
                 }
 
                 if (!message.origin) {
                     console.debug(`No origin was found; sending to new tab page.`);
-                    chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
                     return;
                 }
 
@@ -316,7 +321,7 @@
                 // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
                 if (!validProtocols.includes(continueUrlObject.protocol)) {
                     console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
-                    chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
                     return;
                 }
 
@@ -361,13 +366,13 @@
                         break;
                 }
 
-                chrome.tabs.update(sender.tab.id, {url: message.continueUrl});
+                browserAPI.tabs.update(sender.tab.id, {url: message.continueUrl});
                 break;
             }
 
             case Messages.MessageType.CONTINUE_TO_SAFETY: {
                 setTimeout(() => {
-                    chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
                 }, 200);
                 break;
             }
@@ -381,7 +386,7 @@
 
                 if (!message.origin) {
                     console.debug(`No origin was found; sending to new tab page.`);
-                    chrome.tabs.create({url: "about:newtab"});
+                    browserAPI.tabs.create({url: "about:newtab"});
                     break;
                 }
 
@@ -389,14 +394,14 @@
 
                 if (validProtocols.includes(reportUrlObject.protocol)) {
                     console.debug(`Navigating to report URL: ${message.reportUrl}`);
-                    chrome.tabs.create({url: message.reportUrl});
+                    browserAPI.tabs.create({url: message.reportUrl});
                 } else {
                     // Ignore the mailto: protocol.
                     if (reportUrlObject.protocol === "mailto:") {
-                        chrome.tabs.create({url: message.reportUrl});
+                        browserAPI.tabs.create({url: message.reportUrl});
                     } else {
                         console.warn(`Invalid protocol in report URL: ${message.reportUrl}; sending to new tab page.`);
-                        chrome.tabs.create({url: "about:newtab"});
+                        browserAPI.tabs.create({url: "about:newtab"});
                     }
                 }
                 break;
@@ -411,13 +416,13 @@
 
                 if (!message.continueUrl) {
                     console.debug(`No continue URL was found; sending to new tab page.`);
-                    chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
                     return;
                 }
 
                 if (!message.origin) {
                     console.debug(`No origin was found; sending to new tab page.`);
-                    chrome.tabs.create({url: "about:newtab"});
+                    browserAPI.tabs.create({url: "about:newtab"});
                     break;
                 }
 
@@ -472,11 +477,11 @@
                 // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
                 if (!validProtocols.includes(continueUrlObject.protocol)) {
                     console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
-                    chrome.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
                     return;
                 }
 
-                chrome.tabs.update(sender.tab.id, {url: message.continueUrl});
+                browserAPI.tabs.update(sender.tab.id, {url: message.continueUrl});
                 break;
             }
 

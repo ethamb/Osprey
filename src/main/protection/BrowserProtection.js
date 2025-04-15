@@ -19,8 +19,11 @@ const BrowserProtection = function () {
      * Cleans up controllers for tabs that no longer exist.
      */
     const cleanupTabControllers = function () {
+        // Browser API compatibility between Chrome and Firefox
+        const browserAPI = chrome || browser;
+
         // Remove controllers for tabs that no longer exist
-        chrome.tabs.query({}, (tabs) => {
+        browserAPI.tabs.query({}, (tabs) => {
             const activeTabIds = new Set(tabs.map(tab => tab.id));
 
             for (const tabId of tabAbortControllers.keys()) {
@@ -52,6 +55,9 @@ const BrowserProtection = function () {
             if (!tabId || !url || !callback) {
                 return;
             }
+
+            // Browser API compatibility between Chrome and Firefox
+            const browserAPI = chrome || browser;
 
             // Capture the current time for response measurement
             const startTime = (new Date()).getTime();
@@ -96,7 +102,7 @@ const BrowserProtection = function () {
                     },
 
                     identity: {
-                        client: {version: chrome.runtime.getManifest().version.replace(/\./g, "")},
+                        client: {version: browserAPI.runtime.getManifest().version.replace(/\./g, "")},
                         device: {id: settings.instanceID},
                         user: {locale: userLocale}
                     }

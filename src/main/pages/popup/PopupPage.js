@@ -11,6 +11,9 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
     // Reference to event listeners for easy removal
     const eventListeners = new Map();
 
+    // Browser API compatibility between Chrome and Firefox
+    const browserAPI = chrome || browser;
+
     // Security systems configuration - only defined once
     const securitySystems = [
         {
@@ -167,7 +170,7 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
                 updateProtectionStatusUI(system, newState);
                 console.debug(`${system.title} has been ${newState ? "disabled" : "enabled"}.`);
 
-                chrome.runtime.sendMessage({
+                browserAPI.runtime.sendMessage({
                     messageType: system.messageType,
                     toggleState: newState,
                 });
@@ -208,7 +211,7 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
         isInitialized = true;
 
         // Let background script know we're open
-        chrome.runtime.sendMessage({messageType: Messages.MessageType.POPUP_LAUNCHED});
+        browserAPI.runtime.sendMessage({messageType: Messages.MessageType.POPUP_LAUNCHED});
 
         // Set up switch elements and click handlers
         securitySystems.forEach((system) => {
@@ -230,14 +233,14 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
         // Update version display
         const versionElement = document.getElementById("version");
         if (versionElement) {
-            const manifest = chrome.runtime.getManifest();
+            const manifest = browserAPI.runtime.getManifest();
             const version = manifest.version;
             versionElement.textContent += version;
         }
 
         // Register for page unload - but only for cleanup, not prevention
         safeAddEventListener(window, 'unload', () => {
-            chrome.runtime.sendMessage({messageType: Messages.MessageType.POPUP_CLOSED});
+            browserAPI.runtime.sendMessage({messageType: Messages.MessageType.POPUP_CLOSED});
         });
     };
 

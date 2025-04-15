@@ -12,6 +12,9 @@ window.addEventListener("load", () => {
         return;
     }
 
+    // Browser API compatibility between Chrome and Firefox
+    const browserAPI = chrome || browser;
+
     // Cache for DOM elements
     const domElements = Object.fromEntries(
         ["reason", "url", "reportedBy", "reportSafe", "allowHostname", "homepageButton", "continueButton"]
@@ -82,7 +85,7 @@ window.addEventListener("load", () => {
                 ...additionalData
             };
 
-            await chrome.runtime.sendMessage(message);
+            await browserAPI.runtime.sendMessage(message);
         } catch (error) {
             console.error(`Error sending message ${messageType}:`, error);
         }
