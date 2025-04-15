@@ -309,17 +309,19 @@
             return;
         }
 
+        const newTabPageUrl = browserAPI === chrome ? "about:newtab" : "about:home";
+
         switch (message.messageType) {
             case Messages.MessageType.CONTINUE_TO_SITE: {
                 if (!message.continueUrl) {
                     console.debug(`No continue URL was found; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
                     return;
                 }
 
                 if (!message.origin) {
                     console.debug(`No origin was found; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
                     return;
                 }
 
@@ -328,7 +330,7 @@
                 // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
                 if (!validProtocols.includes(continueUrlObject.protocol)) {
                     console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
                     return;
                 }
 
@@ -379,7 +381,7 @@
 
             case Messages.MessageType.CONTINUE_TO_SAFETY: {
                 setTimeout(() => {
-                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
                 }, 200);
                 break;
             }
@@ -393,7 +395,7 @@
 
                 if (!message.origin) {
                     console.debug(`No origin was found; sending to new tab page.`);
-                    browserAPI.tabs.create({url: "about:newtab"});
+                    browserAPI.tabs.create({url: newTabPageUrl});
                     break;
                 }
 
@@ -408,7 +410,7 @@
                         browserAPI.tabs.create({url: message.reportUrl});
                     } else {
                         console.warn(`Invalid protocol in report URL: ${message.reportUrl}; sending to new tab page.`);
-                        browserAPI.tabs.create({url: "about:newtab"});
+                        browserAPI.tabs.create({url: newTabPageUrl});
                     }
                 }
                 break;
@@ -423,13 +425,13 @@
 
                 if (!message.continueUrl) {
                     console.debug(`No continue URL was found; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
                     return;
                 }
 
                 if (!message.origin) {
                     console.debug(`No origin was found; sending to new tab page.`);
-                    browserAPI.tabs.create({url: "about:newtab"});
+                    browserAPI.tabs.create({url: newTabPageUrl});
                     break;
                 }
 
@@ -484,7 +486,7 @@
                 // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
                 if (!validProtocols.includes(continueUrlObject.protocol)) {
                     console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: "about:newtab"});
+                    browserAPI.tabs.update(sender.tab.id, {url: newTabPageUrl});
                     return;
                 }
 
