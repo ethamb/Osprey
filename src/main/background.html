@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- This is only for Firefox, as it's Manifest V3 implementation sucks. -->
+<!-- This is the background page for the extension. -->
+
+<head>
+    <!-- Util -->
+    <script src="util/Settings.js"></script>
+    <script src="util/UrlHelpers.js"></script>
+    <script src="util/CacheManager.js"></script>
+    <script src="util/Storage.js"></script>
+
+    <!-- Other -->
+    <script src="util/other/SmartScreenUtil.js"></script>
+    <script src="util/other/EmsisoftUtil.js"></script>
+
+    <!-- Telemetry -->
+    <script src="util/telemetry/Telemetry.js"></script>
+    <script src="util/telemetry/MessageType.js"></script>
+
+    <!-- Hashing -->
+    <script src="util/hashing/MD5.js"></script>
+    <script src="util/hashing/RC4.js"></script>
+
+    <!-- Protection -->
+    <script src="protection/ProtectionResult.js"></script>
+    <script src="protection/BrowserProtection.js"></script>
+
+    <!-- The main script -->
+    <script src="background.js"></script>
+    <title></title>
+</head>
+<body>
+</body>
+</html>

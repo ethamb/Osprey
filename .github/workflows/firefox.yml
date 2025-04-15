@@ -25,9 +25,9 @@ jobs:
           jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_temp.json
           mv src/main/manifest_temp.json src/main/manifest.json
 
-      - name: 'Replace service_worker with scripts'
+      - name: 'Replace service_worker with page'
         run: |
-          jq '.background = {"scripts": [.background.service_worker]}' src/main/manifest.json > src/main/manifest_temp.json
+          jq '.background = {"page": "background.html"}' src/main/manifest.json > src/main/manifest_temp.json
           mv src/main/manifest_temp.json src/main/manifest.json
 
       - name: 'Add browser_specific_settings for Firefox'

@@ -1,36 +1,38 @@
 (() => {
     "use strict";
 
-    // Import necessary scripts for functionality.
-    importScripts(
-        // Util
-        "util/Settings.js",
-        "util/UrlHelpers.js",
-        "util/CacheManager.js",
-        "util/Storage.js",
+    // Browser API compatibility between Chrome and Firefox
+    const browserAPI = chrome || browser;
 
-        // Other
-        "util/other/SmartScreenUtil.js",
-        "util/other/EmsisoftUtil.js",
+    // Import necessary scripts for functionality (only on Chrome)
+    if (browserAPI === chrome) {
+        importScripts(
+            // Util
+            "util/Settings.js",
+            "util/UrlHelpers.js",
+            "util/CacheManager.js",
+            "util/Storage.js",
 
-        // Telemetry
-        "util/telemetry/Telemetry.js",
-        "util/telemetry/MessageType.js",
+            // Other
+            "util/other/SmartScreenUtil.js",
+            "util/other/EmsisoftUtil.js",
 
-        // Hashing
-        "util/hashing/MD5.js",
-        "util/hashing/RC4.js",
+            // Telemetry
+            "util/telemetry/Telemetry.js",
+            "util/telemetry/MessageType.js",
 
-        // Protection
-        "protection/ProtectionResult.js",
-        "protection/BrowserProtection.js"
-    );
+            // Hashing
+            "util/hashing/MD5.js",
+            "util/hashing/RC4.js",
+
+            // Protection
+            "protection/ProtectionResult.js",
+            "protection/BrowserProtection.js"
+        );
+    }
 
     // Start a new telemetry session.
     Telemetry.startNewSession();
-
-    // Browser API compatibility between Chrome and Firefox
-    const browserAPI = chrome || browser;
 
     // List of valid protocols (e.g., HTTP, HTTPS).
     const validProtocols = ['http:', 'https:'];
