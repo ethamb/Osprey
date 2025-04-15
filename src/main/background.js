@@ -428,13 +428,13 @@
                 }
 
                 if (!message.continueUrl) {
-                    console.debug(`No continue URL was found; sending to new tab page.`);
+                    console.debug(`No continue URL was found; sending to the blocked URL.`);
                     sendToNewTabPage(sender.tab.id);
                     return;
                 }
 
                 if (!message.origin) {
-                    console.debug(`No origin was found; sending to new tab page.`);
+                    console.debug(`No origin was found; sending to the blocked URL.`);
                     sendToNewTabPage(sender.tab.id);
                     break;
                 }
@@ -485,6 +485,14 @@
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
+                }
+
+                // Redirects to the blocked URL if the continue URL is 'about:blank'.
+                // This fixes a strange bug in Firefox.
+                if (continueUrlObject.href === "about:blank") {
+                    console.debug(`Continue URL is 'about:blank'; sending to the blocked URL.`);
+                    browserAPI.tabs.update(sender.tab.id, {url: message.maliciousUrl});
+                    return;
                 }
 
                 // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
