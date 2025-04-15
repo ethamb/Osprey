@@ -59,11 +59,22 @@ You can install **Osprey** from the web stores listed at the top.
 
 For other installations, you can install the extension manually:
 
+### Chrome or Edge
+
 1. Navigate to the [Actions section](https://github.com/Foulest/Osprey/actions/workflows) and click `Compile for Chrome` or `Compile for Edge`.
 2. Scroll down to the `Artifacts` section and download the artifact file.
 3. Extract the artifact's ZIP file to a folder on your computer.
 4. Navigate to `about://extensions` in your browser.
 5. Enable `Developer mode` and click `Load unpacked`.
+6. Select the downloaded ZIP file and click `Select Folder`.
+
+### Firefox
+
+1. Navigate to the [Actions section](https://github.com/Foulest/Osprey/actions/workflows) and click `Compile for Firefox`.
+2. Scroll down to the `Artifacts` section and download the artifact file.
+3. Extract the artifact's ZIP file to a folder on your computer.
+4. Navigate to `about:addons` in your browser.
+5. Click the gear icon and select `Install Add-on From File`.
 6. Select the downloaded ZIP file and click `Select Folder`.
 
 **Osprey** should now be installed in your browser.
