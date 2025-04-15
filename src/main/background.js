@@ -4,8 +4,9 @@
     // Browser API compatibility between Chrome and Firefox
     const browserAPI = chrome || browser;
 
-    // Import necessary scripts for functionality (only on Chrome)
-    if (browserAPI === chrome) {
+    // Import necessary scripts for functionality
+    try {
+        // This will work in Chrome service workers but throw in Firefox
         importScripts(
             // Util
             "util/Settings.js",
@@ -29,6 +30,10 @@
             "protection/ProtectionResult.js",
             "protection/BrowserProtection.js"
         );
+    } catch (error) {
+        // In Firefox, importScripts is not available, but scripts are loaded via background.html
+        console.log("Running in Firefox or another environment without importScripts");
+        console.debug("Error: " + error);
     }
 
     // Start a new telemetry session.
