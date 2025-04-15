@@ -246,6 +246,11 @@
                                     priority: 2,
                                 };
 
+                                // Firefox doesn't support contextMessage in notifications
+                                if (isFirefox) {
+                                    notificationOptions.message = `URL: ${currentUrl}\nReason: ${resultType}\nReported by: ${systemName}`;
+                                }
+
                                 // Create a unique notification ID based on a random number
                                 const randomNumber = Math.floor(Math.random() * 100000000);
                                 const notificationId = `warning-` + randomNumber;
