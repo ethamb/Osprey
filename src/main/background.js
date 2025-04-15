@@ -4,6 +4,9 @@
     // Browser API compatibility between Chrome and Firefox
     const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
+    // Check if we're running in Firefox
+    const isFirefox = typeof browser !== 'undefined';
+
     // Import necessary scripts for functionality
     try {
         // This will work in Chrome service workers but throw in Firefox
@@ -309,7 +312,8 @@
             return;
         }
 
-        const newTabPageUrl = browserAPI === chrome ? "about:newtab" : "about:home";
+        // Use "about:newtab" for Chrome and "about:home" for Firefox as the new tab page URL.
+        const newTabPageUrl = isFirefox ? "about:home" : "about:newtab";
 
         switch (message.messageType) {
             case Messages.MessageType.CONTINUE_TO_SITE: {
