@@ -333,6 +333,14 @@
 
                 let continueUrlObject = new URL(message.continueUrl);
 
+                // Redirects to the blocked URL if the continue URL is 'about:blank'.
+                // This fixes a strange bug in Firefox.
+                if (continueUrlObject.href === "about:blank") {
+                    console.debug(`Continue URL is 'about:blank'; sending to the blocked URL.`);
+                    browserAPI.tabs.update(sender.tab.id, {url: message.maliciousUrl});
+                    return;
+                }
+
                 // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
                 if (!validProtocols.includes(continueUrlObject.protocol)) {
                     console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
