@@ -312,8 +312,8 @@
             return;
         }
 
-        // Use "about:newtab" for Chrome and "about:home" for Firefox as the new tab page URL.
-        const newTabPageUrl = isFirefox ? "about:home" : "about:newtab";
+        // Use "about:newtab" for Chrome and "firefox://newtab" for Firefox as the new tab page URL.
+        const newTabPageUrl = isFirefox ? "firefox://newtab" : "about:newtab";
 
         switch (message.messageType) {
             case Messages.MessageType.CONTINUE_TO_SITE: {
