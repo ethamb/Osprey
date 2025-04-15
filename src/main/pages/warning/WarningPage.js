@@ -78,12 +78,20 @@ window.addEventListener("load", () => {
     // Unified message sending function with error handling
     const sendMessage = async (messageType, additionalData = {}) => {
         try {
+            // Convert URL objects to strings before sending
             const message = {
                 messageType,
-                maliciousUrl,
-                origin,
+                maliciousUrl: maliciousUrl instanceof URL ? maliciousUrl.toString() : maliciousUrl,
+                origin: origin instanceof URL ? origin.toString() : origin,
                 ...additionalData
             };
+
+            // Also check any properties in additionalData that might be URL objects
+            for (const key in message) {
+                if (message[key] instanceof URL) {
+                    message[key] = message[key].toString();
+                }
+            }
 
             await browserAPI.runtime.sendMessage(message);
         } catch (error) {
