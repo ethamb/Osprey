@@ -60,8 +60,9 @@ If the website is malicious, **Osprey** will block the page and display a warnin
 For example:
 1. If you search for shirts on Amazon and visit: https://www.amazon.com/s?k=shirts&crid=3TOVSW14ZHF8V&sprefix=shirt%2Caps%2C175&ref=nb_sb_noss_1
 2. Osprey will only send https://amazon.com/s to any APIs you have enabled.
-3. Once the results come back, Osprey caches the result for 24 hours.
-4. As long as a URL is cached, no new network requests will be made for it.
+3. If the APIs report that the page is safe to visit, Osprey caches the result for 24 hours.
+4. It will also be cached if you click 'Continue anyway' or 'Add hostname to allowlist' on a blocked site.
+5. As long as a URL is cached, no new network requests will be made for it.
 
 The only data the APIs receive is the stripped-down URL, your user agent, and your IP address.
 
