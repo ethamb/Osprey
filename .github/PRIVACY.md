@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Effective Date:** 10/16/2024
+**Effective Date:** 04/10/2025
 
 Osprey is committed to protecting your privacy. This Privacy Policy explains how our browser extension operates and how
 we handle your data.
