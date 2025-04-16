@@ -12,6 +12,7 @@ const Settings = (function () {
         nortonEnabled: true, // Default state for Norton
         totalEnabled: true, // Default state for TOTAL
         gDataEnabled: true, // Default state for G DATA
+        notificationsEnabled: true, // Default state for notifications
         isInstanceIDInitialized: false, // Flag to check if instance ID is initialized
         instanceID: 0 // Default instance ID
     };

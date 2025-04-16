@@ -237,28 +237,30 @@
                                 browserAPI.tabs.update(tab.id, {url: blockPageUrl});
 
                                 // Build the warning notification options
-                                const notificationOptions = {
-                                    type: "basic",
-                                    iconUrl: "assets/icons/icon128.png",
-                                    title: "Unsafe Website Blocked",
-                                    message: `URL: ${currentUrl}\nReason: ${resultType}`,
-                                    contextMessage: `Reported by: ${systemName}`,
-                                    priority: 2,
-                                };
+                                if (settings.notificationsEnabled) {
+                                    const notificationOptions = {
+                                        type: "basic",
+                                        iconUrl: "assets/icons/icon128.png",
+                                        title: "Unsafe Website Blocked",
+                                        message: `URL: ${currentUrl}\nReason: ${resultType}`,
+                                        contextMessage: `Reported by: ${systemName}`,
+                                        priority: 2,
+                                    };
 
-                                // Firefox doesn't support contextMessage in notifications
-                                if (isFirefox) {
-                                    notificationOptions.message = `URL: ${currentUrl}\nReason: ${resultType}\nReported by: ${systemName}`;
+                                    // Firefox doesn't support contextMessage in notifications
+                                    if (isFirefox) {
+                                        notificationOptions.message = `URL: ${currentUrl}\nReason: ${resultType}\nReported by: ${systemName}`;
+                                    }
+
+                                    // Create a unique notification ID based on a random number
+                                    const randomNumber = Math.floor(Math.random() * 100000000);
+                                    const notificationId = `warning-` + randomNumber;
+
+                                    // Display the warning notification
+                                    browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
+                                        console.debug(`Notification created with ID: ${notificationId}`);
+                                    });
                                 }
-
-                                // Create a unique notification ID based on a random number
-                                const randomNumber = Math.floor(Math.random() * 100000000);
-                                const notificationId = `warning-` + randomNumber;
-
-                                // Display the warning notification
-                                browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
-                                    console.debug(`Notification created with ID: ${notificationId}`);
-                                });
                             });
                         } else {
                             console.debug(`Tab '${tabId}' failed to supply a top-level URL; bailing out.`);
@@ -556,6 +558,36 @@
                 break;
         }
     });
+
+    // Create the context menu when the extension is installed or updated
+    browserAPI.runtime.onInstalled.addListener(() => {
+        createContextMenu();
+    });
+
+    // Listen for clicks on the context menu item
+    browserAPI.contextMenus.onClicked.addListener((info) => {
+        if (info.menuItemId === "toggleNotifications") {
+            Settings.set({notificationsEnabled: info.checked});
+            console.debug("Notifications enabled: " + info.checked);
+        }
+    });
+
+    // Create the context menu with the current state
+    function createContextMenu() {
+        Settings.get((settings) => {
+            // First remove existing menu items to avoid duplicates
+            browserAPI.contextMenus.removeAll(() => {
+                // Create the context menu item with a checkbox
+                browserAPI.contextMenus.create({
+                    id: "toggleNotifications",
+                    title: "Enable notifications",
+                    type: "checkbox",
+                    checked: settings.notificationsEnabled,
+                    contexts: ["all"],
+                });
+            });
+        });
+    }
 
     // Function to send the user to the new tab page.
     function sendToNewTabPage(tabId) {
