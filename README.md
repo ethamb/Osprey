@@ -53,6 +53,20 @@ If the website is malicious, **Osprey** will block the page and display a warnin
 
 ![Osprey Warning](https://i.imgur.com/FpPtbJh.png)
 
+## Privacy
+
+**Osprey** strips down each URL of tracking parameters before sending it to any APIs.
+
+For example:
+1. If you search for shirts on Amazon and visit: https://www.amazon.com/s?k=shirts&crid=3TOVSW14ZHF8V&sprefix=shirt%2Caps%2C175&ref=nb_sb_noss_1
+2. Osprey will only send https://amazon.com/s to any APIs you have enabled.
+3. Once the results come back, Osprey caches the result for 24 hours.
+4. As long as a URL is cached, no new network requests will be made for it.
+
+The only data the APIs receive is the stripped-down URL, your user agent, and your IP address.
+
+Use a reputable VPN or proxy service if you're concerned about IP-related privacy.
+
 ## Installation
 
 You can install **Osprey** from the web stores listed at the top.
