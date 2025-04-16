@@ -242,15 +242,9 @@
                                         type: "basic",
                                         iconUrl: "assets/icons/icon128.png",
                                         title: "Unsafe Website Blocked",
-                                        message: `URL: ${currentUrl}\nReason: ${resultType}`,
-                                        contextMessage: `Reported by: ${systemName}`,
+                                        message: `URL: ${currentUrl}\nReason: ${resultType}\nReported by: ${systemName}`,
                                         priority: 2,
                                     };
-
-                                    // Firefox doesn't support contextMessage in notifications
-                                    if (isFirefox) {
-                                        notificationOptions.message = `URL: ${currentUrl}\nReason: ${resultType}\nReported by: ${systemName}`;
-                                    }
 
                                     // Create a unique notification ID based on a random number
                                     const randomNumber = Math.floor(Math.random() * 100000000);
