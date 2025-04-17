@@ -54,7 +54,7 @@ ProtectionResult.ResultOriginNames = {
     5: "Norton SafeWeb",
     6: "TOTAL WebShield",
     7: "G DATA WebProtection",
-    8: "Cloudflare (1.1.1.2)",
-    9: "Quad9 (9.9.9.9)",
-    10: "DNS0 (zero.dns0.eu)"
+    8: "Cloudflare Security DNS",
+    9: "Quad9 Security DNS",
+    10: "DNS0.eu Security DNS"
 };
