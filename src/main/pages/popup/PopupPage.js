@@ -92,6 +92,13 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             labelElementId: "controlDStatus",
             switchElementId: "controlDSwitch",
             messageType: Messages.MessageType.CONTROL_D_TOGGLED,
+        },
+        {
+            name: "cleanBrowsingEnabled",
+            title: "CleanBrowsing Security DNS",
+            labelElementId: "cleanBrowsingStatus",
+            switchElementId: "cleanBrowsingSwitch",
+            messageType: Messages.MessageType.CLEAN_BROWSING_TOGGLED,
         }
     ];
 

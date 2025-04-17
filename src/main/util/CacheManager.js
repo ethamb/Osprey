@@ -15,6 +15,7 @@ class CacheManager {
             quad9: new Map(),
             dns0: new Map(),
             controlD: new Map(),
+            cleanBrowsing: new Map(),
         };
 
         this.storageKey = storageKey;

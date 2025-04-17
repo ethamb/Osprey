@@ -67,6 +67,9 @@ const BrowserProtection = function () {
             const urlHostname = urlObject.hostname;
             const urlPathname = urlObject.pathname;
 
+            // The non-filtering URL used for DNS lookups
+            const nonFilteringURL = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
+
             // Ensure there is an AbortController for the tab
             if (!tabAbortControllers.has(tabId)) {
                 tabAbortControllers.set(tabId, new AbortController());
@@ -691,7 +694,7 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with Cloudflare's DoH APIs.
+             * Checks the URL with Cloudflare's DNS APIs.
              */
             const checkUrlWithCloudflare = async function (settings) {
                 // Check if Cloudflare is enabled
@@ -707,7 +710,6 @@ const BrowserProtection = function () {
                 }
 
                 const filteringURL = `https://security.cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
-                const nonFilteringURL = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
                 try {
                     const filteringResponse = await fetch(filteringURL, {
@@ -736,34 +738,21 @@ const BrowserProtection = function () {
                     const filteringData = await filteringResponse.json();
                     const nonFilteringData = await nonFilteringResponse.json();
 
-                    // Domain doesn't exist if both return NXDOMAIN
-                    const domainDoesntExist = filteringData.Status === 3 && nonFilteringData.Status === 3;
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
 
-                    // Domain is blocked if security DNS returns NXDOMAIN but non-filtering DNS resolves it
-                    const isBlocked = filteringData.Status === 3 && nonFilteringData.Status === 0
-                        && nonFilteringData.Answer && nonFilteringData.Answer.length > 0;
-
-                    // Domain is not blocked by either filtering or non-filtering DNS
-                    const isNotBlocked = filteringData.Status === 0 && nonFilteringData.Status === 0;
-
-                    // Safe
-                    if (domainDoesntExist || isNotBlocked) {
-                        console.debug(`Added Cloudflare URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "cloudflare");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
-                        return;
+                        // If the filtering domain returns NXDOMAIN, block it.
+                        if (filteringData.Status === 3) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                            return;
+                        }
                     }
 
-                    // Malicious
-                    if (isBlocked) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Unexpected result
-                    console.warn(`Cloudflare returned an unexpected result for URL ${url}
-                                       | Filtering: ${JSON.stringify(filteringData)}
-                                       | Non-filtering: ${JSON.stringify(nonFilteringData)}`);
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added Cloudflare URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "cloudflare");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Cloudflare: ${error}`);
@@ -772,7 +761,7 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with Quad9's DoH API.
+             * Checks the URL with Quad9's DNS API.
              */
             const checkUrlWithQuad9 = async function (settings) {
                 // Check if Quad9 is enabled
@@ -788,7 +777,6 @@ const BrowserProtection = function () {
                 }
 
                 const filteringURL = `https://dns.quad9.net:5053/dns-query?name=${encodeURIComponent(urlHostname)}`;
-                const nonFilteringURL = `https://dns10.quad9.net:5053/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
                 try {
                     const filteringResponse = await fetch(filteringURL, {
@@ -817,34 +805,21 @@ const BrowserProtection = function () {
                     const filteringData = await filteringResponse.json();
                     const nonFilteringData = await nonFilteringResponse.json();
 
-                    // Domain doesn't exist if both return NXDOMAIN
-                    const domainDoesntExist = filteringData.Status === 3 && nonFilteringData.Status === 3;
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
 
-                    // Domain is blocked if security DNS returns NXDOMAIN but non-filtering DNS resolves it
-                    const isBlocked = filteringData.Status === 3 && nonFilteringData.Status === 0
-                        && nonFilteringData.Answer && nonFilteringData.Answer.length > 0;
-
-                    // Domain is not blocked by either filtering or non-filtering DNS
-                    const isNotBlocked = filteringData.Status === 0 && nonFilteringData.Status === 0;
-
-                    // Safe
-                    if (domainDoesntExist || isNotBlocked) {
-                        console.debug(`Added Quad9 URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "quad9");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
-                        return;
+                        // If the filtering domain returns NXDOMAIN, block it.
+                        if (filteringData.Status === 3) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                            return;
+                        }
                     }
 
-                    // Malicious
-                    if (isBlocked) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Unexpected result
-                    console.warn(`Quad9 returned an unexpected result for URL ${url}
-                                       | Filtering: ${JSON.stringify(filteringData)}
-                                       | Non-filtering: ${JSON.stringify(nonFilteringData)}`);
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added Quad9 URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "quad9");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Quad9: ${error}`);
@@ -853,7 +828,7 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with DNS0's DoH API.
+             * Checks the URL with DNS0's DNS API.
              */
             const checkUrlWithDNS0 = async function (settings) {
                 // Check if DNS0 is enabled
@@ -869,7 +844,6 @@ const BrowserProtection = function () {
                 }
 
                 const filteringURL = `https://zero.dns0.eu/dns-query?name=${encodeURIComponent(urlHostname)}`;
-                const nonFilteringURL = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
                 try {
                     const filteringResponse = await fetch(filteringURL, {
@@ -898,34 +872,21 @@ const BrowserProtection = function () {
                     const filteringData = await filteringResponse.json();
                     const nonFilteringData = await nonFilteringResponse.json();
 
-                    // Domain doesn't exist if both return NXDOMAIN
-                    const domainDoesntExist = filteringData.Status === 3 && nonFilteringData.Status === 3;
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
 
-                    // Domain is blocked if security DNS returns NXDOMAIN but non-filtering DNS resolves it
-                    const isBlocked = filteringData.Status === 3 && nonFilteringData.Status === 0
-                        && nonFilteringData.Answer && nonFilteringData.Answer.length > 0;
-
-                    // Domain is not blocked by either filtering or non-filtering DNS
-                    const isNotBlocked = filteringData.Status === 0 && nonFilteringData.Status === 0;
-
-                    // Safe
-                    if (domainDoesntExist || isNotBlocked) {
-                        console.debug(`Added DNS0 URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "dns0");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                        return;
+                        // If the filtering domain returns NXDOMAIN, block it.
+                        if (filteringData.Status === 3) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                            return;
+                        }
                     }
 
-                    // Malicious
-                    if (isBlocked) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Unexpected result
-                    console.warn(`DNS0 returned an unexpected result for URL ${url}
-                                       | Filtering: ${JSON.stringify(filteringData)}
-                                       | Non-filtering: ${JSON.stringify(nonFilteringData)}`);
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added DNS0 URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "dns0");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with DNS0: ${error}`);
@@ -934,7 +895,7 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with Control D's DoH API.
+             * Checks the URL with Control D's DNS API.
              */
             const checkUrlWithControlD = async function (settings) {
                 // Check if ControlD is enabled
@@ -950,7 +911,6 @@ const BrowserProtection = function () {
                 }
 
                 const filteringURL = `https://freedns.controld.com/no-malware-typo?name=${encodeURIComponent(urlHostname)}`;
-                const nonFilteringURL = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
                 try {
                     const filteringResponse = await fetch(filteringURL, {
@@ -980,43 +940,26 @@ const BrowserProtection = function () {
                     const filteringDataString = Array.from(new Uint8Array(filteringData)).toString();
                     const nonFilteringData = await nonFilteringResponse.json();
 
-                    // Malicious
-                    if (filteringDataString.includes("0,1,0,1,0,0,0,60,0,4,0,0,0,0")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                        return;
+                    // Control D's NXDOMAIN array code
+                    const blockedByFiltering = filteringDataString.endsWith("0,1,0,1,0,0,0,60,0,4,0,0,0,0");
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        console.log("Array: " + filteringDataString);
+
+                        // If the filtering domain returns NXDOMAIN, block it.
+                        if (blockedByFiltering) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                            return;
+                        }
                     }
 
-                    // Domain is blocked by filtering
-                    const blockedByFiltering = filteringDataString.includes("0,1,0,1,0,0,0,60,0,4,0,0,0,0");
-
-                    // Domain doesn't exist if both return NXDOMAIN
-                    const domainDoesntExist = blockedByFiltering && nonFilteringData.Status === 3;
-
-                    // Domain is blocked if security DNS returns NXDOMAIN but non-filtering DNS resolves it
-                    const isBlocked = blockedByFiltering && nonFilteringData.Status === 0
-                        && nonFilteringData.Answer && nonFilteringData.Answer.length > 0;
-
-                    // Domain is not blocked by either filtering or non-filtering DNS
-                    const isNotBlocked = !blockedByFiltering && nonFilteringData.Status === 0;
-
-                    // Safe
-                    if (domainDoesntExist || isNotBlocked) {
-                        console.debug(`Added Control D URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "controlD");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Malicious
-                    if (isBlocked) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Unexpected result
-                    console.warn(`Control D returned an unexpected result for URL ${url}
-                                       | Filtering: ${filteringDataString}
-                                       | Non-filtering: ${JSON.stringify(nonFilteringData)}`);
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added Control D URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "controlD");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Control D: ${error}`);
@@ -1024,7 +967,134 @@ const BrowserProtection = function () {
                 }
             };
 
-            // Function to check if the URL is in any cache
+            /**
+             * Checks the URL with CleanBrowsing's DNS API.
+             */
+            const checkUrlWithCleanBrowsing = async function (settings) {
+                // Check if CleanBrowsing is enabled
+                if (!settings.cleanBrowsingEnabled) {
+                    console.debug(`CleanBrowsing is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "cleanBrowsing")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://doh.cleanbrowsing.org/doh/security-filter/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`CleanBrowsing returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = await filteringResponse.arrayBuffer();
+                    const filteringDataString = Array.from(new Uint8Array(filteringData)).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // CleanBrowsing's NXDOMAIN array code
+                    const blockedByFiltering = filteringDataString.startsWith("0,0,129,131");
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        console.log(`${urlHostname}: ` + filteringDataString);
+
+                        // If the filtering domain returns NXDOMAIN, block it.
+                        if (blockedByFiltering) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added CleanBrowsing URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "cleanBrowsing");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with CleanBrowsing: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Encodes a DNS query for the given domain and type.
+             *
+             * @param {string} domain - The domain to encode.
+             * @param {number} type - The type of DNS record (default is 1 for A record).
+             */
+            function encodeDnsQuery(domain, type = 1) {
+                // Create DNS query components
+                const header = new Uint8Array([
+                    0x00, 0x00, // ID (0)
+                    0x01, 0x00, // Flags: standard query
+                    0x00, 0x01, // QDCOUNT: 1 question
+                    0x00, 0x00, // ANCOUNT: 0 answers
+                    0x00, 0x00, // NSCOUNT: 0 authority records
+                    0x00, 0x00  // ARCOUNT: 0 additional records
+                ]);
+
+                // Encode domain parts
+                const domainParts = domain.split('.');
+                let domainBuffer = [];
+
+                for (const part of domainParts) {
+                    domainBuffer.push(part.length);
+
+                    for (let i = 0; i < part.length; i++) {
+                        domainBuffer.push(part.charCodeAt(i));
+                    }
+                }
+
+                // Add terminating zero
+                domainBuffer.push(0);
+
+                // Add QTYPE and QCLASS
+                domainBuffer.push(0x00, type); // QTYPE (1 = A record)
+                domainBuffer.push(0x00, 0x01); // QCLASS (1 = IN)
+
+                // Combine header and domain parts
+                const dnsPacket = new Uint8Array([...header, ...domainBuffer]);
+
+                // Base64url encode
+                return btoa(String.fromCharCode(...dnsPacket))
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=+$/, '');
+            }
+
+            /**
+             * Checks if the URL is in any cache.
+             *
+             * @param urlObject - The URL object.
+             * @param hostname - The hostname of the URL.
+             * @param provider - The provider to check the cache against.
+             * @returns {boolean} - True if the URL is in the cache, false otherwise.
+             */
             const isUrlInAnyCache = function (urlObject, hostname, provider) {
                 return BrowserProtection.cacheManager.isUrlInCache(urlObject, provider)
                     || BrowserProtection.cacheManager.isStringInCache(hostname + " (allowed)", provider);
@@ -1041,11 +1111,12 @@ const BrowserProtection = function () {
                 checkUrlWithGDATA(settings);
                 checkUrlWithEmsisoft(settings);
 
-                // DoH APIs
+                // DNS APIs
                 checkUrlWithCloudflare(settings);
                 checkUrlWithQuad9(settings);
                 checkUrlWithDNS0(settings);
                 checkUrlWithControlD(settings);
+                checkUrlWithCleanBrowsing(settings);
             });
 
             // Clean up controllers for tabs that no longer exist

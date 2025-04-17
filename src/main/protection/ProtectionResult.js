@@ -43,7 +43,8 @@ ProtectionResult.ResultOrigin = {
     CLOUDFLARE: 8, // The result was determined via Cloudflare
     QUAD9: 9, // The result was determined via Quad9
     DNS0: 10, // The result was determined via DNS0
-    CONTROL_D: 11 // The result was determined via Control D
+    CONTROL_D: 11, // The result was determined via Control D
+    CLEANBROWSING: 12 // The result was determined via CleanBrowsing
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -58,5 +59,6 @@ ProtectionResult.ResultOriginNames = {
     8: "Cloudflare Security DNS",
     9: "Quad9 Security DNS",
     10: "DNS0.eu Security DNS",
-    11: "Control D Security DNS"
+    11: "Control D Security DNS",
+    12: "CleanBrowsing Security DNS"
 };

@@ -82,6 +82,9 @@ window.addEventListener("load", () => {
             case ProtectionResult.ResultOrigin.CONTROL_D:
                 return new URL("https://control.d/contact");
 
+            case ProtectionResult.ResultOrigin.CLEANBROWSING:
+                return new URL("https://categorify.org/recategorize?website=" + encodedMaliciousUrl);
+
             default:
                 return null;
         }

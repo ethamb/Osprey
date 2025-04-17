@@ -59,7 +59,8 @@
                 && !settings.cloudflareEnabled
                 && !settings.quad9Enabled
                 && !settings.dns0Enabled
-                && !settings.controlDEnabled) {
+                && !settings.controlDEnabled
+                && !settings.cleanBrowsingEnabled) {
                 console.warn("Protection is disabled; bailing out early.");
                 return;
             }
@@ -404,6 +405,11 @@
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "controlD");
                         break;
 
+                    case "12":
+                        console.debug(`Added CleanBrowsing URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cleanBrowsing");
+                        break;
+
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
@@ -530,6 +536,11 @@
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "controlD");
                         break;
 
+                    case "12":
+                        console.debug(`Added CleanBrowsing hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "cleanBrowsing");
+                        break;
+
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
@@ -573,6 +584,7 @@
             case Messages.MessageType.QUAD9_TOGGLED:
             case Messages.MessageType.DNS0_TOGGLED:
             case Messages.MessageType.CONTROL_D_TOGGLED:
+            case Messages.MessageType.CLEAN_BROWSING_TOGGLED:
                 // Debug messages are already sent elsewhere
                 break;
 
