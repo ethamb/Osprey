@@ -1,7 +1,8 @@
 /* General Styles */
 body,
 html {
-    max-height: 800px;
+    min-height: 457px;
+    max-height: 457px;
     font-family: 'Segoe UI', sans-serif;
     font-weight: 400;
     position: relative;
@@ -83,9 +84,10 @@ section {
 
 /* Status Text */
 .status {
+    vertical-align: middle;
     display: inline-block;
     font-size: 14px;
-    margin: 5px 5px 13px 5px;
+    margin: 5px 5px 15px 5px;
 }
 
 /* Switch Styles */
@@ -93,8 +95,8 @@ section {
     cursor: pointer;
     width: 32px;
     height: 17px;
+    margin-top: 9px;
     display: inline-block;
-    vertical-align: middle;
 }
 
 .switch.on {
@@ -145,7 +147,8 @@ section {
 
 .page {
     display: none;
-    min-height: 350px;
+    min-height: 457px;
+    max-height: 457px;
 }
 
 .page.active {
