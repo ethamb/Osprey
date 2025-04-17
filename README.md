@@ -9,8 +9,11 @@
 
 [Chrome Web Store](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd)
 • [Microsoft Edge Addons](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn)
-• [Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
+• Firefox Add-ons (TBD)
+
+[Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
+• [Discord Server](https://discord.gg/ujYcBCgkSr)
 
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
 
