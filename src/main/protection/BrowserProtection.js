@@ -755,9 +755,9 @@ const BrowserProtection = function () {
                         return;
                     }
 
-                    // Malicious
+                    // Untrusted
                     if (isBlocked) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
                         return;
                     }
 
@@ -836,9 +836,9 @@ const BrowserProtection = function () {
                         return;
                     }
 
-                    // Malicious
+                    // Untrusted
                     if (isBlocked) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
                         return;
                     }
 
@@ -917,9 +917,9 @@ const BrowserProtection = function () {
                         return;
                     }
 
-                    // Malicious
+                    // Untrusted
                     if (isBlocked) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
                         return;
                     }
 
