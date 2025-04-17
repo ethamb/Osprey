@@ -118,3 +118,35 @@ section {
 #github:hover {
     text-decoration: underline;
 }
+
+/* Page Handling */
+.title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+}
+
+.arrow {
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 18px;
+}
+
+.page-indicator {
+    margin: 0 5px;
+    font-size: 14px;
+}
+
+.page {
+    display: none;
+    min-height: 350px;
+}
+
+.page.active {
+    display: block;
+}
