@@ -305,16 +305,15 @@ const BrowserProtection = function () {
                         return;
                     }
 
+                    const data = await response.json();
+ 
                     // Allow if the hostname is in the bypass list
                     if (urlHostname.match(/alomar\.emsisoft\.com$/)) {
-                        console.debug(`Added Emsisoft URL to cache: ` + url);
+                        console.info(`(This shouldn't happen) Added Emsisoft's own URL to cache: ` + url);
                         BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                         return;
                     }
-
-                    const data = await response.json();
-                    console.debug(`Emsisoft response: ` + JSON.stringify(data));
 
                     // Check if the URL should be blocked
                     for (const match of data.matches) {
