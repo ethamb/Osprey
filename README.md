@@ -16,6 +16,12 @@
 
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
 
+## Current Release
+- **1.0.9** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
+- **1.0.8** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
+- **1.0.5** on [Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (outdated)
+- **Pending** on Firefox
+
 ## Protections
 
 By default, when you visit a website, **Osprey** checks the URL with:
