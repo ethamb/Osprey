@@ -194,9 +194,8 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
      * Toggles the state of a security system and updates its UI.
      *
      * @param {Object} system - The system object being toggled.
-     * @param {Object} settings - The current settings object.
      */
-    const toggleProtection = function (system, settings) {
+    const toggleProtection = function (system) {
         Settings.get((settings) => {
             const currentState = settings[system.name];
             const newState = !currentState;

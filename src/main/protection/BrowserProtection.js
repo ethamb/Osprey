@@ -948,8 +948,6 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer
                         && nonFilteringData.Answer.length > 0) {
 
-                        console.log("Array: " + filteringDataString);
-
                         // If the filtering domain returns NXDOMAIN, block it.
                         if (blockedByFiltering) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
@@ -1021,8 +1019,6 @@ const BrowserProtection = function () {
                     if (nonFilteringData.Status === 0
                         && nonFilteringData.Answer
                         && nonFilteringData.Answer.length > 0) {
-
-                        console.log(`${urlHostname}: ` + filteringDataString);
 
                         // If the filtering domain returns NXDOMAIN, block it.
                         if (blockedByFiltering) {
@@ -1125,4 +1121,5 @@ const BrowserProtection = function () {
     };
 }();
 
+// Initialize the cache manager
 BrowserProtection.cacheManager = new CacheManager();
