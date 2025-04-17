@@ -11,6 +11,9 @@ class CacheManager {
             norton: new Map(),
             total: new Map(),
             gData: new Map(),
+            cloudflare: new Map(),
+            quad9: new Map(),
+            dns0: new Map(),
         };
 
         this.storageKey = storageKey;

@@ -55,7 +55,10 @@
                 && !settings.bitdefenderEnabled
                 && !settings.nortonEnabled
                 && !settings.totalEnabled
-                && !settings.gDataEnabled) {
+                && !settings.gDataEnabled
+                && !settings.cloudflareEnabled
+                && !settings.quad9Enabled
+                && !settings.dns0Enabled) {
                 console.warn("Protection is disabled; bailing out early.");
                 return;
             }
@@ -380,6 +383,21 @@
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
                         break;
 
+                    case "8":
+                        console.debug(`Added Cloudflare URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cloudflare");
+                        break;
+
+                    case "9":
+                        console.debug(`Added Quad9 URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "quad9");
+                        break;
+
+                    case "10":
+                        console.debug(`Added DNS0 URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "dns0");
+                        break;
+
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
@@ -519,31 +537,16 @@
                 break;
 
             case Messages.MessageType.SMARTSCREEN_TOGGLED:
-                console.debug(`SmartScreen protection toggled: ${message.toggleState}`);
-                break;
-
             case Messages.MessageType.SYMANTEC_TOGGLED:
-                console.debug(`Symantec protection toggled: ${message.toggleState}`);
-                break;
-
             case Messages.MessageType.EMSISOFT_TOGGLED:
-                console.debug(`Emsisoft protection toggled: ${message.toggleState}`);
-                break;
-
             case Messages.MessageType.BITDEFENDER_TOGGLED:
-                console.debug(`Bitdefender protection toggled: ${message.toggleState}`);
-                break;
-
             case Messages.MessageType.NORTON_TOGGLED:
-                console.debug(`Norton protection toggled: ${message.toggleState}`);
-                break;
-
             case Messages.MessageType.TOTAL_TOGGLED:
-                console.debug(`TOTAL protection toggled: ${message.toggleState}`);
-                break;
-
             case Messages.MessageType.G_DATA_TOGGLED:
-                console.debug(`G DATA protection toggled: ${message.toggleState}`);
+            case Messages.MessageType.CLOUDFLARE_TOGGLED:
+            case Messages.MessageType.QUAD9_TOGGLED:
+            case Messages.MessageType.DNS0_TOGGLED:
+                // Debug messages are already sent elsewhere
                 break;
 
             default:
@@ -577,7 +580,7 @@
                     title: "Enable notifications",
                     type: "checkbox",
                     checked: settings.notificationsEnabled,
-                    contexts: ["all"],
+                    contexts: ["action"],
                 });
             });
         });

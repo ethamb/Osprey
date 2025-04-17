@@ -64,6 +64,27 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             labelElementId: "gDataStatus",
             switchElementId: "gDataSwitch",
             messageType: Messages.MessageType.G_DATA_TOGGLED,
+        },
+        {
+            name: "cloudflareEnabled",
+            title: "Cloudflare (1.1.1.2)",
+            labelElementId: "cloudflareStatus",
+            switchElementId: "cloudflareSwitch",
+            messageType: Messages.MessageType.CLOUDFLARE_TOGGLED,
+        },
+        {
+            name: "quad9Enabled",
+            title: "Quad9 (9.9.9.9)",
+            labelElementId: "quad9Status",
+            switchElementId: "quad9Switch",
+            messageType: Messages.MessageType.QUAD9_TOGGLED,
+        },
+        {
+            name: "dns0Enabled",
+            title: "DNS0 (zero.dns0.eu)",
+            labelElementId: "dns0Status",
+            switchElementId: "dns0Switch",
+            messageType: Messages.MessageType.DNS0_TOGGLED,
         }
     ];
 
@@ -242,6 +263,43 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
         safeAddEventListener(window, 'unload', () => {
             browserAPI.runtime.sendMessage({messageType: Messages.MessageType.POPUP_CLOSED});
         });
+
+        const page1 = document.getElementById('page1');
+        const page2 = document.getElementById('page2');
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        const pageIndicator = document.getElementById('pageIndicator');
+        let currentPage = 1;
+        const totalPages = 2;
+
+        function updatePageDisplay() {
+            // Hide all pages
+            page1.classList.remove('active');
+            page2.classList.remove('active');
+
+            // Show current page
+            if (currentPage === 1) {
+                page1.classList.add('active');
+            } else {
+                page2.classList.add('active');
+            }
+
+            // Update page indicator
+            pageIndicator.textContent = `${currentPage}/${totalPages}`;
+        }
+
+        prevPage.addEventListener('click', function() {
+            currentPage = currentPage === 1 ? totalPages : currentPage - 1;
+            updatePageDisplay();
+        });
+
+        nextPage.addEventListener('click', function() {
+            currentPage = currentPage === totalPages ? 1 : currentPage + 1;
+            updatePageDisplay();
+        });
+
+        // Initialize display
+        updatePageDisplay();
     };
 
     // Public API

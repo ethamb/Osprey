@@ -12,6 +12,9 @@ const Settings = (function () {
         nortonEnabled: true, // Default state for Norton
         totalEnabled: true, // Default state for TOTAL
         gDataEnabled: true, // Default state for G DATA
+        cloudflareEnabled: true, // Default state for Cloudflare
+        quad9Enabled: true, // Default state for Quad9
+        dns0Enabled: true, // Default state for DNS0
         notificationsEnabled: true, // Default state for notifications
         isInstanceIDInitialized: false, // Flag to check if instance ID is initialized
         instanceID: 0 // Default instance ID

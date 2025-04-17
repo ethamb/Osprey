@@ -70,6 +70,15 @@ window.addEventListener("load", () => {
                 return new URL("https://submit.gdatasoftware.com/url?key=NWNjNWIzY2RlMGE0ZDA5YzkyNzJmMTA3MTRmZTYwMjBi"
                     + "NmZmOWNjZDQ1MTQ1NjQ3F9FNhTj0IOo0u_jyw7nqx5c7jZxGFVmoR7X_4r7__CZJnGtqJsIzn-tN&lang=en");
 
+            case ProtectionResult.ResultOrigin.CLOUDFLARE:
+                return new URL("https://radar.cloudflare.com/domains/domain/" + encodedMaliciousUrl);
+
+            case ProtectionResult.ResultOrigin.QUAD9:
+                return new URL("https://quad9.net/support/contact");
+
+            case ProtectionResult.ResultOrigin.DNS0:
+                return new URL("https://dns0.eu/report");
+
             default:
                 return null;
         }

@@ -9,6 +9,39 @@
     <script src="../../util/Storage.js" type="text/javascript"></script>
     <script src="../../util/Settings.js" type="text/javascript"></script>
     <script src="PopupPage.js" type="text/javascript"></script>
+    <style>
+        .title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+        }
+
+        .arrow {
+            cursor: pointer;
+            padding: 0 5px;
+            font-size: 18px;
+            user-select: none;
+        }
+
+        .page-indicator {
+            margin: 0 5px;
+            font-size: 14px;
+        }
+
+        .page {
+            display: none;
+            min-height: 350px; /* Maintain consistent height */
+        }
+
+        .page.active {
+            display: block;
+        }
+    </style>
 </head>
 
 <body id="background" class="gray">
@@ -19,50 +52,79 @@
 </div>
 
 <section class="alternate">
-    <h3 id="mainTitle" class="white">
-        Protection Options
-    </h3>
-
-    Microsoft SmartScreen
-    <div id="smartScreenDivSwitch">
-        <span id="smartScreenSwitch" class="switch on leftMargin"></span>
-        <span id="smartScreenStatus" class="status">Active</span>
+    <div class="title-container">
+        <h3 id="mainTitle" class="white">
+            Protection Options
+        </h3>
+        <div class="pagination">
+            <span id="prevPage" class="arrow">&#9664;</span>
+            <span id="pageIndicator" class="page-indicator">1/2</span>
+            <span id="nextPage" class="arrow">&#9654;</span>
+        </div>
     </div>
 
-    Symantec Browser Protection
-    <div id="symantecDivSwitch">
-        <span id="symantecSwitch" class="switch on leftMargin"></span>
-        <span id="symantecStatus" class="status">Active</span>
+    <div id="page1" class="page active">
+        Microsoft SmartScreen
+        <div id="smartScreenDivSwitch">
+            <span id="smartScreenSwitch" class="switch on leftMargin"></span>
+            <span id="smartScreenStatus" class="status">Active</span>
+        </div>
+
+        Symantec Browser Protection
+        <div id="symantecDivSwitch">
+            <span id="symantecSwitch" class="switch on leftMargin"></span>
+            <span id="symantecStatus" class="status">Active</span>
+        </div>
+
+        Emsisoft Web Protection
+        <div id="emsisoftDivSwitch">
+            <span id="emsisoftSwitch" class="switch on leftMargin"></span>
+            <span id="emsisoftStatus" class="status">Active</span>
+        </div>
+
+        Bitdefender TrafficLight
+        <div id="bitdefenderDivSwitch">
+            <span id="bitdefenderSwitch" class="switch on leftMargin"></span>
+            <span id="bitdefenderStatus" class="status">Active</span>
+        </div>
+
+        Norton SafeWeb
+        <div id="nortonDivSwitch">
+            <span id="nortonSwitch" class="switch on leftMargin"></span>
+            <span id="nortonStatus" class="status">Active</span>
+        </div>
+
+        TOTAL WebShield
+        <div id="totalDivSwitch">
+            <span id="totalSwitch" class="switch on leftMargin"></span>
+            <span id="totalStatus" class="status">Active</span>
+        </div>
+
+        G DATA WebProtection
+        <div id="gDataDivSwitch">
+            <span id="gDataSwitch" class="switch on leftMargin"></span>
+            <span id="gDataStatus" class="status">Active</span>
+        </div>
     </div>
 
-    Emsisoft Web Protection
-    <div id="emsisoftDivSwitch">
-        <span id="emsisoftSwitch" class="switch on leftMargin"></span>
-        <span id="emsisoftStatus" class="status">Active</span>
-    </div>
+    <div id="page2" class="page">
+        Cloudflare (1.1.1.2)
+        <div id="cloudflareDivSwitch">
+            <span id="cloudflareSwitch" class="switch on leftMargin"></span>
+            <span id="cloudflareStatus" class="status">Active</span>
+        </div>
 
-    Bitdefender TrafficLight
-    <div id="bitdefenderDivSwitch">
-        <span id="bitdefenderSwitch" class="switch on leftMargin"></span>
-        <span id="bitdefenderStatus" class="status">Active</span>
-    </div>
+        Quad9 (9.9.9.9)
+        <div id="quad9DivSwitch">
+            <span id="quad9Switch" class="switch on leftMargin"></span>
+            <span id="quad9Status" class="status">Active</span>
+        </div>
 
-    Norton SafeWeb
-    <div id="nortonDivSwitch">
-        <span id="nortonSwitch" class="switch on leftMargin"></span>
-        <span id="nortonStatus" class="status">Active</span>
-    </div>
-
-    TOTAL WebShield
-    <div id="totalDivSwitch">
-        <span id="totalSwitch" class="switch on leftMargin"></span>
-        <span id="totalStatus" class="status">Active</span>
-    </div>
-
-    G DATA WebProtection
-    <div id="gDataDivSwitch">
-        <span id="gDataSwitch" class="switch on leftMargin"></span>
-        <span id="gDataStatus" class="status">Active</span>
+        DNS0 (zero.dns0.eu)
+        <div id="dns0DivSwitch">
+            <span id="dns0Switch" class="switch on leftMargin"></span>
+            <span id="dns0Status" class="status">Active</span>
+        </div>
     </div>
 
     <div class="links">
@@ -71,6 +133,5 @@
         <a id="version">Version: </a>
     </div>
 </section>
-
 </body>
 </html>

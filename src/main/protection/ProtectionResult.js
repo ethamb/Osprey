@@ -40,6 +40,9 @@ ProtectionResult.ResultOrigin = {
     NORTON: 5, // The result was determined via Norton
     TOTAL: 6, // The total was determined via TOTAL WebShield
     G_DATA: 7, // The result was determined via G DATA
+    CLOUDFLARE: 8, // The result was determined via Cloudflare
+    QUAD9: 9, // The result was determined via Quad9
+    DNS0: 10 // The result was determined via DNS0
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -51,4 +54,7 @@ ProtectionResult.ResultOriginNames = {
     5: "Norton SafeWeb",
     6: "TOTAL WebShield",
     7: "G DATA WebProtection",
+    8: "Cloudflare (1.1.1.2)",
+    9: "Quad9 (9.9.9.9)",
+    10: "DNS0 (zero.dns0.eu)"
 };

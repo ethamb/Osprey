@@ -691,6 +691,249 @@ const BrowserProtection = function () {
                 }
             };
 
+            /**
+             * Checks the URL with Cloudflare's DoH APIs.
+             */
+            const checkUrlWithCloudflare = async function (settings) {
+                // Check if Cloudflare is enabled
+                if (!settings.cloudflareEnabled) {
+                    console.debug(`Cloudflare is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "cloudflare")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const filteringURL = `https://security.cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
+                const nonFilteringURL = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`Cloudflare returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = await filteringResponse.json();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // Domain doesn't exist if both return NXDOMAIN
+                    const domainDoesntExist = filteringData.Status === 3 && nonFilteringData.Status === 3;
+
+                    // Domain is blocked if security DNS returns NXDOMAIN but non-filtering DNS resolves it
+                    const isBlocked = filteringData.Status === 3 && nonFilteringData.Status === 0
+                        && nonFilteringData.Answer && nonFilteringData.Answer.length > 0;
+
+                    // Domain is not blocked by either filtering or non-filtering DNS
+                    const isNotBlocked = filteringData.Status === 0 && nonFilteringData.Status === 0;
+
+                    // Safe
+                    if (domainDoesntExist || isNotBlocked) {
+                        console.debug(`Added Cloudflare URL to cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "cloudflare");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Malicious
+                    if (isBlocked) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Unexpected result
+                    console.warn(`Cloudflare returned an unexpected result for URL ${url}
+                                       | Filtering: ${JSON.stringify(filteringData)}
+                                       | Non-filtering: ${JSON.stringify(nonFilteringData)}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with Cloudflare: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with Quad9's DoH API.
+             */
+            const checkUrlWithQuad9 = async function (settings) {
+                // Check if Quad9 is enabled
+                if (!settings.quad9Enabled) {
+                    console.debug(`Quad9 is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "quad9")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const filteringURL = `https://dns.quad9.net:5053/dns-query?name=${encodeURIComponent(urlHostname)}`;
+                const nonFilteringURL = `https://dns10.quad9.net:5053/dns-query?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`Quad9 returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = await filteringResponse.json();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // Domain doesn't exist if both return NXDOMAIN
+                    const domainDoesntExist = filteringData.Status === 3 && nonFilteringData.Status === 3;
+
+                    // Domain is blocked if security DNS returns NXDOMAIN but non-filtering DNS resolves it
+                    const isBlocked = filteringData.Status === 3 && nonFilteringData.Status === 0
+                        && nonFilteringData.Answer && nonFilteringData.Answer.length > 0;
+
+                    // Domain is not blocked by either filtering or non-filtering DNS
+                    const isNotBlocked = filteringData.Status === 0 && nonFilteringData.Status === 0;
+
+                    // Safe
+                    if (domainDoesntExist || isNotBlocked) {
+                        console.debug(`Added Quad9 URL to cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "quad9");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Malicious
+                    if (isBlocked) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Unexpected result
+                    console.warn(`Quad9 returned an unexpected result for URL ${url}
+                                       | Filtering: ${JSON.stringify(filteringData)}
+                                       | Non-filtering: ${JSON.stringify(nonFilteringData)}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with Quad9: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with DNS0's DoH API.
+             */
+            const checkUrlWithDNS0 = async function (settings) {
+                // Check if DNS0 is enabled
+                if (!settings.dns0Enabled) {
+                    console.debug(`DNS0 is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "dns0")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const filteringURL = `https://zero.dns0.eu/dns-query?name=${encodeURIComponent(urlHostname)}`;
+                const nonFilteringURL = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`DNS0 returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = await filteringResponse.json();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // Domain doesn't exist if both return NXDOMAIN
+                    const domainDoesntExist = filteringData.Status === 3 && nonFilteringData.Status === 3;
+
+                    // Domain is blocked if security DNS returns NXDOMAIN but non-filtering DNS resolves it
+                    const isBlocked = filteringData.Status === 3 && nonFilteringData.Status === 0
+                        && nonFilteringData.Answer && nonFilteringData.Answer.length > 0;
+
+                    // Domain is not blocked by either filtering or non-filtering DNS
+                    const isNotBlocked = filteringData.Status === 0 && nonFilteringData.Status === 0;
+
+                    // Safe
+                    if (domainDoesntExist || isNotBlocked) {
+                        console.debug(`Added DNS0 URL to cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "dns0");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Malicious
+                    if (isBlocked) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Unexpected result
+                    console.warn(`DNS0 returned an unexpected result for URL ${url}
+                                       | Filtering: ${JSON.stringify(filteringData)}
+                                       | Non-filtering: ${JSON.stringify(nonFilteringData)}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with DNS0: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                }
+            };
+
             // Function to check if the URL is in any cache
             const isUrlInAnyCache = function (urlObject, hostname, provider) {
                 return BrowserProtection.cacheManager.isUrlInCache(urlObject, provider)
@@ -698,8 +941,8 @@ const BrowserProtection = function () {
             };
 
             // Call all the check functions asynchronously
-            // Ranked by priority and API speed
             Settings.get((settings) => {
+                // HTTP APIs
                 checkUrlWithSymantec(settings);
                 checkUrlWithBitdefender(settings);
                 checkUrlWithSmartScreen(settings);
@@ -707,6 +950,11 @@ const BrowserProtection = function () {
                 checkUrlWithTOTAL(settings);
                 checkUrlWithGDATA(settings);
                 checkUrlWithEmsisoft(settings);
+
+                // DoH APIs
+                checkUrlWithCloudflare(settings);
+                checkUrlWithQuad9(settings);
+                checkUrlWithDNS0(settings);
             });
 
             // Clean up controllers for tabs that no longer exist
