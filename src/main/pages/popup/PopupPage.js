@@ -85,6 +85,13 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             labelElementId: "dns0Status",
             switchElementId: "dns0Switch",
             messageType: Messages.MessageType.DNS0_TOGGLED,
+        },
+        {
+            name: "controlDEnabled",
+            title: "Control D Security DNS",
+            labelElementId: "controlDStatus",
+            switchElementId: "controlDSwitch",
+            messageType: Messages.MessageType.CONTROL_D_TOGGLED,
         }
     ];
 

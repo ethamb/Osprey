@@ -58,7 +58,8 @@
                 && !settings.gDataEnabled
                 && !settings.cloudflareEnabled
                 && !settings.quad9Enabled
-                && !settings.dns0Enabled) {
+                && !settings.dns0Enabled
+                && !settings.controlDEnabled) {
                 console.warn("Protection is disabled; bailing out early.");
                 return;
             }
@@ -398,6 +399,11 @@
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "dns0");
                         break;
 
+                    case "11":
+                        console.debug(`Added Control D URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "controlD");
+                        break;
+
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
@@ -504,6 +510,26 @@
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "gData");
                         break;
 
+                    case "8":
+                        console.debug(`Added Cloudflare hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "cloudflare");
+                        break;
+
+                    case "9":
+                        console.debug(`Added Quad9 hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "quad9");
+                        break;
+
+                    case "10":
+                        console.debug(`Added DNS0 hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "dns0");
+                        break;
+
+                    case "11":
+                        console.debug(`Added Control D hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "controlD");
+                        break;
+
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
@@ -546,6 +572,7 @@
             case Messages.MessageType.CLOUDFLARE_TOGGLED:
             case Messages.MessageType.QUAD9_TOGGLED:
             case Messages.MessageType.DNS0_TOGGLED:
+            case Messages.MessageType.CONTROL_D_TOGGLED:
                 // Debug messages are already sent elsewhere
                 break;
 

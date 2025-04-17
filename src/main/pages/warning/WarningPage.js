@@ -79,6 +79,9 @@ window.addEventListener("load", () => {
             case ProtectionResult.ResultOrigin.DNS0:
                 return new URL("https://dns0.eu/report");
 
+            case ProtectionResult.ResultOrigin.CONTROL_D:
+                return new URL("https://control.d/contact");
+
             default:
                 return null;
         }

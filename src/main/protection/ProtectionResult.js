@@ -42,7 +42,8 @@ ProtectionResult.ResultOrigin = {
     G_DATA: 7, // The result was determined via G DATA
     CLOUDFLARE: 8, // The result was determined via Cloudflare
     QUAD9: 9, // The result was determined via Quad9
-    DNS0: 10 // The result was determined via DNS0
+    DNS0: 10, // The result was determined via DNS0
+    CONTROL_D: 11 // The result was determined via Control D
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -56,5 +57,6 @@ ProtectionResult.ResultOriginNames = {
     7: "G DATA WebProtection",
     8: "Cloudflare Security DNS",
     9: "Quad9 Security DNS",
-    10: "DNS0.eu Security DNS"
+    10: "DNS0.eu Security DNS",
+    11: "Control D Security DNS"
 };

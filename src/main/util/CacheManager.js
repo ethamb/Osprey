@@ -14,6 +14,7 @@ class CacheManager {
             cloudflare: new Map(),
             quad9: new Map(),
             dns0: new Map(),
+            controlD: new Map(),
         };
 
         this.storageKey = storageKey;

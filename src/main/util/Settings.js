@@ -15,6 +15,7 @@ const Settings = (function () {
         cloudflareEnabled: true, // Default state for Cloudflare
         quad9Enabled: true, // Default state for Quad9
         dns0Enabled: true, // Default state for DNS0
+        controlDEnabled: true, // Default state for Control D
         notificationsEnabled: true, // Default state for notifications
         isInstanceIDInitialized: false, // Flag to check if instance ID is initialized
         instanceID: 0 // Default instance ID

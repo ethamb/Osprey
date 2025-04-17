@@ -306,7 +306,7 @@ const BrowserProtection = function () {
                     }
 
                     const data = await response.json();
- 
+
                     // Allow if the hostname is in the bypass list
                     if (urlHostname.match(/alomar\.emsisoft\.com$/)) {
                         console.info(`(This shouldn't happen) Added Emsisoft's own URL to cache: ` + url);
@@ -933,6 +933,97 @@ const BrowserProtection = function () {
                 }
             };
 
+            /**
+             * Checks the URL with Control D's DoH API.
+             */
+            const checkUrlWithControlD = async function (settings) {
+                // Check if ControlD is enabled
+                if (!settings.controlDEnabled) {
+                    console.debug(`Control D is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "controlD")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const filteringURL = `https://freedns.controld.com/no-malware-typo?name=${encodeURIComponent(urlHostname)}`;
+                const nonFilteringURL = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`Control D returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = await filteringResponse.arrayBuffer();
+                    const filteringDataString = Array.from(new Uint8Array(filteringData)).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // Malicious
+                    if (filteringDataString.includes("0,1,0,1,0,0,0,60,0,4,0,0,0,0")) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Domain is blocked by filtering
+                    const blockedByFiltering = filteringDataString.includes("0,1,0,1,0,0,0,60,0,4,0,0,0,0");
+
+                    // Domain doesn't exist if both return NXDOMAIN
+                    const domainDoesntExist = blockedByFiltering && nonFilteringData.Status === 3;
+
+                    // Domain is blocked if security DNS returns NXDOMAIN but non-filtering DNS resolves it
+                    const isBlocked = blockedByFiltering && nonFilteringData.Status === 0
+                        && nonFilteringData.Answer && nonFilteringData.Answer.length > 0;
+
+                    // Domain is not blocked by either filtering or non-filtering DNS
+                    const isNotBlocked = !blockedByFiltering && nonFilteringData.Status === 0;
+
+                    // Safe
+                    if (domainDoesntExist || isNotBlocked) {
+                        console.debug(`Added Control D URL to cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "controlD");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Malicious
+                    if (isBlocked) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Unexpected result
+                    console.warn(`Control D returned an unexpected result for URL ${url}
+                                       | Filtering: ${filteringDataString}
+                                       | Non-filtering: ${JSON.stringify(nonFilteringData)}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with Control D: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                }
+            };
+
             // Function to check if the URL is in any cache
             const isUrlInAnyCache = function (urlObject, hostname, provider) {
                 return BrowserProtection.cacheManager.isUrlInCache(urlObject, provider)
@@ -954,6 +1045,7 @@ const BrowserProtection = function () {
                 checkUrlWithCloudflare(settings);
                 checkUrlWithQuad9(settings);
                 checkUrlWithDNS0(settings);
+                checkUrlWithControlD(settings);
             });
 
             // Clean up controllers for tabs that no longer exist
