@@ -35,7 +35,8 @@ By default, when you visit a website, **Osprey** checks the URL with:
 
 You can configure the extension's protection options in the settings:
 
-![Osprey Settings](https://i.imgur.com/lHZHTas.png)
+![Osprey Settings (Page 1)](https://i.imgur.com/ig7Rpr0.png)
+![Osprey Settings (Page 2)](https://i.imgur.com/7TfSGKf.png)
 
 ## Detections
 
@@ -57,7 +58,7 @@ You can configure the extension's protection options in the settings:
 
 If the website is malicious, **Osprey** will block the page and display a warning:
 
-![Osprey Warning](https://i.imgur.com/FpPtbJh.png)
+![Osprey Warning](https://i.imgur.com/1gzZntl.png)
 
 ## Privacy
 
