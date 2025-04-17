@@ -16,6 +16,12 @@
 
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
 
+## Current Release
+- **1.0.9** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
+- **1.0.8** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
+- **1.0.5** on [Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (outdated)
+- **Pending** on Firefox
+
 ## Protections
 
 By default, when you visit a website, **Osprey** checks the URL with:
@@ -27,17 +33,17 @@ By default, when you visit a website, **Osprey** checks the URL with:
 - [Norton SafeWeb](https://safeweb.norton.com)
 - [TOTAL WebShield](https://dashboard.totalwebshield.com/products/totalwebshield)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
-- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
-- [Quad9 Security DNS](https://quad9.net)
-- [DNS0.eu Security DNS](https://dns0.eu/zero)
-- [Control D Security DNS](https://controld.com/free-dns)
+- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content) (version 1.0.9)
+- [Quad9 Security DNS](https://quad9.net) (version 1.0.9)
+- [DNS0.eu Security DNS](https://dns0.eu/zero) (version 1.0.9)
+- [Control D Security DNS](https://controld.com/free-dns) (version 1.0.9)
 
 ## Settings
 
 You can configure the extension's protection options in the settings:
 
 ![Osprey Settings (Page 1)](https://i.imgur.com/ig7Rpr0.png)
-![Osprey Settings (Page 2)](https://i.imgur.com/7TfSGKf.png)
+![Osprey Settings (Page 2)](https://i.imgur.com/4RBp62u.png)
 
 ## Detections
 
