@@ -287,11 +287,11 @@
         }
     });
 
-    // Listener for onCreatedNavigationTarget events.
-    browserAPI.webNavigation.onCreatedNavigationTarget.addListener((navigationDetails) => {
-        console.debug(`[onCreatedNavigationTarget] ${navigationDetails.url}`);
-        handleNavigation(navigationDetails);
-    });
+    // // Listener for onCreatedNavigationTarget events.
+    // browserAPI.webNavigation.onCreatedNavigationTarget.addListener((navigationDetails) => {
+    //     console.debug(`[onCreatedNavigationTarget] ${navigationDetails.url}`);
+    //     handleNavigation(navigationDetails);
+    // });
 
     // Listener for onHistoryStateUpdated events.
     browserAPI.webNavigation.onHistoryStateUpdated.addListener((navigationDetails) => {
