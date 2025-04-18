@@ -78,9 +78,9 @@ For example:
 4. It will also be cached if you click 'Continue anyway' or 'Add hostname to allowlist' on a blocked site.
 5. As long as a URL is cached, no new network requests will be made for it.
 
-The only data the APIs receive is the stripped-down URL, your user agent, and your IP address.
+The only data the APIs receive is the stripped-down URL, your user agent, and your IP address. Use a reputable VPN or proxy service if you're concerned about IP-related privacy. There are also extensions that mask your user agent, if you're so inclined.
 
-Use a reputable VPN or proxy service if you're concerned about IP-related privacy.
+As for why Osprey needs to check complete URLs instead of just the domain, many phishing attacks use legitimate companies to host their phishing campaigns, such as Jotform. If Osprey only checked a website's domain name, it wouldn't detect those threats.
 
 ## Installation
 
