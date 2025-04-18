@@ -420,6 +420,12 @@ const BrowserProtection = function () {
                         return;
                     }
 
+                    // Command & Control
+                    if (status_message.includes("c&c")) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
                     // Safe/Trusted
                     if (status_message.includes("not found")) {
                         console.debug(`Added Bitdefender URL to cache: ` + url);
