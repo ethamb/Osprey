@@ -18,7 +18,7 @@
 
 ## Current Release
 - **1.1.0** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
-- **1.0.9** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
+- **1.1.0** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
 - **1.0.5** on [Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (outdated)
 - **Pending** on Firefox
 
@@ -38,8 +38,8 @@ By default, when you visit a website, **Osprey** checks the URL with:
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
 - [Control D Security DNS](https://controld.com/free-dns)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-- [OpenDNS Security DNS](https://opendns.com) (version 1.1.0)
-- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html) (version 1.1.0)
+- [OpenDNS Security DNS](https://opendns.com)
+- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
 
 ## Settings
 
