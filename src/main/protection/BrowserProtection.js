@@ -929,12 +929,8 @@ const BrowserProtection = function () {
                         return;
                     }
 
-                    const filteringData = await filteringResponse.arrayBuffer();
-                    const filteringDataString = Array.from(new Uint8Array(filteringData)).toString();
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
                     const nonFilteringData = await nonFilteringResponse.json();
-
-                    // Control D's NXDOMAIN array code
-                    const blockedByFiltering = filteringDataString.endsWith("0,1,0,1,0,0,0,60,0,4,0,0,0,0");
 
                     // If the non-filtering domain returns NOERROR...
                     if (nonFilteringData.Status === 0
@@ -942,7 +938,7 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer.length > 0) {
 
                         // If the filtering domain returns NXDOMAIN, block it.
-                        if (blockedByFiltering) {
+                        if (filteringData[3] === 131) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -1001,12 +997,8 @@ const BrowserProtection = function () {
                         return;
                     }
 
-                    const filteringData = await filteringResponse.arrayBuffer();
-                    const filteringDataString = Array.from(new Uint8Array(filteringData)).toString();
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
                     const nonFilteringData = await nonFilteringResponse.json();
-
-                    // CleanBrowsing's NXDOMAIN array code
-                    const blockedByFiltering = filteringDataString.startsWith("0,0,129,131");
 
                     // If the non-filtering domain returns NOERROR...
                     if (nonFilteringData.Status === 0
@@ -1014,7 +1006,7 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer.length > 0) {
 
                         // If the filtering domain returns NXDOMAIN, block it.
-                        if (blockedByFiltering) {
+                        if (filteringData[3] === 131) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
                             return;
                         }
