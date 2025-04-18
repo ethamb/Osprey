@@ -583,7 +583,8 @@
             case Messages.MessageType.CONTROL_D_TOGGLED:
             case Messages.MessageType.CLEAN_BROWSING_TOGGLED:
             case Messages.MessageType.OPEN_DNS_TOGGLED:
-                console.debug(`${message.title} has been ${message.toggleState ? "disabled" : "enabled"}.`);
+            case Messages.MessageType.ADGUARD_TOGGLED:
+                console.debug(`${message.title} has been ${message.toggleState ? "enabled" : "disabled"}.`);
                 break;
 
             default:
