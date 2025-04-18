@@ -44,7 +44,8 @@ ProtectionResult.ResultOrigin = {
     QUAD9: 9, // The result was determined via Quad9
     DNS0: 10, // The result was determined via DNS0
     CONTROL_D: 11, // The result was determined via Control D
-    CLEANBROWSING: 12 // The result was determined via CleanBrowsing
+    CLEANBROWSING: 12, // The result was determined via CleanBrowsing
+    OPENDNS: 13 // The result was determined via OpenDNS
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -60,5 +61,6 @@ ProtectionResult.ResultOriginNames = {
     9: "Quad9 Security DNS",
     10: "DNS0.eu Security DNS",
     11: "Control D Security DNS",
-    12: "CleanBrowsing Security DNS"
+    12: "CleanBrowsing Security DNS",
+    13: "OpenDNS Security DNS"
 };

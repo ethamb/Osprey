@@ -85,6 +85,9 @@ window.addEventListener("load", () => {
             case ProtectionResult.ResultOrigin.CLEANBROWSING:
                 return new URL("https://categorify.org/recategorize?website=" + encodedMaliciousUrl);
 
+            case ProtectionResult.ResultOrigin.OPENDNS:
+                return new URL("https://support.opendns.com/hc/en-us/requests/new");
+
             default:
                 return null;
         }

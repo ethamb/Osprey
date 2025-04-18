@@ -99,6 +99,13 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             labelElementId: "cleanBrowsingStatus",
             switchElementId: "cleanBrowsingSwitch",
             messageType: Messages.MessageType.CLEAN_BROWSING_TOGGLED,
+        },
+        {
+            name: "openDNSEnabled",
+            title: "OpenDNS Security DNS",
+            labelElementId: "openDNSStatus",
+            switchElementId: "openDNSSwitch",
+            messageType: Messages.MessageType.OPEN_DNS_TOGGLED,
         }
     ];
 

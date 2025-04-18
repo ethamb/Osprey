@@ -60,7 +60,8 @@
                 && !settings.quad9Enabled
                 && !settings.dns0Enabled
                 && !settings.controlDEnabled
-                && !settings.cleanBrowsingEnabled) {
+                && !settings.cleanBrowsingEnabled
+                && !settings.openDNSEnabled) {
                 console.warn("Protection is disabled; bailing out early.");
                 return;
             }
@@ -403,6 +404,11 @@
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cleanBrowsing");
                         break;
 
+                    case "13":
+                        console.debug(`Added OpenDNS URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "openDNS");
+                        break;
+
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
@@ -534,6 +540,11 @@
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "cleanBrowsing");
                         break;
 
+                    case "13":
+                        console.debug(`Added OpenDNS hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "openDNS");
+                        break;
+
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
@@ -578,6 +589,7 @@
             case Messages.MessageType.DNS0_TOGGLED:
             case Messages.MessageType.CONTROL_D_TOGGLED:
             case Messages.MessageType.CLEAN_BROWSING_TOGGLED:
+            case Messages.MessageType.OPEN_DNS_TOGGLED:
                 console.debug(`${message.title} has been ${message.toggleState ? "disabled" : "enabled"}.`);
                 break;
 
