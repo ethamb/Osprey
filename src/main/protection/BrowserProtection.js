@@ -909,7 +909,7 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                const filteringURL = `https://freedns.controld.com/no-malware-typo?name=${encodeURIComponent(urlHostname)}`;
+                const filteringURL = `https://freedns.controld.com/p1?name=${encodeURIComponent(urlHostname)}`;
 
                 try {
                     const filteringResponse = await fetch(filteringURL, {
@@ -936,6 +936,7 @@ const BrowserProtection = function () {
                     }
 
                     const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
                     const nonFilteringData = await nonFilteringResponse.json();
 
                     // If the non-filtering domain returns NOERROR...
@@ -943,8 +944,9 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer
                         && nonFilteringData.Answer.length > 0) {
 
-                        // If the filtering domain returns NXDOMAIN, block it.
-                        if (filteringData[3] === 131) {
+                        // ControlD sets the timeout to 60 seconds and the IP to 0.0.0.0 for malicious domains.
+                        // So, they'll always end in "60,0,4,0,0,0,0". If it does, block it.
+                        if (filteringDataString.endsWith("60,0,4,0,0,0,0")) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
                             return;
                         }
