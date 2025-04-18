@@ -45,7 +45,8 @@ ProtectionResult.ResultOrigin = {
     DNS0: 10, // The result was determined via DNS0
     CONTROL_D: 11, // The result was determined via Control D
     CLEANBROWSING: 12, // The result was determined via CleanBrowsing
-    OPENDNS: 13 // The result was determined via OpenDNS
+    OPENDNS: 13, // The result was determined via OpenDNS
+    ADGUARD: 14 // The result was determined via AdGuard
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -62,5 +63,6 @@ ProtectionResult.ResultOriginNames = {
     10: "DNS0.eu Security DNS",
     11: "Control D Security DNS",
     12: "CleanBrowsing Security DNS",
-    13: "OpenDNS Security DNS"
+    13: "OpenDNS Security DNS",
+    14: "AdGuard Security DNS"
 };

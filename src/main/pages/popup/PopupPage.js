@@ -106,6 +106,13 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             labelElementId: "openDNSStatus",
             switchElementId: "openDNSSwitch",
             messageType: Messages.MessageType.OPEN_DNS_TOGGLED,
+        },
+        {
+            name: "adGuardEnabled",
+            title: "AdGuard Security DNS",
+            labelElementId: "adGuardStatus",
+            switchElementId: "adGuardSwitch",
+            messageType: Messages.MessageType.ADGUARD_TOGGLED,
         }
     ];
 

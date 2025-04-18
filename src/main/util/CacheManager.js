@@ -17,6 +17,7 @@ class CacheManager {
             controlD: new Map(),
             cleanBrowsing: new Map(),
             openDNS: new Map(),
+            adGuard: new Map(),
         };
 
         this.storageKey = storageKey;

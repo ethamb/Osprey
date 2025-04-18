@@ -18,6 +18,7 @@ const Settings = (function () {
         controlDEnabled: true, // Default state for Control D
         cleanBrowsingEnabled: true, // Default state for CleanBrowsing
         openDNSEnabled: true, // Default state for OpenDNS
+        adGuardEnabled: true, // Default state for AdGuard
         notificationsEnabled: true, // Default state for notifications
         isInstanceIDInitialized: false, // Flag to check if instance ID is initialized
         instanceID: 0 // Default instance ID

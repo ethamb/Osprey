@@ -1101,6 +1101,75 @@ const BrowserProtection = function () {
             };
 
             /**
+             * Checks the URL with AdGuard's DNS API.
+             */
+            const checkUrlWithAdGuard = async function (settings) {
+                // Check if AdGuard is enabled
+                if (!settings.adGuardEnabled) {
+                    console.debug(`AdGuard is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "adGuard")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://dns.adguard-dns.com/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`AdGuard returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // AdGuard's way of blocking the domain.
+                        if (filteringDataString.endsWith("0,0,1,0,1,192,12,0,1,0,1,0,0,14,16,0,4,94,140,14,33")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added AdGuard URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "adGuard");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with AdGuard: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
              * Encodes a DNS query for the given domain and type.
              *
              * @param {string} domain - The domain to encode.
@@ -1177,6 +1246,7 @@ const BrowserProtection = function () {
                 checkUrlWithControlD(settings);
                 checkUrlWithCleanBrowsing(settings);
                 checkUrlWithOpenDNS(settings);
+                checkUrlWithAdGuard(settings);
             });
 
             // Clean up controllers for tabs that no longer exist

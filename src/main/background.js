@@ -61,7 +61,8 @@
                 && !settings.dns0Enabled
                 && !settings.controlDEnabled
                 && !settings.cleanBrowsingEnabled
-                && !settings.openDNSEnabled) {
+                && !settings.openDNSEnabled
+                && !settings.adGuardEnabled) {
                 console.warn("Protection is disabled; bailing out early.");
                 return;
             }
@@ -402,6 +403,11 @@
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "openDNS");
                         break;
 
+                    case "14":
+                        console.debug(`Added AdGuard URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "adGuard");
+                        break;
+
                     default:
                         console.warn(`Unknown origin: ${message.origin}`);
                         break;
@@ -536,6 +542,11 @@
                     case "13":
                         console.debug(`Added OpenDNS hostname to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "openDNS");
+                        break;
+
+                    case "14":
+                        console.debug(`Added AdGuard hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "adGuard");
                         break;
 
                     default:
