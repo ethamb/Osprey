@@ -160,13 +160,6 @@
                 return;
             }
 
-            // Skip URLs with unusual ports.
-            const port = urlObject.port || (protocol === 'https:' ? '443' : '80');
-            if (!['80', '443'].includes(port)) {
-                console.warn(`Non-standard port detected: ${port} in ${currentUrl}; bailing out.`);
-                return;
-            }
-
             // Ensure domain names are not obfuscated or invalid.
             if (hostname.includes('xn--')) {
                 console.warn(`IDN domain detected (Punycode): ${hostname}; converting to ASCII.`);
