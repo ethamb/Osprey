@@ -46,7 +46,7 @@ By default, when you visit a website, **Osprey** checks the URL with:
 You can configure the extension's protection options in the settings:
 
 ![Osprey Settings (Page 1)](https://i.imgur.com/aJkPITf.png)
-![Osprey Settings (Page 2)](https://i.imgur.com/5FHpL3O.png)
+![Osprey Settings (Page 2)](https://i.imgur.com/g45TqHO.png)
 
 ## Detections
 
