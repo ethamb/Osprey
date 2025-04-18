@@ -131,13 +131,6 @@
                 return;
             }
 
-            // Check for obfuscated characters, encoding issues, or malicious patterns.
-            const decodedUrl = decodeURIComponent(currentUrl);
-            if (decodedUrl.includes('..') || /%2E/i.test(currentUrl)) {
-                console.warn(`Suspicious encoding in URL: ${currentUrl}; bailing out.`);
-                return;
-            }
-
             // Check for data URIs embedded in query parameters.
             if (currentUrl.includes('data:')) {
                 console.warn(`Data URI found in URL: ${currentUrl}; bailing out.`);
