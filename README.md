@@ -24,7 +24,7 @@
 
 ## Protections
 
-By default, when you visit a website, **Osprey** checks the URL with:
+Depending on your settings, when you visit a website, **Osprey** checks the URL with:
 
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
