@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Effective Date:** 04/17/2025
+**Effective Date:** 04/18/2025
 
 Osprey is committed to protecting your privacy. This Privacy Policy explains how our browser extension operates and how we handle your data.
 
@@ -25,6 +25,8 @@ When you navigate to a website, Osprey may send the URL to the following third-p
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
 - [Control D Security DNS](https://controld.com/free-dns)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
+- [OpenDNS Security DNS](https://opendns.com)
+- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
 
 These services are designed to enhance your browsing security by identifying potential threats.
 Please be aware that the data sent to these services is limited to the URL you are visiting and is not stored by Osprey.
