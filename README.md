@@ -38,8 +38,8 @@ By default, when you visit a website, **Osprey** checks the URL with:
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
 - [Control D Security DNS](https://controld.com/free-dns)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-- [OpenDNS Security DNS](https://opendns.com) (version 1.1.0)
-- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html) (version 1.1.0)
+- [OpenDNS Security DNS](https://opendns.com)
+- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
 
 ## Settings
 
