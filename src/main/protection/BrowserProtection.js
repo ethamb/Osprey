@@ -1161,7 +1161,7 @@ const BrowserProtection = function () {
 
             // Call all the check functions asynchronously
             Settings.get((settings) => {
-                // // HTTP APIs
+                // HTTP APIs
                 checkUrlWithSymantec(settings);
                 checkUrlWithBitdefender(settings);
                 checkUrlWithSmartScreen(settings);
@@ -1170,7 +1170,7 @@ const BrowserProtection = function () {
                 checkUrlWithGDATA(settings);
                 checkUrlWithEmsisoft(settings);
 
-                // // DNS APIs
+                // DNS APIs
                 checkUrlWithCloudflare(settings);
                 checkUrlWithQuad9(settings);
                 checkUrlWithDNS0(settings);
