@@ -735,6 +735,7 @@ const BrowserProtection = function () {
                     }
 
                     const filteringData = await filteringResponse.json();
+                    const filteringDataString = JSON.stringify(filteringData);
                     const nonFilteringData = await nonFilteringResponse.json();
 
                     // If the non-filtering domain returns NOERROR...
@@ -742,8 +743,11 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer
                         && nonFilteringData.Answer.length > 0) {
 
-                        // If the filtering domain returns NXDOMAIN, block it.
-                        if (filteringData.Status === 3) {
+                        console.info(JSON.stringify(filteringData));
+
+                        // Cloudflare's way of blocking the domain.
+                        if (filteringDataString.includes("EDE(16): Censored")
+                            || filteringDataString.includes("\"TTL\":60,\"data\":\"0.0.0.0\"")) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
                             return;
                         }
@@ -1103,6 +1107,78 @@ const BrowserProtection = function () {
             };
 
             /**
+             * Checks the URL with OpenDNS's DNS API.
+             */
+            const checkUrlWithCiscoUmbrella = async function (settings) {
+                // // Check if OpenDNS is enabled
+                // if (!settings.openDNSEnabled) {
+                //     console.debug(`OpenDNS is disabled; bailing out early.`);
+                //     return;
+                // }
+                //
+                // // Check if the URL is in the cache
+                // if (isUrlInAnyCache(urlObject, urlHostname, "openDNS")) {
+                //     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                //     return;
+                // }
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://doh.umbrella.com/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`Cisco Umbrella returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        console.info(filteringDataString);
+
+                        // // OpenDNS ends its malicious entries with "0,0,1,0,1,192,12,0,1,0,1,0,0,0,0,0,4,146,112,61,108".
+                        // // If the filtering domain ends with that string, block it.
+                        // if (filteringDataString.endsWith("0,0,1,0,1,192,12,0,1,0,1,0,0,0,0,0,4,146,112,61,108")) {
+                        //     callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                        //     return;
+                        // }
+                    }
+
+                    // // Otherwise, the domain is either invalid or not blocked.
+                    // console.debug(`Added OpenDNS URL to cache: ` + url);
+                    // BrowserProtection.cacheManager.addUrlToCache(urlObject, "openDNS");
+                    // callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with OpenDNS: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
              * Encodes a DNS query for the given domain and type.
              *
              * @param {string} domain - The domain to encode.
@@ -1179,6 +1255,7 @@ const BrowserProtection = function () {
                 checkUrlWithControlD(settings);
                 checkUrlWithCleanBrowsing(settings);
                 checkUrlWithOpenDNS(settings);
+                // checkUrlWithCiscoUmbrella(settings);
             });
 
             // Clean up controllers for tabs that no longer exist
