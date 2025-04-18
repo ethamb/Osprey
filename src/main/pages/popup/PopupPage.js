@@ -202,10 +202,10 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
 
             Settings.set({[system.name]: newState}, () => {
                 updateProtectionStatusUI(system, newState);
-                console.debug(`${system.title} has been ${newState ? "disabled" : "enabled"}.`);
 
                 browserAPI.runtime.sendMessage({
                     messageType: system.messageType,
+                    title: system.title,
                     toggleState: newState,
                 });
             });
@@ -301,12 +301,12 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             pageIndicator.textContent = `${currentPage}/${totalPages}`;
         }
 
-        prevPage.addEventListener('click', function() {
+        prevPage.addEventListener('click', function () {
             currentPage = currentPage === 1 ? totalPages : currentPage - 1;
             updatePageDisplay();
         });
 
-        nextPage.addEventListener('click', function() {
+        nextPage.addEventListener('click', function () {
             currentPage = currentPage === totalPages ? 1 : currentPage + 1;
             updatePageDisplay();
         });

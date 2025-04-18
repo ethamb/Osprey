@@ -585,7 +585,7 @@
             case Messages.MessageType.DNS0_TOGGLED:
             case Messages.MessageType.CONTROL_D_TOGGLED:
             case Messages.MessageType.CLEAN_BROWSING_TOGGLED:
-                // Debug messages are already sent elsewhere
+                console.debug(`${message.title} has been ${message.toggleState ? "disabled" : "enabled"}.`);
                 break;
 
             default:
