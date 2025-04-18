@@ -18,7 +18,7 @@
 
 ## Current Release
 - **1.0.9** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
-- **1.0.8** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
+- **1.0.9** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
 - **1.0.5** on [Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (outdated)
 - **Pending** on Firefox
 
@@ -37,6 +37,7 @@ By default, when you visit a website, **Osprey** checks the URL with:
 - [Quad9 Security DNS](https://quad9.net) (version 1.0.9)
 - [DNS0.eu Security DNS](https://dns0.eu/zero) (version 1.0.9)
 - [Control D Security DNS](https://controld.com/free-dns) (version 1.0.9)
+- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3) (version 1.0.9)
 
 ## Settings
 
@@ -66,6 +67,10 @@ You can configure the extension's protection options in the settings:
 If the website is malicious, **Osprey** will block the page and display a warning:
 
 ![Osprey Warning](https://i.imgur.com/1gzZntl.png)
+
+From this page, you can report the website as safe, add the hostname to the allowlist, go back to safety, and continue anyway.
+
+By default, Osprey creates a browser notification for blocked pages that [you can toggle on and off](https://github.com/Foulest/Osprey/wiki/Toggling-Notifications).
 
 ## Privacy
 
