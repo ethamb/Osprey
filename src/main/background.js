@@ -70,7 +70,7 @@
             let {tabId, frameId, url: currentUrl} = navigationDetails;
 
             // Check if the frame ID is not the main frame.
-            if (frameId !== 0) {
+            if (settings.ignoreFrameNavigation && frameId !== 0) {
                 console.debug(`Ignoring frame navigation: ${currentUrl} #${frameId}; bailing out.`);
                 return;
             }
@@ -614,7 +614,12 @@
     browserAPI.contextMenus.onClicked.addListener((info) => {
         if (info.menuItemId === "toggleNotifications") {
             Settings.set({notificationsEnabled: info.checked});
-            console.debug("Notifications enabled: " + info.checked);
+            console.debug("Notifications: " + info.checked);
+        }
+
+        if (info.menuItemId === "toggleFrameNavigation") {
+            Settings.set({ignoreFrameNavigation: info.checked});
+            console.debug("Ignoring frame navigation: " + info.checked);
         }
     });
 
@@ -623,12 +628,21 @@
         Settings.get((settings) => {
             // First remove existing menu items to avoid duplicates
             browserAPI.contextMenus.removeAll(() => {
-                // Create the context menu item with a checkbox
+                // Create the notifications context menu item with a checkbox
                 browserAPI.contextMenus.create({
                     id: "toggleNotifications",
                     title: "Enable notifications",
                     type: "checkbox",
                     checked: settings.notificationsEnabled,
+                    contexts: ["action"],
+                });
+
+                // Create the ignore frame navigation context menu item with a checkbox
+                browserAPI.contextMenus.create({
+                    id: "toggleFrameNavigation",
+                    title: "Ignore frame navigation",
+                    type: "checkbox",
+                    checked: settings.ignoreFrameNavigation,
                     contexts: ["action"],
                 });
             });
