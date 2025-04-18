@@ -160,18 +160,6 @@
                 return;
             }
 
-            // Ensure domain names are not obfuscated or invalid.
-            if (hostname.includes('xn--')) {
-                console.warn(`IDN domain detected (Punycode): ${hostname}; converting to ASCII.`);
-
-                try {
-                    hostname = hostname.toASCII(); // Convert IDN to ASCII
-                } catch (ignored) {
-                    console.warn(`Failed to convert IDN: ${currentUrl}; bailing out.`);
-                    return;
-                }
-            }
-
             // Set the hostname back to the URL object.
             urlObject.hostname = hostname;
 
