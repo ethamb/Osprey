@@ -131,12 +131,6 @@
                 return;
             }
 
-            // Check for data URIs embedded in query parameters.
-            if (currentUrl.includes('data:')) {
-                console.warn(`Data URI found in URL: ${currentUrl}; bailing out.`);
-                return;
-            }
-
             // Exclude internal network addresses, loopback, or reserved domains.
             if (['localhost', '127.0.0.1'].includes(hostname)
                 || hostname.endsWith('.local')
