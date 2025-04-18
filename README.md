@@ -17,7 +17,7 @@
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
 
 ## Current Release
-- **1.0.9** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
+- **1.1.0** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
 - **1.0.9** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
 - **1.0.5** on [Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (outdated)
 - **Pending** on Firefox
@@ -34,10 +34,12 @@ By default, when you visit a website, **Osprey** checks the URL with:
 - [TOTAL WebShield](https://dashboard.totalwebshield.com/products/totalwebshield)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
 - [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content) (version 1.0.9)
-- [Quad9 Security DNS](https://quad9.net) (version 1.0.9)
-- [DNS0.eu Security DNS](https://dns0.eu/zero) (version 1.0.9)
-- [Control D Security DNS](https://controld.com/free-dns) (version 1.0.9)
-- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3) (version 1.0.9)
+- [Quad9 Security DNS](https://quad9.net)
+- [DNS0.eu Security DNS](https://dns0.eu/zero)
+- [Control D Security DNS](https://controld.com/free-dns)
+- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
+- [OpenDNS Security DNS](https://opendns.com) (version 1.1.0)
+- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html) (version 1.1.0)
 
 ## Settings
 
@@ -85,7 +87,7 @@ For example:
 
 The only data the APIs receive is the stripped-down URL, your user agent, and your IP address. Use a reputable VPN or proxy service if you're concerned about IP-related privacy. There are also extensions that mask your user agent, if you're so inclined.
 
-As for why Osprey needs to check complete URLs instead of just the domain, many phishing attacks use legitimate companies to host their phishing campaigns, such as Jotform. If Osprey only checked a website's domain name, it wouldn't detect those threats.
+As for why Osprey needs to check complete URLs instead of just the domain, many phishing attacks use legitimate companies to host their phishing campaigns, such as Jotform. If Osprey only checked a website's domain name, it wouldn't detect those threats. Osprey only sends your hostname to its various DNS API providers, so if you're highly concerned about URL page privacy, the DNS APIs are there for you.
 
 ## Installation
 
