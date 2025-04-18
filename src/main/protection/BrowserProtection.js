@@ -215,27 +215,21 @@ const BrowserProtection = function () {
 
                     const data = await response.text();
 
-                    // Keeping this for debugging purposes
-                    console.debug(`Symantec response: ${data}`);
-
                     // Compromised Sites
-                    // TODO: Determine the HTML structure of the response
-                    if (data.includes(">7C") || data.includes("7C<")) {
+                    if (data.includes("<DomC>7C") || data.includes("7C</DomC>")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                         return;
                     }
 
                     // Malicious Sources
-                    // TODO: Determine the HTML structure of the response
-                    if (data.includes(">2B") || data.includes("2B<")) {
+                    if (data.includes("<DirC>2B") || data.includes("2B</DirC>")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                         return;
                     }
 
                     // Malicious Outbound Data
-                    // TODO: Determine the HTML structure of the response
-                    if (data.includes(">2C") || data.includes("2C<")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                    if (data.includes("<DirC>2C") || data.includes("2C</DirC>")) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                         return;
                     }
 
@@ -253,8 +247,7 @@ const BrowserProtection = function () {
                     }
 
                     // Scam/Questionable Legality
-                    // TODO: Determine the HTML structure of the response
-                    if (data.includes(">09") || data.includes("09<")) {
+                    if (data.includes("<DirC>09") || data.includes("09</DirC>")) {
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                         return;
                     }
