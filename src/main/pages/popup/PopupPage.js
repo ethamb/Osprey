@@ -247,11 +247,6 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             versionElement.textContent += version;
         }
 
-        // Register for page unload - but only for cleanup, not prevention
-        safeAddEventListener(window, 'unload', () => {
-            browserAPI.runtime.sendMessage({messageType: Messages.MessageType.POPUP_CLOSED});
-        });
-
         const page1 = document.getElementById("page1");
         const page2 = document.getElementById("page2");
         const prevPage = document.getElementById("prevPage");
