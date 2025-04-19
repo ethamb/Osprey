@@ -4,17 +4,20 @@
 const Settings = (function () {
     const settingsKey = "Settings"; // Key for storing settings in local storage
 
+    // These default values were chosen based on API response times
+    // APIs with less than 100ms of delay are enabled by default
+
     let defaultSettings = {
         smartScreenEnabled: true, // Default state for SmartScreen
         symantecEnabled: true, // Default state for Symantec
-        emsisoftEnabled: true, // Default state for Emsisoft
+        emsisoftEnabled: false, // Default state for Emsisoft
         bitdefenderEnabled: true, // Default state for Bitdefender
-        nortonEnabled: true, // Default state for Norton
-        totalEnabled: true, // Default state for TOTAL
-        gDataEnabled: true, // Default state for G DATA
+        nortonEnabled: false, // Default state for Norton
+        totalEnabled: false, // Default state for TOTAL
+        gDataEnabled: false, // Default state for G DATA
         cloudflareEnabled: true, // Default state for Cloudflare
         quad9Enabled: true, // Default state for Quad9
-        dns0Enabled: true, // Default state for DNS0
+        dns0Enabled: false, // Default state for DNS0
         controlDEnabled: true, // Default state for Control D
         cleanBrowsingEnabled: true, // Default state for CleanBrowsing
         openDNSEnabled: true, // Default state for OpenDNS
