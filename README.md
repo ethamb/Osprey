@@ -79,6 +79,9 @@ customizable, so you can enable or disable any of the providers at any time. If 
 report the links to them directly and disable them in the settings panel. Osprey does not have control over the
 providers' databases or how they classify URLs.
 
+For clarity, on the graph, the red line is OpenPhish, the orange line is AA419, the yellow line is PhishStats, and the green line is Malicious Sites.
+The grades were curved up to 100% to compensate for dead links, but it didn't impact much, as the highest curve given was a 3% increase.
+
 ## Settings
 
 You can configure the extension's protection options in the settings:
