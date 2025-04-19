@@ -63,9 +63,6 @@ window.addEventListener("load", () => {
             case ProtectionResult.ResultOrigin.NORTON:
                 return new URL("https://safeweb.norton.com/report?url=" + encodedMaliciousUrl);
 
-            case ProtectionResult.ResultOrigin.TOTAL:
-                return new URL("https://totalwebshield.com/submit-file#false-positive-website");
-
             case ProtectionResult.ResultOrigin.G_DATA:
                 return new URL("https://submit.gdatasoftware.com/url?key=NWNjNWIzY2RlMGE0ZDA5YzkyNzJmMTA3MTRmZTYwMjBi"
                     + "NmZmOWNjZDQ1MTQ1NjQ3F9FNhTj0IOo0u_jyw7nqx5c7jZxGFVmoR7X_4r7__CZJnGtqJsIzn-tN&lang=en");
@@ -79,27 +76,30 @@ window.addEventListener("load", () => {
             case ProtectionResult.ResultOrigin.DNS0:
                 return new URL("https://dns0.eu/report");
 
-            case ProtectionResult.ResultOrigin.CONTROL_D:
-                return new URL("https://control.d/contact");
-
             case ProtectionResult.ResultOrigin.CLEANBROWSING:
                 return new URL("https://categorify.org/recategorize?website=" + encodedMaliciousUrl);
 
-            case ProtectionResult.ResultOrigin.MULLVAD:
-                return new URL("mailto:support@mullvadvpn.net?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
-                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20Mullvad%20DNS%0AURL%3A%20"
+            case ProtectionResult.ResultOrigin.CIRA:
+                return new URL("mailto:info@cira.ca?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
+                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20CIRA%20Canadian%20Shield%20DNS%0AURL%3A%20"
                     + encodedMaliciousUrl + "%0ADetected%20as%3A%20" + encodedResult
                     + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
             case ProtectionResult.ResultOrigin.ADGUARD:
                 return new URL("mailto:support@adguard.com?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
-                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20AdGuard%20Standard%20DNS%0AURL%3A%20"
+                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20AdGuard%20DNS%0AURL%3A%20"
                     + encodedMaliciousUrl + "%0ADetected%20as%3A%20" + encodedResult
                     + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
             case ProtectionResult.ResultOrigin.SWITCH_CH:
                 return new URL("mailto:info@switch.ch?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
-                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20Switch.ch%20DNS%20Firewall%0AURL%3A%20"
+                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20Switch.ch%20DNS%0AURL%3A%20"
+                    + encodedMaliciousUrl + "%0ADetected%20as%3A%20" + encodedResult
+                    + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
+
+            case ProtectionResult.ResultOrigin.CERT_EE:
+                return new URL("mailto:ria@ria.ee?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
+                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20CERT-EE%20DNS%0AURL%3A%20"
                     + encodedMaliciousUrl + "%0ADetected%20as%3A%20" + encodedResult
                     + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 

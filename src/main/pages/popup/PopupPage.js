@@ -52,13 +52,6 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             messageType: Messages.MessageType.NORTON_TOGGLED,
         },
         {
-            name: "totalEnabled",
-            title: "TOTAL WebShield",
-            labelElementId: "totalStatus",
-            switchElementId: "totalSwitch",
-            messageType: Messages.MessageType.TOTAL_TOGGLED,
-        },
-        {
             name: "gDataEnabled",
             title: "G DATA WebProtection",
             labelElementId: "gDataStatus",
@@ -87,13 +80,6 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             messageType: Messages.MessageType.DNS0_TOGGLED,
         },
         {
-            name: "controlDEnabled",
-            title: "Control D Security DNS",
-            labelElementId: "controlDStatus",
-            switchElementId: "controlDSwitch",
-            messageType: Messages.MessageType.CONTROL_D_TOGGLED,
-        },
-        {
             name: "cleanBrowsingEnabled",
             title: "CleanBrowsing Security DNS",
             labelElementId: "cleanBrowsingStatus",
@@ -101,11 +87,11 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             messageType: Messages.MessageType.CLEAN_BROWSING_TOGGLED,
         },
         {
-            name: "mullvadEnabled",
-            title: "Mullvad Security DNS",
-            labelElementId: "mullvadStatus",
-            switchElementId: "mullvadSwitch",
-            messageType: Messages.MessageType.MULLVAD_TOGGLED,
+            name: "ciraEnabled",
+            title: "CIRA Canadian Shield DNS",
+            labelElementId: "ciraStatus",
+            switchElementId: "ciraSwitch",
+            messageType: Messages.MessageType.CIRA_TOGGLED,
         },
         {
             name: "adGuardEnabled",
@@ -120,6 +106,13 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             labelElementId: "switchCHStatus",
             switchElementId: "switchCHSwitch",
             messageType: Messages.MessageType.SWITCH_CH_TOGGLED,
+        },
+        {
+            name: "certEEEnabled",
+            title: "CERT-EE Security DNS",
+            labelElementId: "certEEStatus",
+            switchElementId: "certEESwitch",
+            messageType: Messages.MessageType.CERT_EE_TOGGLED,
         }
     ];
 
@@ -300,26 +293,22 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
 
         const page1 = document.getElementById("page1");
         const page2 = document.getElementById("page2");
-        const page3 = document.getElementById("page3");
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
         const pageIndicator = document.getElementById("pageIndicator");
         let currentPage = 1;
-        const totalPages = 3;
+        const totalPages = 2;
 
         function updatePageDisplay() {
             // Hide all pages
             page1.classList.remove("active");
             page2.classList.remove("active");
-            page3.classList.remove("active");
 
             // Show current page
             if (currentPage === 1) {
                 page1.classList.add("active");
             } else if (currentPage === 2) {
                 page2.classList.add("active");
-            } else {
-                page3.classList.add("active");
             }
 
             // Update page indicator

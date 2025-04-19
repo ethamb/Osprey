@@ -503,121 +503,6 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with the TOTAL API.
-             */
-            const checkUrlWithTOTAL = async function (settings) {
-                // Check if TOTAL is enabled
-                if (!settings.totalEnabled) {
-                    console.debug(`TOTAL is disabled; bailing out early.`);
-                    return;
-                }
-
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "total")) {
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                const apiUrl = "https://api.webshield.protected.net/e3/gsb/url";
-                const payload = {url};
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                        body: JSON.stringify(payload),
-                        signal
-                    });
-
-                    // Return early if the response is not OK
-                    if (!response.ok) {
-                        console.warn(`TOTAL returned early: ${response.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const data = await response.text();
-
-                    // Phishing
-                    if (data.includes('phishing')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Malicious
-                    if (data.includes('malware')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Cryptojacking
-                    if (data.includes('crypto')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.CRYPTOJACKING, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Potentially Unwanted Applications
-                    if (data.includes('pua')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.PUA, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Call Centers
-                    if (data.includes('call_center')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Adware
-                    if (data.includes('adware')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ADWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Spam
-                    if (data.includes('spam')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.SPAM, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Compromised
-                    if (data.includes('compromised')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Fleeceware
-                    if (data.includes('fleeceware')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FLEECEWARE, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Untrusted
-                    if (data.includes('low_trust') || data.includes('lowtrust')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Safe/Trusted
-                    if (data === "") {
-                        console.debug(`Added TOTAL URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "total");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Unexpected result
-                    console.warn(`TOTAL returned an unexpected result for URL ${url}: ${data}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`Failed to check URL with TOTAL: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.TOTAL), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
              * Checks the URL with the G DATA API.
              */
             const checkUrlWithGDATA = async function (settings) {
@@ -896,74 +781,6 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with Control D's DNS API.
-             */
-            const checkUrlWithControlD = async function (settings) {
-                // Check if ControlD is enabled
-                if (!settings.controlDEnabled) {
-                    console.debug(`Control D is disabled; bailing out early.`);
-                    return;
-                }
-
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "controlD")) {
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                const filteringURL = `https://freedns.controld.com/p1?name=${encodeURIComponent(urlHostname)}`;
-
-                try {
-                    const filteringResponse = await fetch(filteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-message"
-                        },
-                        signal
-                    });
-
-                    const nonFilteringResponse = await fetch(nonFilteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-json"
-                        },
-                        signal
-                    });
-
-                    // Return early if one or more of the responses is not OK
-                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`Control D returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
-                    const filteringDataString = Array.from(filteringData).toString();
-                    const nonFilteringData = await nonFilteringResponse.json();
-
-                    // If the non-filtering domain returns NOERROR...
-                    if (nonFilteringData.Status === 0
-                        && nonFilteringData.Answer
-                        && nonFilteringData.Answer.length > 0) {
-
-                        // ControlD's way of blocking the domain.
-                        if (filteringDataString.endsWith("0,4,0,0,0,0")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added Control D URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "controlD");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`Failed to check URL with Control D: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
              * Checks the URL with CleanBrowsing's DNS API.
              */
             const checkUrlWithCleanBrowsing = async function (settings) {
@@ -1032,23 +849,23 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with Mullvad's DNS API.
+             * Checks the URL with CIRA's DNS API.
              */
-            const checkUrlWithMullvad = async function (settings) {
-                // Check if Mullvad is enabled
-                if (!settings.mullvadEnabled) {
-                    console.debug(`Mullvad is disabled; bailing out early.`);
+            const checkUrlWithCIRA = async function (settings) {
+                // Check if CIRA is enabled
+                if (!settings.ciraEnabled) {
+                    console.debug(`CIRA is disabled; bailing out early.`);
                     return;
                 }
 
                 // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "mullvad")) {
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
+                if (isUrlInAnyCache(urlObject, urlHostname, "cira")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
                     return;
                 }
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
-                const filteringURL = `https://base.dns.mullvad.net/dns-query?dns=${encodedQuery}`;
+                const filteringURL = `https://protected.canadianshield.cira.ca/dns-query?dns=${encodedQuery}`;
 
                 try {
                     const filteringResponse = await fetch(filteringURL, {
@@ -1069,12 +886,13 @@ const BrowserProtection = function () {
 
                     // Return early if one or more of the responses is not OK
                     if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`Mullvad returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
+                        console.warn(`CIRA returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
                         return;
                     }
 
                     const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
                     const nonFilteringData = await nonFilteringResponse.json();
 
                     // If the non-filtering domain returns NOERROR...
@@ -1082,20 +900,20 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer
                         && nonFilteringData.Answer.length > 0) {
 
-                        // Mullvad's way of blocking the domain.
-                        if (filteringData[3] === 131) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
+                        // CIRA's way of blocking the domain.
+                        if (filteringDataString.endsWith("0,4,0,0,0,0")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
                             return;
                         }
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added Mullvad URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "mullvad");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
+                    console.debug(`Added CIRA URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "cira");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
                 } catch (error) {
-                    console.debug(`Failed to check URL with Mullvad: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
+                    console.debug(`Failed to check URL with CIRA: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
                 }
             };
 
@@ -1242,6 +1060,75 @@ const BrowserProtection = function () {
             };
 
             /**
+             * Checks the URL with Switch.ch's DNS API.
+             */
+            const checkUrlWithCERTEE = async function (settings) {
+                // Check if CERT-EE is enabled
+                if (!settings.certEEEnabled) {
+                    console.debug(`Switch.ch is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "certEE")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://dns.cert.ee/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`CERT-EE returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // CERT-EE's way of blocking the domain.
+                        if (filteringDataString.endsWith("180,0,0,9,58,128")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added CERT-EE URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "certEE");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with CERT-EE: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
              * Encodes a DNS query for the given domain and type.
              *
              * @param {string} domain - The domain to encode.
@@ -1307,7 +1194,6 @@ const BrowserProtection = function () {
                 checkUrlWithBitdefender(settings);
                 checkUrlWithSmartScreen(settings);
                 checkUrlWithNorton(settings);
-                checkUrlWithTOTAL(settings);
                 checkUrlWithGDATA(settings);
                 checkUrlWithEmsisoft(settings);
 
@@ -1315,11 +1201,11 @@ const BrowserProtection = function () {
                 checkUrlWithCloudflare(settings);
                 checkUrlWithQuad9(settings);
                 checkUrlWithDNS0(settings);
-                checkUrlWithControlD(settings);
                 checkUrlWithCleanBrowsing(settings);
-                checkUrlWithMullvad(settings);
+                checkUrlWithCIRA(settings);
                 checkUrlWithAdGuard(settings);
                 checkUrlWithSwitchCH(settings);
+                checkUrlWithCERTEE(settings);
             });
 
             // Clean up controllers for tabs that no longer exist

@@ -10,19 +10,18 @@ const Settings = (function () {
     let defaultSettings = {
         smartScreenEnabled: true, // Default state for SmartScreen
         symantecEnabled: true, // Default state for Symantec
-        emsisoftEnabled: false, // Default state for Emsisoft
+        emsisoftEnabled: true, // Default state for Emsisoft
         bitdefenderEnabled: true, // Default state for Bitdefender
-        nortonEnabled: false, // Default state for Norton
-        totalEnabled: false, // Default state for TOTAL
-        gDataEnabled: false, // Default state for G DATA
+        nortonEnabled: true, // Default state for Norton
+        gDataEnabled: true, // Default state for G DATA
         cloudflareEnabled: true, // Default state for Cloudflare
         quad9Enabled: true, // Default state for Quad9
-        dns0Enabled: false, // Default state for DNS0
-        controlDEnabled: true, // Default state for Control D
+        dns0Enabled: true, // Default state for DNS0
         cleanBrowsingEnabled: true, // Default state for CleanBrowsing
-        mullvadEnabled: false, // Default state for Mullvad
-        adGuardEnabled: false, // Default state for AdGuard
-        switchCHEnabled: false, // Default state for Switch.ch
+        ciraEnabled: true, // Default state for CIRA
+        adGuardEnabled: true, // Default state for AdGuard
+        switchCHEnabled: true, // Default state for Switch.ch
+        certEEEnabled: true, // Default state for CERT-EE
 
         notificationsEnabled: true, // Default state for notifications
         ignoreFrameNavigation: true, // Default state for ignoring frame navigation

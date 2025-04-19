@@ -54,16 +54,15 @@
                 && !settings.emsisoftEnabled
                 && !settings.bitdefenderEnabled
                 && !settings.nortonEnabled
-                && !settings.totalEnabled
                 && !settings.gDataEnabled
                 && !settings.cloudflareEnabled
                 && !settings.quad9Enabled
                 && !settings.dns0Enabled
-                && !settings.controlDEnabled
                 && !settings.cleanBrowsingEnabled
-                && !settings.mullvadEnabled
+                && !settings.ciraEnabled
                 && !settings.adGuardEnabled
                 && !settings.switchCHEnabled
+                && !settings.certEEEnabled
             ) {
                 console.warn("Protection is disabled; bailing out early.");
                 return;
@@ -334,48 +333,48 @@
                         break;
 
                     case "6":
-                        console.debug(`Added TOTAL URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "total");
-                        break;
-
-                    case "7":
                         console.debug(`Added G DATA URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
                         break;
 
-                    case "8":
+                    case "7":
                         console.debug(`Added Cloudflare URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cloudflare");
                         break;
 
-                    case "9":
+                    case "8":
                         console.debug(`Added Quad9 URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "quad9");
                         break;
 
-                    case "10":
+                    case "9":
                         console.debug(`Added DNS0 URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "dns0");
                         break;
 
-                    case "11":
-                        console.debug(`Added Control D URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "controlD");
-                        break;
-
-                    case "12":
+                    case "10":
                         console.debug(`Added CleanBrowsing URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cleanBrowsing");
                         break;
 
+                    case "11":
+                        console.debug(`Added CIRA URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cira");
+                        break;
+
+                    case "12":
+                        console.debug(`Added AdGuard URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "adGuard");
+                        break;
+
                     case "13":
-                        console.debug(`Added Mullvad URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "mullvad");
+                        console.debug(`Added Switch.ch URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "switchCH");
                         break;
 
                     case "14":
-                        console.debug(`Added AdGuard URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "adGuard");
+                        console.debug(`Added CERT-EE URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "certEE");
                         break;
 
                     default:
@@ -475,48 +474,48 @@
                         break;
 
                     case "6":
-                        console.debug(`Added TOTAL hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "total");
-                        break;
-
-                    case "7":
                         console.debug(`Added G DATA hostname to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "gData");
                         break;
 
-                    case "8":
+                    case "7":
                         console.debug(`Added Cloudflare hostname to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "cloudflare");
                         break;
 
-                    case "9":
+                    case "8":
                         console.debug(`Added Quad9 hostname to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "quad9");
                         break;
 
-                    case "10":
+                    case "9":
                         console.debug(`Added DNS0 hostname to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "dns0");
                         break;
 
-                    case "11":
-                        console.debug(`Added Control D hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "controlD");
-                        break;
-
-                    case "12":
+                    case "10":
                         console.debug(`Added CleanBrowsing hostname to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addStringToCache(hostnameString, "cleanBrowsing");
                         break;
 
+                    case "11":
+                        console.debug(`Added CIRA hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "cira");
+                        break;
+
+                    case "12":
+                        console.debug(`Added AdGuard hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "adGuard");
+                        break;
+
                     case "13":
-                        console.debug(`Added Mullvad hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "mullvad");
+                        console.debug(`Added Switch.ch hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "switchCH");
                         break;
 
                     case "14":
-                        console.debug(`Added AdGuard hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "adGuard");
+                        console.debug(`Added CERT-EE hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "certEE");
                         break;
 
                     default:
@@ -556,16 +555,15 @@
             case Messages.MessageType.EMSISOFT_TOGGLED:
             case Messages.MessageType.BITDEFENDER_TOGGLED:
             case Messages.MessageType.NORTON_TOGGLED:
-            case Messages.MessageType.TOTAL_TOGGLED:
             case Messages.MessageType.G_DATA_TOGGLED:
             case Messages.MessageType.CLOUDFLARE_TOGGLED:
             case Messages.MessageType.QUAD9_TOGGLED:
             case Messages.MessageType.DNS0_TOGGLED:
-            case Messages.MessageType.CONTROL_D_TOGGLED:
             case Messages.MessageType.CLEAN_BROWSING_TOGGLED:
-            case Messages.MessageType.MULLVAD_TOGGLED:
+            case Messages.MessageType.CIRA_TOGGLED:
             case Messages.MessageType.ADGUARD_TOGGLED:
             case Messages.MessageType.SWITCH_CH_TOGGLED:
+            case Messages.MessageType.CERT_EE_TOGGLED:
                 console.debug(`${message.title} has been ${message.toggleState ? "enabled" : "disabled"}.`);
                 break;
 

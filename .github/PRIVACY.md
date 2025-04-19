@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Effective Date:** 04/18/2025
+**Effective Date:** 04/19/2025
 
 Osprey is committed to protecting your privacy. This Privacy Policy explains how our browser extension operates and how we handle your data.
 
@@ -18,16 +18,15 @@ When you navigate to a website, Osprey may send the URL to the following third-p
 - [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
 - [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
 - [Norton SafeWeb](https://safeweb.norton.com)
-- [TOTAL WebShield](https://dashboard.totalwebshield.com/products/totalwebshield)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
 - [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
 - [Quad9 Security DNS](https://quad9.net)
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
-- [Control D Security DNS](https://controld.com/free-dns)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-- [Mullvad Security DNS](https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#dns-features)
+- [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
 - [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
-- [Switch.ch Security DNS](https://www.switch.ch/en/dns-firewall)
+- [Switch.ch Security DNS](https://switch.ch/en/dns-firewall)
+- [CERT-EE Security DNS](https://ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
 
 These services are designed to enhance your browsing security by identifying potential threats.
 Please be aware that the data sent to these services is limited to the URL you are visiting and is not stored by Osprey.

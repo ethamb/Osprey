@@ -17,8 +17,8 @@
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
 
 ## Current Release
-- **1.1.1** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
-- **1.1.0** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
+- **1.1.2** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
+- **1.1.1** on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (stable)
 - **1.0.5** on [Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (outdated)
 - **Pending** on Firefox
 
@@ -26,26 +26,23 @@
 
 Osprey checks each URL you visit with the following protection API providers:
 
-**Enabled By Default**
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
-- [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
-- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
-- [Quad9 Security DNS](https://quad9.net)
-- [Control D Security DNS](https://controld.com/free-dns)
-- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-
-**Disabled By Default**
 - [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
+- [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
 - [Norton SafeWeb](https://safeweb.norton.com)
-- [TOTAL WebShield](https://dashboard.totalwebshield.com/products/totalwebshield)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
-- [DNS0.eu Security DNS](https://dns0.eu/zero)
-- [Mullvad Security DNS](https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#dns-features)
-- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
-- [Switch.ch Security DNS](https://www.switch.ch/en/dns-firewall)
+- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
 
-Default settings were chosen based on server response times.
+- [Quad9 Security DNS](https://quad9.net)
+- [DNS0.eu Security DNS](https://dns0.eu/zero)
+- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
+- [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
+- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
+- [Switch.ch Security DNS](https://switch.ch/en/dns-firewall)
+- [CERT-EE Security DNS](https://ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
+
+Providers were chosen based on their reputation and effectiveness in detecting malicious content.
 
 ## Settings
 
@@ -67,9 +64,7 @@ Please note that the above settings may be outdated.
 - [Cryptojacking](https://kaspersky.com/resource-center/definitions/what-is-cryptojacking)
 - [Malvertising](https://malwarebytes.com/malvertising)
 - [Spam](https://developers.google.com/search/docs/essentials/spam-policies)
-- [Adware](https://us.norton.com/blog/malware/adware)
 - [Compromised](https://malwarebytes.com/glossary/compromised)
-- [Fleeceware](https://blog.avast.com/how-to-spot-fleeceware)
 - [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
 
 ## Warning

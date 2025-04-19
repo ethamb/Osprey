@@ -9,16 +9,15 @@ class CacheManager {
             emsisoft: new Map(),
             bitdefender: new Map(),
             norton: new Map(),
-            total: new Map(),
             gData: new Map(),
             cloudflare: new Map(),
             quad9: new Map(),
             dns0: new Map(),
-            controlD: new Map(),
             cleanBrowsing: new Map(),
-            mullvad: new Map(),
+            cira: new Map(),
             adGuard: new Map(),
             switchCH: new Map(),
+            certEE: new Map(),
         };
 
         this.storageKey = storageKey;

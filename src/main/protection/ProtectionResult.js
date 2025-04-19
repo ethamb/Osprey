@@ -25,9 +25,7 @@ ProtectionResult.ResultType = {
     CRYPTOJACKING: "Cryptojacking",
     MALVERTISING: "Malvertising",
     SPAM: "Spam",
-    ADWARE: "Adware",
     COMPROMISED: "Compromised",
-    FLEECEWARE: "Fleeceware",
     UNTRUSTED: "Untrusted"
 };
 
@@ -38,16 +36,15 @@ ProtectionResult.ResultOrigin = {
     EMSISOFT: 3, // The result was determined via Emsisoft
     BITDEFENDER: 4, // The result was determined via Bitdefender
     NORTON: 5, // The result was determined via Norton
-    TOTAL: 6, // The total was determined via TOTAL WebShield
-    G_DATA: 7, // The result was determined via G DATA
-    CLOUDFLARE: 8, // The result was determined via Cloudflare
-    QUAD9: 9, // The result was determined via Quad9
-    DNS0: 10, // The result was determined via DNS0
-    CONTROL_D: 11, // The result was determined via Control D
-    CLEANBROWSING: 12, // The result was determined via CleanBrowsing
-    MULLVAD: 13, // The result was determined via Mullvad
-    ADGUARD: 14, // The result was determined via AdGuard
-    SWITCH_CH: 15 // The result was determined via Switch.ch
+    G_DATA: 6, // The result was determined via G DATA
+    CLOUDFLARE: 7, // The result was determined via Cloudflare
+    QUAD9: 8, // The result was determined via Quad9
+    DNS0: 9, // The result was determined via DNS0
+    CLEANBROWSING: 10, // The result was determined via CleanBrowsing
+    CIRA: 11, // The result was determined via CIRA
+    ADGUARD: 12, // The result was determined via AdGuard
+    SWITCH_CH: 13, // The result was determined via Switch.ch
+    CERT_EE: 14, // The result was determined via CERT-EE
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -57,14 +54,13 @@ ProtectionResult.ResultOriginNames = {
     3: "Emsisoft Web Protection",
     4: "Bitdefender TrafficLight",
     5: "Norton SafeWeb",
-    6: "TOTAL WebShield",
-    7: "G DATA WebProtection",
-    8: "Cloudflare Security DNS",
-    9: "Quad9 Security DNS",
-    10: "DNS0.eu Security DNS",
-    11: "Control D Security DNS",
-    12: "CleanBrowsing Security DNS",
-    13: "Mullvad Security DNS",
-    14: "AdGuard Security DNS",
-    15: "Switch.ch Security DNS"
+    6: "G DATA WebProtection",
+    7: "Cloudflare Security DNS",
+    8: "Quad9 Security DNS",
+    9: "DNS0.eu Security DNS",
+    10: "CleanBrowsing Security DNS",
+    11: "CIRA Canadian Shield DNS",
+    12: "AdGuard Security DNS",
+    13: "Switch.ch Security DNS",
+    14: "CERT-EE Security DNS"
 };
