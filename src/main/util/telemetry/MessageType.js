@@ -22,7 +22,7 @@ const Messages = {
         DNS0_TOGGLED: "dns0Toggled",
         CONTROL_D_TOGGLED: "controlDToggled",
         CLEAN_BROWSING_TOGGLED: "cleanBrowsingToggled",
-        OPEN_DNS_TOGGLED: "openDNSToggled",
+        MULLVAD_TOGGLED: "mullvadToggled",
         ADGUARD_TOGGLED: "adGuardToggled",
     }
 };
