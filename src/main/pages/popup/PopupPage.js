@@ -1,15 +1,12 @@
 "use strict";
 
 // Use a global singleton pattern to ensure we don't duplicate resources
-window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
+window.PopupSingleton = window.PopupSingleton || (function () {
     // Track initialization state
     let isInitialized = false;
 
     // Cache for DOM elements
     const domElements = {};
-
-    // Reference to event listeners for easy removal
-    const eventListeners = new Map();
 
     // Browser API compatibility between Chrome and Firefox
     const browserAPI = typeof browser === 'undefined' ? chrome : browser;
@@ -133,36 +130,6 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
     };
 
     /**
-     * Safely add event listener with tracking for cleanup
-     *
-     * @param {EventTarget} target - Element to attach listener to
-     * @param {string} type - Event type
-     * @param {Function} listener - Event handler
-     */
-    const safeAddEventListener = function (target, type, listener) {
-        target.addEventListener(type, listener);
-
-        if (!eventListeners.has(target)) {
-            eventListeners.set(target, new Map());
-        }
-
-        eventListeners.get(target).set(type, listener);
-    };
-
-    /**
-     * Remove all tracked event listeners
-     */
-    const removeAllEventListeners = function () {
-        eventListeners.forEach((typeListeners, target) => {
-            typeListeners.forEach((listener, type) => {
-                target.removeEventListener(type, listener);
-            });
-        });
-
-        eventListeners.clear();
-    };
-
-    /**
      * Batch updates UI elements for better performance
      *
      * @param {Array} updates - Array of update operations to perform
@@ -230,9 +197,6 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
      * Reset to initial state to prevent memory leaks
      */
     const reset = function () {
-        // Remove all event listeners we've registered
-        removeAllEventListeners();
-
         // Remove click handlers from all switches
         securitySystems.forEach((system) => {
             const elements = domElements[system.name];
@@ -257,9 +221,6 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
 
         // Mark as initialized
         isInitialized = true;
-
-        // Let background script know we're open
-        browserAPI.runtime.sendMessage({messageType: Messages.MessageType.POPUP_LAUNCHED});
 
         // Set up switch elements and click handlers
         securitySystems.forEach((system) => {
@@ -338,5 +299,5 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-    window.SecurityPopupSingleton.initialize();
+    window.PopupSingleton.initialize();
 });

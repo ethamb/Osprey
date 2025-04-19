@@ -6,8 +6,6 @@ const Messages = {
         CONTINUE_TO_SITE: "continueToSite",
         REPORT_SITE: "reportSite",
         ALLOW_HOSTNAME: "allowHostname",
-        POPUP_LAUNCHED: "popupLaunched",
-        POPUP_CLOSED: "popupClosed",
 
         // Security system toggles
         SMARTSCREEN_TOGGLED: "smartScreenToggled",

@@ -542,14 +542,6 @@
                 break;
             }
 
-            case Messages.MessageType.POPUP_LAUNCHED:
-                console.debug("Popup has been launched.");
-                break;
-
-            case Messages.MessageType.POPUP_CLOSED:
-                console.debug("Popup has been closed.");
-                break;
-
             case Messages.MessageType.SMARTSCREEN_TOGGLED:
             case Messages.MessageType.SYMANTEC_TOGGLED:
             case Messages.MessageType.EMSISOFT_TOGGLED:
@@ -590,6 +582,11 @@
             Settings.set({ignoreFrameNavigation: info.checked});
             console.debug("Ignoring frame navigation: " + info.checked);
         }
+
+        if (info.menuItemId === "toggleContinueButtons") {
+            Settings.set({hideContinueButtons: info.checked});
+            console.debug("Hide continue buttons: " + info.checked);
+        }
     });
 
     // Create the context menu with the current state
@@ -612,6 +609,15 @@
                     title: "Ignore frame navigation",
                     type: "checkbox",
                     checked: settings.ignoreFrameNavigation,
+                    contexts: ["action"],
+                });
+
+                // Create the hide continue buttons context menu item with a checkbox
+                browserAPI.contextMenus.create({
+                    id: "toggleContinueButtons",
+                    title: "Hide continue buttons",
+                    type: "checkbox",
+                    checked: settings.hideContinueButtons,
                     contexts: ["action"],
                 });
             });
