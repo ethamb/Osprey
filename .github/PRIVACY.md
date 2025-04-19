@@ -25,8 +25,9 @@ When you navigate to a website, Osprey may send the URL to the following third-p
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
 - [Control D Security DNS](https://controld.com/free-dns)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-- [OpenDNS Security DNS](https://opendns.com)
+- [Mullvad Security DNS](https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#dns-features)
 - [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
+- [Switch.ch Security DNS](https://www.switch.ch/en/dns-firewall)
 
 These services are designed to enhance your browsing security by identifying potential threats.
 Please be aware that the data sent to these services is limited to the URL you are visiting and is not stored by Osprey.
