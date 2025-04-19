@@ -947,7 +947,7 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer.length > 0) {
 
                         // ControlD's way of blocking the domain.
-                        if (filteringDataString.endsWith("60,0,4,0,0,0,0")) {
+                        if (filteringDataString.endsWith("0,4,0,0,0,0")) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
                             return;
                         }
