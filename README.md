@@ -33,7 +33,6 @@ Osprey checks each URL you visit with the following protection API providers:
 - [Norton SafeWeb](https://safeweb.norton.com)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
 - [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
-
 - [Quad9 Security DNS](https://quad9.net)
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
