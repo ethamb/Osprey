@@ -20,8 +20,8 @@ const Settings = (function () {
         dns0Enabled: false, // Default state for DNS0
         controlDEnabled: true, // Default state for Control D
         cleanBrowsingEnabled: true, // Default state for CleanBrowsing
-        openDNSEnabled: true, // Default state for OpenDNS
-        adGuardEnabled: true, // Default state for AdGuard
+        mullvadEnabled: false, // Default state for Mullvad
+        adGuardEnabled: false, // Default state for AdGuard
 
         notificationsEnabled: true, // Default state for notifications
         ignoreFrameNavigation: true, // Default state for ignoring frame navigation

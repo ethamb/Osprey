@@ -1032,23 +1032,23 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with OpenDNS's DNS API.
+             * Checks the URL with Mullvad's DNS API.
              */
-            const checkUrlWithOpenDNS = async function (settings) {
-                // Check if OpenDNS is enabled
-                if (!settings.openDNSEnabled) {
-                    console.debug(`OpenDNS is disabled; bailing out early.`);
+            const checkUrlWithMullvad = async function (settings) {
+                // Check if Mullvad is enabled
+                if (!settings.mullvadEnabled) {
+                    console.debug(`Mullvad is disabled; bailing out early.`);
                     return;
                 }
 
                 // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "openDNS")) {
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                if (isUrlInAnyCache(urlObject, urlHostname, "mullvad")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
                     return;
                 }
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
-                const filteringURL = `https://doh.opendns.com/dns-query?dns=${encodedQuery}`;
+                const filteringURL = `https://base.dns.mullvad.net/dns-query?dns=${encodedQuery}`;
 
                 try {
                     const filteringResponse = await fetch(filteringURL, {
@@ -1069,13 +1069,12 @@ const BrowserProtection = function () {
 
                     // Return early if one or more of the responses is not OK
                     if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`OpenDNS returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                        console.warn(`Mullvad returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
                         return;
                     }
 
                     const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
-                    const filteringDataString = Array.from(filteringData).toString();
                     const nonFilteringData = await nonFilteringResponse.json();
 
                     // If the non-filtering domain returns NOERROR...
@@ -1083,20 +1082,20 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer
                         && nonFilteringData.Answer.length > 0) {
 
-                        // OpenDNS's way of blocking the domain.
-                        if (filteringDataString.endsWith("0,0,1,0,1,192,12,0,1,0,1,0,0,0,0,0,4,146,112,61,108")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                        // Mullvad's way of blocking the domain.
+                        if (filteringData[3] === 131) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
                             return;
                         }
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added OpenDNS URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "openDNS");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                    console.debug(`Added Mullvad URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "mullvad");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
                 } catch (error) {
-                    console.debug(`Failed to check URL with OpenDNS: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.OPENDNS), (new Date()).getTime() - startTime);
+                    console.debug(`Failed to check URL with Mullvad: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MULLVAD), (new Date()).getTime() - startTime);
                 }
             };
 
@@ -1245,7 +1244,7 @@ const BrowserProtection = function () {
                 checkUrlWithDNS0(settings);
                 checkUrlWithControlD(settings);
                 checkUrlWithCleanBrowsing(settings);
-                checkUrlWithOpenDNS(settings);
+                checkUrlWithMullvad(settings);
                 checkUrlWithAdGuard(settings);
             });
 

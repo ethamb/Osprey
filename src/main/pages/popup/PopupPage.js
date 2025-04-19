@@ -101,11 +101,11 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             messageType: Messages.MessageType.CLEAN_BROWSING_TOGGLED,
         },
         {
-            name: "openDNSEnabled",
-            title: "OpenDNS Security DNS",
-            labelElementId: "openDNSStatus",
-            switchElementId: "openDNSSwitch",
-            messageType: Messages.MessageType.OPEN_DNS_TOGGLED,
+            name: "mullvadEnabled",
+            title: "Mullvad Security DNS",
+            labelElementId: "mullvadStatus",
+            switchElementId: "mullvadSwitch",
+            messageType: Messages.MessageType.MULLVAD_TOGGLED,
         },
         {
             name: "adGuardEnabled",

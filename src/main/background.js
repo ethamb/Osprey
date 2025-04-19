@@ -61,8 +61,8 @@
                 && !settings.dns0Enabled
                 && !settings.controlDEnabled
                 && !settings.cleanBrowsingEnabled
-                && !settings.openDNSEnabled
-                && !settings.adGuardEnabled) {
+                && !settings.mullvadEnabled
+                && !settings.adGuardEnabled
                 console.warn("Protection is disabled; bailing out early.");
                 return;
             }
@@ -367,8 +367,8 @@
                         break;
 
                     case "13":
-                        console.debug(`Added OpenDNS URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "openDNS");
+                        console.debug(`Added Mullvad URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "mullvad");
                         break;
 
                     case "14":

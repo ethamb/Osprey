@@ -16,7 +16,7 @@ class CacheManager {
             dns0: new Map(),
             controlD: new Map(),
             cleanBrowsing: new Map(),
-            openDNS: new Map(),
+            mullvad: new Map(),
             adGuard: new Map(),
         };
 

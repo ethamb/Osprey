@@ -85,8 +85,11 @@ window.addEventListener("load", () => {
             case ProtectionResult.ResultOrigin.CLEANBROWSING:
                 return new URL("https://categorify.org/recategorize?website=" + encodedMaliciousUrl);
 
-            case ProtectionResult.ResultOrigin.OPENDNS:
-                return new URL("https://support.opendns.com/hc/en-us/requests/new");
+            case ProtectionResult.ResultOrigin.MULLVAD:
+                return new URL("mailto:support@mullvadvpn.net?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
+                    + "to%20report%20a%20false%20positive.%0A%0AProduct%3A%20Mullvad%20DNS%0AURL%3A%20"
+                    + encodedMaliciousUrl + "%0ADetected%20as%3A%20" + encodedResult
+                    + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
             case ProtectionResult.ResultOrigin.ADGUARD:
                 return new URL("mailto:support@adguard.com?subject=False%20Positive&body=Hello%2C%0A%0AI%20would%20like%20"
