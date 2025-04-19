@@ -24,5 +24,6 @@ const Messages = {
         CLEAN_BROWSING_TOGGLED: "cleanBrowsingToggled",
         MULLVAD_TOGGLED: "mullvadToggled",
         ADGUARD_TOGGLED: "adGuardToggled",
+        SWITCH_CH_TOGGLED: "switchCHToggled",
     }
 };

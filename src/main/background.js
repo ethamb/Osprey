@@ -63,6 +63,8 @@
                 && !settings.cleanBrowsingEnabled
                 && !settings.mullvadEnabled
                 && !settings.adGuardEnabled
+                && !settings.switchCHEnabled
+            ) {
                 console.warn("Protection is disabled; bailing out early.");
                 return;
             }
@@ -508,8 +510,8 @@
                         break;
 
                     case "13":
-                        console.debug(`Added OpenDNS hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "openDNS");
+                        console.debug(`Added Mullvad hostname to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "mullvad");
                         break;
 
                     case "14":
@@ -561,8 +563,9 @@
             case Messages.MessageType.DNS0_TOGGLED:
             case Messages.MessageType.CONTROL_D_TOGGLED:
             case Messages.MessageType.CLEAN_BROWSING_TOGGLED:
-            case Messages.MessageType.OPEN_DNS_TOGGLED:
+            case Messages.MessageType.MULLVAD_TOGGLED:
             case Messages.MessageType.ADGUARD_TOGGLED:
+            case Messages.MessageType.SWITCH_CH_TOGGLED:
                 console.debug(`${message.title} has been ${message.toggleState ? "enabled" : "disabled"}.`);
                 break;
 

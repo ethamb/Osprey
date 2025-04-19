@@ -22,6 +22,7 @@ const Settings = (function () {
         cleanBrowsingEnabled: true, // Default state for CleanBrowsing
         mullvadEnabled: false, // Default state for Mullvad
         adGuardEnabled: false, // Default state for AdGuard
+        switchCHEnabled: false, // Default state for Switch.ch
 
         notificationsEnabled: true, // Default state for notifications
         ignoreFrameNavigation: true, // Default state for ignoring frame navigation

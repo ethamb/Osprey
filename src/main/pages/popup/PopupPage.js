@@ -113,6 +113,13 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             labelElementId: "adGuardStatus",
             switchElementId: "adGuardSwitch",
             messageType: Messages.MessageType.ADGUARD_TOGGLED,
+        },
+        {
+            name: "switchCHEnabled",
+            title: "Switch.ch Security DNS",
+            labelElementId: "switchCHStatus",
+            switchElementId: "switchCHSwitch",
+            messageType: Messages.MessageType.SWITCH_CH_TOGGLED,
         }
     ];
 

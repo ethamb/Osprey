@@ -18,6 +18,7 @@ class CacheManager {
             cleanBrowsing: new Map(),
             mullvad: new Map(),
             adGuard: new Map(),
+            switchCH: new Map(),
         };
 
         this.storageKey = storageKey;

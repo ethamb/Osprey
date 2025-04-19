@@ -1169,6 +1169,79 @@ const BrowserProtection = function () {
             };
 
             /**
+             * Checks the URL with Switch.ch's DNS API.
+             */
+            const checkUrlWithSwitchCH = async function (settings) {
+                // Check if Switch.ch is enabled
+                if (!settings.switchCHEnabled) {
+                    console.debug(`Switch.ch is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "switchCH")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.SWITCH_CH), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://dns.switch.ch/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`Switch.ch returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SWITCH_CH), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    const maliciousResultSURBL = "0,0,0,180,0,0,0,180,0,9,58,128,0,0,0,10";
+                    const maliciousResultRPZ = "0,0,2,88,0,0,1,44,0,9,58,128,0,0,1,44";
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // Switch.ch's way of blocking the domain.
+                        if (filteringDataString.endsWith(maliciousResultSURBL)
+                            || filteringDataString.endsWith(maliciousResultRPZ)) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SWITCH_CH), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added Switch.ch URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "switchCH");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SWITCH_CH), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with Switch.ch: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SWITCH_CH), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
              * Encodes a DNS query for the given domain and type.
              *
              * @param {string} domain - The domain to encode.
@@ -1246,6 +1319,7 @@ const BrowserProtection = function () {
                 checkUrlWithCleanBrowsing(settings);
                 checkUrlWithMullvad(settings);
                 checkUrlWithAdGuard(settings);
+                checkUrlWithSwitchCH(settings);
             });
 
             // Clean up controllers for tabs that no longer exist

@@ -47,6 +47,7 @@ ProtectionResult.ResultOrigin = {
     CLEANBROWSING: 12, // The result was determined via CleanBrowsing
     MULLVAD: 13, // The result was determined via Mullvad
     ADGUARD: 14, // The result was determined via AdGuard
+    SWITCH_CH: 15 // The result was determined via Switch.ch
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -65,4 +66,5 @@ ProtectionResult.ResultOriginNames = {
     12: "CleanBrowsing Security DNS",
     13: "Mullvad Security DNS",
     14: "AdGuard Security DNS",
+    15: "Switch.ch Security DNS"
 };
