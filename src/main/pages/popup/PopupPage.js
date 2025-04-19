@@ -291,36 +291,40 @@ window.SecurityPopupSingleton = window.SecurityPopupSingleton || (function () {
             browserAPI.runtime.sendMessage({messageType: Messages.MessageType.POPUP_CLOSED});
         });
 
-        const page1 = document.getElementById('page1');
-        const page2 = document.getElementById('page2');
-        const prevPage = document.getElementById('prevPage');
-        const nextPage = document.getElementById('nextPage');
-        const pageIndicator = document.getElementById('pageIndicator');
+        const page1 = document.getElementById("page1");
+        const page2 = document.getElementById("page2");
+        const page3 = document.getElementById("page3");
+        const prevPage = document.getElementById("prevPage");
+        const nextPage = document.getElementById("nextPage");
+        const pageIndicator = document.getElementById("pageIndicator");
         let currentPage = 1;
-        const totalPages = 2;
+        const totalPages = 3;
 
         function updatePageDisplay() {
             // Hide all pages
-            page1.classList.remove('active');
-            page2.classList.remove('active');
+            page1.classList.remove("active");
+            page2.classList.remove("active");
+            page3.classList.remove("active");
 
             // Show current page
             if (currentPage === 1) {
-                page1.classList.add('active');
+                page1.classList.add("active");
+            } else if (currentPage === 2) {
+                page2.classList.add("active");
             } else {
-                page2.classList.add('active');
+                page3.classList.add("active");
             }
 
             // Update page indicator
             pageIndicator.textContent = `${currentPage}/${totalPages}`;
         }
 
-        prevPage.addEventListener('click', function () {
+        prevPage.addEventListener("click", function () {
             currentPage = currentPage === 1 ? totalPages : currentPage - 1;
             updatePageDisplay();
         });
 
-        nextPage.addEventListener('click', function () {
+        nextPage.addEventListener("click", function () {
             currentPage = currentPage === totalPages ? 1 : currentPage + 1;
             updatePageDisplay();
         });
