@@ -47,10 +47,8 @@ Providers were chosen based on their reputation and effectiveness in detecting m
 
 You can configure the extension's protection options in the settings:
 
-![Osprey Settings (Page 1)](https://i.imgur.com/aJkPITf.png)
-![Osprey Settings (Page 2)](https://i.imgur.com/g45TqHO.png)
-
-Please note that the above settings may be outdated.
+![Osprey Settings (Page 1)](https://i.imgur.com/iADvMVt.png)
+![Osprey Settings (Page 2)](https://i.imgur.com/t4oMHx9.png)
 
 ## Detections
 
