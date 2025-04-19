@@ -74,7 +74,7 @@ Due to their low scores, the following providers are **disabled** by default:
 - [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
 - [CERT-EE Security DNS](https://ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
 
-The test was conducted on **April 19th, 2025**, and the results may change over time. Of course, Osprey is designed to be
+The test was conducted on **April 19, 2025**, and the results may change over time. Of course, Osprey is designed to be
 customizable, so you can enable or disable any of the providers at any time. If a provider gives you false positives,
 report the links to them directly and disable them in the settings panel. Osprey does not have control over the
 providers' databases or how they classify URLs.
@@ -107,10 +107,9 @@ If the website is malicious, **Osprey** will block the page and display a warnin
 ![Osprey Warning](https://i.imgur.com/1gzZntl.png)
 
 From this page, you can report the website as safe, add the hostname to the allowlist, go back to safety, and continue
-anyway.
-
-By default, Osprey creates a browser notification for blocked pages
-that [you can toggle on and off](https://github.com/Foulest/Osprey/wiki/Toggling-Notifications).
+anyway. By default, Osprey creates a browser notification for blocked pages that
+[you can toggle on and off](https://github.com/Foulest/Osprey/wiki/Toggling-Notifications). You can [hide the
+continue buttons](https://github.com/Foulest/Osprey/wiki/Hiding-Continue-Buttons) using the context menu as well.
 
 ## Privacy
 
