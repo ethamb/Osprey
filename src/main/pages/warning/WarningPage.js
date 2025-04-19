@@ -175,19 +175,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize the singleton instance
     window.WarningSingleton.initialize();
 
+    // Shows the continue buttons if the setting is disabled
     Settings.get((settings) => {
-        const allowButton = document.getElementById("allowHostname");
-        const continueButton = document.getElementById("continueButton");
-
-        // Hides the continue buttons if the setting is enabled
-        if (allowButton && continueButton) {
-            if (settings.hideContinueButtons) {
-                allowButton.style.display = "none";
-                continueButton.style.display = "none";
-            } else {
-                allowButton.style.display = "";
-                continueButton.style.display = "";
-            }
+        if (!settings.hideContinueButtons) {
+            document.getElementById("allowHostname").style.display = "";
+            document.getElementById("continueButton").style.display = "";
         }
     });
 });
