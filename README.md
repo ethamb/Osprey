@@ -24,22 +24,28 @@
 
 ## Protections
 
-Depending on your settings, when you visit a website, **Osprey** checks the URL with:
+Osprey checks each URL you visit with the following protection API providers:
 
+**Enabled By Default**
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
-- [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
 - [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
+- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
+- [Quad9 Security DNS](https://quad9.net)
+- [Control D Security DNS](https://controld.com/free-dns)
+- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
+
+**Disabled By Default**
+- [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
 - [Norton SafeWeb](https://safeweb.norton.com)
 - [TOTAL WebShield](https://dashboard.totalwebshield.com/products/totalwebshield)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
-- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
-- [Quad9 Security DNS](https://quad9.net)
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
-- [Control D Security DNS](https://controld.com/free-dns)
-- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-- [OpenDNS Security DNS](https://opendns.com)
+- [Mullvad Security DNS](https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#dns-features)
 - [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
+- [Switch.ch Security DNS](https://www.switch.ch/en/dns-firewall)
+
+Default settings were chosen based on server response times.
 
 ## Settings
 
