@@ -7,25 +7,14 @@
 
 **Osprey** is a browser extension that protects you from malicious websites.
 
-[Google Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd)
-• [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn)
+[Google Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (1.1.3)
+• [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (1.0.5)
 • Firefox (TBD)
 • [Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
 • [Discord](https://discord.gg/ujYcBCgkSr)
 
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
-
-## Current Release
-
-- **1.1.3** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
-- **1.1.3**
-  on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd)
-  (stable)
-- **1.0.5**
-  on [Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn)
-  (outdated)
-- **Pending** on Firefox
 
 ## Detections
 
@@ -40,6 +29,24 @@
 - [Spam](https://developers.google.com/search/docs/essentials/spam-policies)
 - [Compromised](https://malwarebytes.com/glossary/compromised)
 - [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
+
+## Warning
+
+If the website is malicious, **Osprey** will block the page and display a warning:
+
+![Osprey Warning](https://i.imgur.com/1gzZntl.png)
+
+From this page, you can report the website as safe, add the hostname to the allowlist, go back to safety, and continue
+anyway. By default, Osprey creates a browser notification for blocked pages that
+[you can toggle on and off](https://github.com/Foulest/Osprey/wiki/Toggling-Notifications). You can [hide the
+continue buttons](https://github.com/Foulest/Osprey/wiki/Hiding-Continue-Buttons) using the context menu as well.
+
+## Settings
+
+You can configure the extension's protection options in the settings:
+
+![Osprey Settings (Page 1)](https://i.imgur.com/iADvMVt.png)
+![Osprey Settings (Page 2)](https://i.imgur.com/t4oMHx9.png)
 
 ## Protection Providers
 
@@ -74,24 +81,6 @@ providers' databases or how they classify URLs.
 
 For clarity, the graph represents the following lines: the red line represents **OpenPhish**, the orange line represents **AA419**, the yellow line represents **PhishStats**, and the green line represents **Malicious Sites**.
 The grades were adjusted up to 100% to compensate for dead links, but this didn't significantly impact the results, as the highest curve given was a 3% increase.
-
-## Settings
-
-You can configure the extension's protection options in the settings:
-
-![Osprey Settings (Page 1)](https://i.imgur.com/iADvMVt.png)
-![Osprey Settings (Page 2)](https://i.imgur.com/t4oMHx9.png)
-
-## Warning
-
-If the website is malicious, **Osprey** will block the page and display a warning:
-
-![Osprey Warning](https://i.imgur.com/1gzZntl.png)
-
-From this page, you can report the website as safe, add the hostname to the allowlist, go back to safety, and continue
-anyway. By default, Osprey creates a browser notification for blocked pages that
-[you can toggle on and off](https://github.com/Foulest/Osprey/wiki/Toggling-Notifications). You can [hide the
-continue buttons](https://github.com/Foulest/Osprey/wiki/Hiding-Continue-Buttons) using the context menu as well.
 
 ## Privacy
 
