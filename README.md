@@ -29,7 +29,7 @@
 
 ## Protections
 
-Osprey checks each URL you visit with the following protection API providers:
+Depending on your settings, Osprey may check each URL you visit with the following protection API providers:
 
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
