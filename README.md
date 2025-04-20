@@ -19,7 +19,7 @@
 ## Current Release
 
 - **1.1.3** on [GitHub](https://github.com/Foulest/Osprey/actions) (preview)
-- **1.1.2**
+- **1.1.3**
   on [Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd)
   (stable)
 - **1.0.5**
