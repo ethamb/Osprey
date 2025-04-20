@@ -27,6 +27,20 @@
   (outdated)
 - **Pending** on Firefox
 
+## Detections
+
+**Osprey** blocks websites that are classified as:
+
+- [Malicious](https://us.norton.com/blog/malware/what-are-malicious-websites)
+- [Phishing](https://f-secure.com/us-en/articles/what-is-phishing)
+- [Fraud](https://usa.kaspersky.com/resource-center/preemptive-safety/scam-websites)
+- [PUAs](https://us.norton.com/blog/malware/what-are-puas-potentially-unwanted-applications)
+- [Cryptojacking](https://kaspersky.com/resource-center/definitions/what-is-cryptojacking)
+- [Malvertising](https://malwarebytes.com/malvertising)
+- [Spam](https://developers.google.com/search/docs/essentials/spam-policies)
+- [Compromised](https://malwarebytes.com/glossary/compromised)
+- [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
+
 ## Protection Providers
 
 Osprey's protection providers and default settings were chosen based on this protection test:
@@ -58,8 +72,8 @@ customizable, so you can enable or disable any of the providers at any time. If 
 report the links to them directly and disable them in the settings panel. Osprey does not have control over the
 providers' databases or how they classify URLs.
 
-For clarity, on the graph, the red line is OpenPhish, the orange line is AA419, the yellow line is PhishStats, and the green line is Malicious Sites.
-The grades were curved up to 100% to compensate for dead links, but it didn't impact much, as the highest curve given was a 3% increase.
+For clarity, the graph represents the following lines: the red line represents **OpenPhish**, the orange line represents **AA419**, the yellow line represents **PhishStats**, and the green line represents **Malicious Sites**.
+The grades were adjusted up to 100% to compensate for dead links, but this didn't significantly impact the results, as the highest curve given was a 3% increase.
 
 ## Settings
 
@@ -67,20 +81,6 @@ You can configure the extension's protection options in the settings:
 
 ![Osprey Settings (Page 1)](https://i.imgur.com/iADvMVt.png)
 ![Osprey Settings (Page 2)](https://i.imgur.com/t4oMHx9.png)
-
-## Detections
-
-**Osprey** blocks websites that are classified as:
-
-- [Malicious](https://us.norton.com/blog/malware/what-are-malicious-websites)
-- [Phishing](https://f-secure.com/us-en/articles/what-is-phishing)
-- [Fraud](https://usa.kaspersky.com/resource-center/preemptive-safety/scam-websites)
-- [PUAs](https://us.norton.com/blog/malware/what-are-puas-potentially-unwanted-applications)
-- [Cryptojacking](https://kaspersky.com/resource-center/definitions/what-is-cryptojacking)
-- [Malvertising](https://malwarebytes.com/malvertising)
-- [Spam](https://developers.google.com/search/docs/essentials/spam-policies)
-- [Compromised](https://malwarebytes.com/glossary/compromised)
-- [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
 
 ## Warning
 
