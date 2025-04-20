@@ -27,30 +27,9 @@
   (outdated)
 - **Pending** on Firefox
 
-## Protections
+## Protection Providers
 
-Depending on your settings, Osprey may check each URL you visit with the following protection API providers:
-
-- [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
-- [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
-- [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
-- [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
-- [Norton SafeWeb](https://safeweb.norton.com)
-- [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
-- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
-- [Quad9 Security DNS](https://quad9.net)
-- [DNS0.eu Security DNS](https://dns0.eu/zero)
-- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-- [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
-- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
-- [Switch.ch Security DNS](https://switch.ch/en/dns-firewall)
-- [CERT-EE Security DNS](https://ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
-
-Providers were chosen based on their reputation and effectiveness in detecting malicious content.
-
-## Default Settings
-
-Osprey's default settings were chosen based on this protection test:
+Osprey's protection providers and default settings were chosen based on this protection test:
 
 ![Protection Test - 04/19/2025](https://i.imgur.com/BAwZarm.png)
 
