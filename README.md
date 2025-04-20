@@ -45,8 +45,8 @@ continue buttons](https://github.com/Foulest/Osprey/wiki/Hiding-Continue-Buttons
 
 You can configure the extension's protection options in the settings:
 
-![Osprey Settings (Page 1)](https://i.imgur.com/iADvMVt.png)
-![Osprey Settings (Page 2)](https://i.imgur.com/t4oMHx9.png)
+![Osprey Settings (Page 1)](https://i.imgur.com/bHaKequ.png)
+![Osprey Settings (Page 2)](https://i.imgur.com/IYsA85t.png)
 
 ## Protection Providers
 
