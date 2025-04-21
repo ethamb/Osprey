@@ -16,6 +16,7 @@
             "util/UrlHelpers.js",
             "util/CacheManager.js",
             "util/Storage.js",
+            "util/MessageType.js",
 
             // Other
             "util/other/SmartScreenUtil.js",
