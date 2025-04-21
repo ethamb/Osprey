@@ -1,12 +1,11 @@
 /* General Styles */
-body,
-html {
+html, body {
     min-height: 457px;
+    min-width: 320px;
+    margin: 0;
     font-family: 'Segoe UI', sans-serif;
     font-weight: 400;
     position: relative;
-    min-width: 320px;
-    margin: 0;
 }
 
 .gray {
@@ -36,17 +35,12 @@ html {
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
+/* Alternate Section Text */
 .alternate {
     color: rgb(255, 255, 255);
 }
 
 /* Headings */
-h2 {
-    font-size: 28px;
-    color: rgb(31, 31, 31);
-    margin: 0;
-}
-
 h3 {
     font-size: 18px;
     color: rgb(177, 158, 37);
@@ -62,23 +56,6 @@ section {
     line-height: 22px;
     font-weight: 400;
     margin: 0;
-}
-
-/* Button Styles */
-.button {
-    cursor: pointer;
-    background-color: rgb(243, 186, 34);
-    color: rgb(255, 255, 255);
-    border: 2px solid transparent;
-    padding: 7px 15px;
-    text-decoration: none;
-    font-size: 15px;
-    margin: 8px 4px 0 0;
-    transition: background-color 0.15s;
-}
-
-.button:hover {
-    background-color: rgb(191, 141, 26);
 }
 
 /* Status Text */
@@ -128,6 +105,7 @@ section {
 }
 
 .pagination {
+    display: flex;
     align-items: center;
     padding: 0;
     margin-top: 11px;
