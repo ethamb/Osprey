@@ -1,6 +1,6 @@
 /* General Styles */
-body,
-html {
+html,
+body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -14,7 +14,7 @@ html {
     color: rgb(255, 255, 255) !important;
 }
 
-/* Wrapper */
+/* Layout */
 #Wrapper {
     display: flex;
     justify-content: center;
@@ -42,36 +42,17 @@ html {
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
 }
 
-/* Headings */
-h1,
-h2,
-h3 {
+/* Typography */
+h2 {
     margin: 0 0 0 -2px;
     padding: 4px 0;
-    font-family: 'Segoe UI Light', 'Segoe UI', sans-serif;
-    font-weight: 400;
-}
-
-h1 {
-    line-height: 40px;
-    font-size: 34px;
-    color: rgb(31, 31, 31);
-}
-
-h2 {
     line-height: 32px;
     font-size: 28px;
+    font-family: 'Segoe UI Light', 'Segoe UI', sans-serif;
+    font-weight: 400;
     color: rgb(31, 31, 31);
 }
 
-h3 {
-    line-height: 24px;
-    font-size: 20px;
-    color: rgb(177, 158, 37);
-    opacity: .7;
-}
-
-/* Paragraphs */
 p {
     line-height: 22px;
     font-size: 15px;
@@ -81,46 +62,7 @@ p {
     padding: 0;
 }
 
-/* Lists */
-ul {
-    list-style: none;
-    margin-left: 0;
-    padding-left: 0;
-}
-
-li {
-    padding-left: 1em;
-    text-indent: -1em;
-}
-
-.bullet-li:before {
-    content: "\2022";
-    padding-right: 6px;
-}
-
-.caret-li:before {
-    content: ">";
-    padding-right: 5px;
-}
-
-/* Message Block */
-.msgBlock {
-    max-width: 600px;
-    vertical-align: top;
-    margin: 0;
-    padding: 0;
-}
-
-.msgIcon {
-    width: 80px;
-    font-size: 80px;
-    font-weight: 400;
-    color: rgb(31, 31, 31);
-    margin: 6px 4px 0 20px;
-    display: inline-block;
-    vertical-align: top;
-}
-
+/* Content Area */
 .msgBody {
     max-width: 500px;
     display: inline-block;
@@ -154,12 +96,11 @@ li {
 
 .white-pushbutton:hover {
     border: 2px solid rgb(191, 141, 26);
-    transition-duration: .15s;
+    transition-duration: 0.15s;
     transition-timing-function: ease-out;
     cursor: pointer;
 }
 
-/* Continue Button */
 #continueButton {
     background-color: transparent;
     border: 2px solid rgb(243, 186, 34);
@@ -187,28 +128,8 @@ li {
 
 /* Responsive Styles */
 @media screen and (max-width: 610px) {
-    h1 {
-        line-height: 32px;
-        font-size: 26px;
-        font-family: 'Segoe UI Light', 'Segoe UI', sans-serif;
-        color: rgb(31, 31, 31);
-        padding: 4px 6% 0 0;
-    }
-
     p {
         margin: 16px 6% 0 0;
-    }
-
-    .msgBlock {
-        margin-right: auto;
-        margin-left: auto;
-    }
-
-    .msgIcon {
-        width: 68px;
-        font-size: 68px;
-        margin: 10px 4px 10px 6%;
-        display: block;
     }
 
     .msgBody {
