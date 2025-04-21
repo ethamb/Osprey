@@ -36,11 +36,9 @@ const UrlHelpers = {
      * Constructs the URL for the browser's block page, which shows a warning when a site is blocked.
      * @param {string} continueUrl - The URL to continue to the blocked site.
      * @param {object} protectionResult - The result object containing details about the threat.
-     * @param {string} instanceId - A unique identifier for the block event.
-     * @param {string} sessionId - A unique session identifier.
      * @returns {string} - The full URL for the block page.
      */
-    getBlockPageUrl: (continueUrl, protectionResult, instanceId, sessionId) => {
+    getBlockPageUrl: (continueUrl, protectionResult) => {
         // Browser API compatibility between Chrome and Firefox
         const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
@@ -58,9 +56,7 @@ const UrlHelpers = {
             ["u", protectionResult.url],         // The URL of the malicious or blocked site
             ["rs", result],                      // The result
             ["cu", continueUrl],                 // Continue-to-site URL
-            ["origin", protectionResult.origin], // The origin of the protection result
-            ["iid", instanceId || ""],           // Unique instance ID for the block event
-            ["sid", sessionId || ""]             // Unique session ID
+            ["origin", protectionResult.origin]  // The origin of the protection result
         ]).toString();
 
         // Return the constructed block page URL as a string

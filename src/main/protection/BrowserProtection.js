@@ -56,9 +56,6 @@ const BrowserProtection = function () {
                 return;
             }
 
-            // Browser API compatibility between Chrome and Firefox
-            const browserAPI = typeof browser === 'undefined' ? chrome : browser;
-
             // Capture the current time for response measurement
             const startTime = (new Date()).getTime();
 
@@ -94,20 +91,10 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                const userLocale = navigator.languages ? navigator.languages[0] : navigator.language;
-
                 // Prepare request data
                 const requestData = JSON.stringify({
-                    correlationId: Telemetry.generateGuid(),
-
                     destination: {
                         uri: UrlHelpers.normalizeHostname(urlHostname + urlPathname)
-                    },
-
-                    identity: {
-                        client: {version: browserAPI.runtime.getManifest().version.replace(/\./g, "")},
-                        device: {id: settings.instanceID},
-                        user: {locale: userLocale}
                     }
                 });
 

@@ -2,10 +2,8 @@
 
 // Manages user preferences and configurations.
 const Settings = (function () {
-    const settingsKey = "Settings"; // Key for storing settings in local storage
-
-    // These default values were chosen based on API response times
-    // APIs with less than 100ms of delay are enabled by default
+    // Key for storing settings in local storage
+    const settingsKey = "Settings";
 
     let defaultSettings = {
         smartScreenEnabled: false, // Default state for SmartScreen
@@ -25,10 +23,7 @@ const Settings = (function () {
 
         notificationsEnabled: true, // Default state for notifications
         ignoreFrameNavigation: true, // Default state for ignoring frame navigation
-        hideContinueButtons: false, // Default state for hiding continue buttons
-
-        isInstanceIDInitialized: false, // Flag to check if instance ID is initialized
-        instanceID: 0 // Default instance ID
+        hideContinueButtons: false // Default state for hiding continue buttons
     };
 
     /**

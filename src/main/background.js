@@ -21,10 +21,6 @@
             "util/other/SmartScreenUtil.js",
             "util/other/EmsisoftUtil.js",
 
-            // Telemetry
-            "util/telemetry/Telemetry.js",
-            "util/telemetry/MessageType.js",
-
             // Hashing
             "util/hashing/MD5.js",
             "util/hashing/RC4.js",
@@ -38,9 +34,6 @@
         console.log("Running in Firefox or another environment without importScripts");
         console.debug("Error: " + error);
     }
-
-    // Start a new telemetry session.
-    Telemetry.startNewSession();
 
     // List of valid protocols (e.g., HTTP, HTTPS).
     const validProtocols = ['http:', 'https:'];
@@ -192,32 +185,30 @@
                         const targetUrl = frameId === 0 ? currentUrl : pendingUrl;
 
                         if (targetUrl) {
-                            Telemetry.getInstanceID((instanceId) => {
-                                // Navigate to the block page
-                                const blockPageUrl = UrlHelpers.getBlockPageUrl(pendingUrl, result, instanceId, Telemetry.getSessionID());
-                                console.debug(`[${systemName}] Navigating to block page: ${blockPageUrl}.`);
-                                browserAPI.tabs.update(tab.id, {url: blockPageUrl});
+                            // Navigate to the block page
+                            const blockPageUrl = UrlHelpers.getBlockPageUrl(pendingUrl, result);
+                            console.debug(`[${systemName}] Navigating to block page: ${blockPageUrl}.`);
+                            browserAPI.tabs.update(tab.id, {url: blockPageUrl});
 
-                                // Build the warning notification options
-                                if (settings.notificationsEnabled) {
-                                    const notificationOptions = {
-                                        type: "basic",
-                                        iconUrl: "assets/icons/icon128.png",
-                                        title: "Unsafe Website Blocked",
-                                        message: `URL: ${currentUrl}\nReason: ${resultType}\nReported by: ${systemName}`,
-                                        priority: 2,
-                                    };
+                            // Build the warning notification options
+                            if (settings.notificationsEnabled) {
+                                const notificationOptions = {
+                                    type: "basic",
+                                    iconUrl: "assets/icons/icon128.png",
+                                    title: "Unsafe Website Blocked",
+                                    message: `URL: ${currentUrl}\nReason: ${resultType}\nReported by: ${systemName}`,
+                                    priority: 2,
+                                };
 
-                                    // Create a unique notification ID based on a random number
-                                    const randomNumber = Math.floor(Math.random() * 100000000);
-                                    const notificationId = `warning-` + randomNumber;
+                                // Create a unique notification ID based on a random number
+                                const randomNumber = Math.floor(Math.random() * 100000000);
+                                const notificationId = `warning-` + randomNumber;
 
-                                    // Display the warning notification
-                                    browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
-                                        console.debug(`Notification created with ID: ${notificationId}`);
-                                    });
-                                }
-                            });
+                                // Display the warning notification
+                                browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
+                                    console.debug(`Notification created with ID: ${notificationId}`);
+                                });
+                            }
                         } else {
                             console.debug(`Tab '${tabId}' failed to supply a top-level URL; bailing out.`);
                         }
