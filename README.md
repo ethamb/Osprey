@@ -35,7 +35,7 @@
 
 If the website is malicious, **Osprey** will block the page and display a warning:
 
-![Osprey Warning](https://i.imgur.com/1gzZntl.png)
+![Osprey Warning](https://i.imgur.com/eu7BFrH.png)
 
 From this page, you can report the website as safe, temporarily allow the website, go back to safety, and continue
 anyway. By default, Osprey creates a browser notification for blocked pages that
