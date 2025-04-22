@@ -10,7 +10,7 @@
 
 [Google Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (1.1.3)
 • [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (1.0.5)
-• [Firefox](https://addons.mozilla.org/en-US/firefox/addon/osprey-browser-protection) (1.1.2)
+• [Firefox](https://addons.mozilla.org/en-US/firefox/addon/osprey-browser-protection) (1.1.4)
 • [Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
 • [Discord](https://discord.gg/ujYcBCgkSr)
