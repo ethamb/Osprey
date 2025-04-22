@@ -52,6 +52,15 @@ class CacheManager {
         }
     }
 
+    // Function to clear all caches
+    clearAllCaches() {
+        Object.keys(this.caches).forEach((cacheName) => {
+            this.caches[cacheName].clear();
+        });
+
+        this.updateStorage();
+    }
+
     // Function to check if the URL is in a specific cache and still valid
     isUrlInCache(url, cacheName) {
         try {

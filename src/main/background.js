@@ -504,6 +504,29 @@
             Settings.set({hideContinueButtons: info.checked});
             console.debug("Hide continue buttons: " + info.checked);
         }
+
+        if (info.menuItemId === "clearAllowedSites") {
+            BrowserProtection.cacheManager.clearAllCaches();
+            console.debug("Cleared all allowed site caches.");
+
+            // Create a notification to inform the user
+            const notificationOptions = {
+                type: "basic",
+                iconUrl: "assets/icons/icon128.png",
+                title: "Allowed Sites Cleared",
+                message: "All allowed sites have been cleared.",
+                priority: 2,
+            };
+
+            // Create a unique notification ID based on a random number
+            const randomNumber = Math.floor(Math.random() * 100000000);
+            const notificationId = `cache-cleared-` + randomNumber;
+
+            // Display the notification
+            browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
+                console.debug(`Notification created with ID: ${notificationId}`);
+            });
+        }
     });
 
     // Create the context menu with the current state
@@ -511,7 +534,7 @@
         Settings.get((settings) => {
             // First remove existing menu items to avoid duplicates
             browserAPI.contextMenus.removeAll(() => {
-                // Create the notifications context menu item with a checkbox
+                // Create the 'Enable notifications' context menu item with a checkbox
                 browserAPI.contextMenus.create({
                     id: "toggleNotifications",
                     title: "Enable notifications",
@@ -520,7 +543,7 @@
                     contexts: ["action"],
                 });
 
-                // Create the ignore frame navigation context menu item with a checkbox
+                // Create the 'Ignore frame navigation' context menu item with a checkbox
                 browserAPI.contextMenus.create({
                     id: "toggleFrameNavigation",
                     title: "Ignore frame navigation",
@@ -529,12 +552,19 @@
                     contexts: ["action"],
                 });
 
-                // Create the hide continue buttons context menu item with a checkbox
+                // Create the 'Hide continue buttons' context menu item with a checkbox
                 browserAPI.contextMenus.create({
                     id: "toggleContinueButtons",
                     title: "Hide continue buttons",
                     type: "checkbox",
                     checked: settings.hideContinueButtons,
+                    contexts: ["action"],
+                });
+
+                // Create the 'Clear list of allowed sites' context menu item
+                browserAPI.contextMenus.create({
+                    id: "clearAllowedSites",
+                    title: "Clear list of allowed sites",
                     contexts: ["action"],
                 });
             });
