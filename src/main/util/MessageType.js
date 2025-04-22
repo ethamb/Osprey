@@ -5,7 +5,7 @@ const Messages = {
         CONTINUE_TO_SAFETY: "continueToSafety",
         CONTINUE_TO_SITE: "continueToSite",
         REPORT_SITE: "reportSite",
-        ALLOW_HOSTNAME: "allowHostname",
+        ALLOW_SITE: "allowSite",
 
         // Security system toggles
         SMARTSCREEN_TOGGLED: "smartScreenToggled",

@@ -2,14 +2,15 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![CodeQL](https://github.com/Foulest/Osprey/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Foulest/Osprey/actions/workflows/github-code-scanning/codeql)
-![Chrome Stats](https://img.shields.io/chrome-web-store/users/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd?label=Chrome%20Users&color=00CC00)
-![Edge Stats](https://img.shields.io/badge/dynamic/json?label=Edge%20Users&color=00CC00&query=%24.activeInstallCount&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fnopglhplnghfhpniofkcopmhbjdonlgn)
+![Chrome Users](https://img.shields.io/chrome-web-store/users/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd?label=Chrome%20Users&color=00CC00)
+![Edge Users](https://img.shields.io/badge/dynamic/json?label=Edge%20Users&color=00CC00&query=%24.activeInstallCount&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fnopglhplnghfhpniofkcopmhbjdonlgn)
+![Firefox Users](https://img.shields.io/amo/users/osprey-browser-protection?label=Firefox%20Users&color=00CC00)
 
 **Osprey** is a browser extension that protects you from malicious websites.
 
 [Google Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (1.1.3)
 • [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (1.0.5)
-• Firefox (TBD)
+• [Firefox](https://addons.mozilla.org/en-US/firefox/addon/osprey-browser-protection) (1.1.2)
 • [Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
 • [Discord](https://discord.gg/ujYcBCgkSr)
@@ -36,7 +37,7 @@ If the website is malicious, **Osprey** will block the page and display a warnin
 
 ![Osprey Warning](https://i.imgur.com/1gzZntl.png)
 
-From this page, you can report the website as safe, add the hostname to the allowlist, go back to safety, and continue
+From this page, you can report the website as safe, temporarily allow the website, go back to safety, and continue
 anyway. By default, Osprey creates a browser notification for blocked pages that
 [you can toggle on and off](https://github.com/Foulest/Osprey/wiki/Toggling-Notifications). You can [hide the
 continue buttons](https://github.com/Foulest/Osprey/wiki/Hiding-Continue-Buttons) using the context menu as well.
@@ -92,7 +93,7 @@ For example:
    visit: https://www.amazon.com/s?k=shirts&crid=3TOVSW14ZHF8V&sprefix=shirt%2Caps%2C175&ref=nb_sb_noss_1
 2. Osprey will only send https://amazon.com/s to any APIs you have enabled.
 3. If the APIs report that the page is safe to visit, Osprey caches the result for 24 hours.
-4. It will also be cached if you click 'Continue anyway' or 'Add hostname to allowlist' on a blocked site.
+4. It will also be cached if you click 'Continue anyway' or 'Temporarily allow this website' on a blocked site.
 5. As long as a URL is cached, no new network requests will be made for it.
 
 The only data the APIs receive is the stripped-down URL, your user agent, and your IP address. Use a reputable VPN or

@@ -101,17 +101,27 @@ class CacheManager {
             const normalizedUrl = this.normalizeUrl(new URL(url));
             const expirationDate = new Date();
             expirationDate.setDate(expirationDate.getDate() + 1); // Cache expires after 1 day
-            const cache = this.caches[cacheName];
 
-            if (cache) {
-                cache.set(normalizedUrl, expirationDate.getTime());
+            // Clean expired entries and update storage
+            if (this.cleanExpiredEntries() === 0) {
+                this.updateStorage();
+            }
 
-                // Clean expired entries and update storage
-                if (this.cleanExpiredEntries() === 0) {
-                    this.updateStorage();
-                }
+            if (cacheName === "all") {
+                // Add to all caches
+                Object.keys(this.caches).forEach((cacheName) => {
+                    const cache = this.caches[cacheName];
+                    cache.set(normalizedUrl, expirationDate.getTime());
+                });
             } else {
-                console.warn(`Cache ${cacheName} does not exist.`);
+                const cache = this.caches[cacheName];
+
+                // Add to specific cache
+                if (cache) {
+                    cache.set(normalizedUrl, expirationDate.getTime());
+                } else {
+                    console.warn(`Cache ${cacheName} does not exist.`);
+                }
             }
         } catch (error) {
             console.error(error);
@@ -123,17 +133,27 @@ class CacheManager {
         try {
             const expirationDate = new Date();
             expirationDate.setDate(expirationDate.getDate() + 1); // Cache expires after 1 day
-            const cache = this.caches[cacheName];
 
-            if (cache) {
-                cache.set(string, expirationDate.getTime());
+            // Clean expired entries and update storage
+            if (this.cleanExpiredEntries() === 0) {
+                this.updateStorage();
+            }
 
-                // Clean expired entries and update storage
-                if (this.cleanExpiredEntries() === 0) {
-                    this.updateStorage();
-                }
+            if (cacheName === "all") {
+                // Add to all caches
+                Object.keys(this.caches).forEach((cacheName) => {
+                    const cache = this.caches[cacheName];
+                    cache.set(string, expirationDate.getTime());
+                });
             } else {
-                console.warn(`Cache ${cacheName} does not exist.`);
+                const cache = this.caches[cacheName];
+
+                // Add to specific cache
+                if (cache) {
+                    cache.set(string, expirationDate.getTime());
+                } else {
+                    console.warn(`Cache ${cacheName} does not exist.`);
+                }
             }
         } catch (error) {
             console.error(error);

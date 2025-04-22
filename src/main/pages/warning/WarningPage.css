@@ -127,14 +127,14 @@ p {
     color: rgb(243, 186, 34);
 }
 
-#reportSafe,
-#allowHostname {
+#reportSite,
+#allowSite {
     color: rgb(243, 186, 34);
     text-decoration: underline;
 }
 
-#reportSafe:hover,
-#allowHostname:hover {
+#reportSite:hover,
+#allowSite:hover {
     cursor: pointer;
 }
 

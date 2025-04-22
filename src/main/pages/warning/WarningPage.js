@@ -21,7 +21,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
         // Cache for DOM elements
         const domElements = Object.fromEntries(
-            ["reason", "url", "reportedBy", "reportSafe", "allowHostname", "homepageButton", "continueButton"]
+            ["reason", "url", "reportedBy", "reportSite", "allowSite", "homepageButton", "continueButton"]
                 .map(id => [id, document.getElementById(id)])
         );
 
@@ -136,16 +136,16 @@ window.WarningSingleton = window.WarningSingleton || (function () {
             }
         };
 
-        // Add event listener to "Report this site" button
-        domElements.reportSafe.addEventListener("click", async () => {
+        // Add event listener to "Report this website as safe" button
+        domElements.reportSite.addEventListener("click", async () => {
             await sendMessage(Messages.MessageType.REPORT_SITE, {
                 reportUrl: getReportUrl()
             });
         });
 
-        // Add event listener to "Add hostname to allowlist" button
-        domElements.allowHostname.addEventListener("click", async () => {
-            await sendMessage(Messages.MessageType.ALLOW_HOSTNAME, {
+        // Add event listener to "Temporarily allow this website" button
+        domElements.allowSite.addEventListener("click", async () => {
+            await sendMessage(Messages.MessageType.ALLOW_SITE, {
                 continueUrl
             });
         });
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Shows the continue buttons if the setting is disabled
     Settings.get((settings) => {
         if (!settings.hideContinueButtons) {
-            document.getElementById("allowHostname").style.display = "";
+            document.getElementById("allowSite").style.display = "";
             document.getElementById("continueButton").style.display = "";
         }
     });

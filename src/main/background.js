@@ -413,7 +413,7 @@
                 break;
             }
 
-            case Messages.MessageType.ALLOW_HOSTNAME: {
+            case Messages.MessageType.ALLOW_SITE: {
                 // Ignores blank URLs.
                 if (message.maliciousUrl === null || message.maliciousUrl === "") {
                     console.debug(`Malicious URL is blank.`);
@@ -436,84 +436,9 @@
                 let hostnameUrlObject = new URL(message.maliciousUrl);
                 const hostnameString = hostnameUrlObject.hostname + " (allowed)";
 
-                // Adds the hostname to the cache.
-                console.debug("Adding hostname to cache: " + hostnameString);
-
-                switch (message.origin) {
-                    case "1":
-                        console.debug(`Added SmartScreen hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "smartScreen");
-                        break;
-
-                    case "2":
-                        console.debug(`Added Symantec hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "symantec");
-                        break;
-
-                    case "3":
-                        console.debug(`Added Emsisoft hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "emsisoft");
-                        break;
-
-                    case "4":
-                        console.debug(`Added Bitdefender hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "bitdefender");
-                        break;
-
-                    case "5":
-                        console.debug(`Added Norton hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "norton");
-                        break;
-
-                    case "6":
-                        console.debug(`Added G DATA hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "gData");
-                        break;
-
-                    case "7":
-                        console.debug(`Added Cloudflare hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "cloudflare");
-                        break;
-
-                    case "8":
-                        console.debug(`Added Quad9 hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "quad9");
-                        break;
-
-                    case "9":
-                        console.debug(`Added DNS0 hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "dns0");
-                        break;
-
-                    case "10":
-                        console.debug(`Added CleanBrowsing hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "cleanBrowsing");
-                        break;
-
-                    case "11":
-                        console.debug(`Added CIRA hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "cira");
-                        break;
-
-                    case "12":
-                        console.debug(`Added AdGuard hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "adGuard");
-                        break;
-
-                    case "13":
-                        console.debug(`Added Switch.ch hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "switchCH");
-                        break;
-
-                    case "14":
-                        console.debug(`Added CERT-EE hostname to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addStringToCache(hostnameString, "certEE");
-                        break;
-
-                    default:
-                        console.warn(`Unknown origin: ${message.origin}`);
-                        break;
-                }
+                // Adds the hostname to the every cache.
+                console.debug("Adding hostname to every cache: " + hostnameString);
+                BrowserProtection.cacheManager.addStringToCache(hostnameString, "all");
 
                 // Redirects to the blocked URL if the continue URL is 'about:blank'.
                 // This fixes a strange bug in Firefox.
