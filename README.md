@@ -8,9 +8,9 @@
 
 **Osprey** is a browser extension that protects you from malicious websites.
 
-[Google Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd) (1.1.3)
-• [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (1.0.5)
-• [Firefox](https://addons.mozilla.org/en-US/firefox/addon/osprey-browser-protection) (1.1.2)
+[Google Chrome](https://chromewebstore.google.com/detail/osprey-browser-protection/jmnpibhfpmpfjhhkmpadlbgjnbhpjgnd)
+• [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/osprey-browser-protectio/nopglhplnghfhpniofkcopmhbjdonlgn) (Outdated)
+• [Firefox](https://addons.mozilla.org/en-US/firefox/addon/osprey-browser-protection)
 • [Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
 • [Discord](https://discord.gg/ujYcBCgkSr)
@@ -35,7 +35,7 @@
 
 If the website is malicious, **Osprey** will block the page and display a warning:
 
-![Osprey Warning](https://i.imgur.com/1gzZntl.png)
+![Osprey Warning](https://i.imgur.com/eu7BFrH.png)
 
 From this page, you can report the website as safe, temporarily allow the website, go back to safety, and continue
 anyway. By default, Osprey creates a browser notification for blocked pages that
