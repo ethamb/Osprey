@@ -36,9 +36,9 @@ class CacheManager {
         });
     }
 
-    // Debounced function to update local storage with all caches
-    updateStorage() {
-        if (!this.timeoutId) {
+    // Function to update local storage with all caches
+    updateStorage(debounced) {
+        if (debounced && !this.timeoutId) {
             this.timeoutId = setTimeout(() => {
                 this.timeoutId = null;
                 const cacheDataToStore = {};
@@ -49,6 +49,15 @@ class CacheManager {
 
                 Storage.setToLocalStore(this.storageKey, cacheDataToStore);
             }, this.debounceDelay);
+        } else {
+            // Immediate update without debounce
+            const cacheDataToStore = {};
+
+            Object.keys(this.caches).forEach((cacheName) => {
+                cacheDataToStore[cacheName] = Object.fromEntries(this.caches[cacheName]);
+            });
+
+            Storage.setToLocalStore(this.storageKey, cacheDataToStore);
         }
     }
 
@@ -58,7 +67,7 @@ class CacheManager {
             this.caches[cacheName].clear();
         });
 
-        this.updateStorage();
+        this.updateStorage(false);
     }
 
     // Function to check if the URL is in a specific cache and still valid
@@ -74,7 +83,7 @@ class CacheManager {
                     return true; // Cache is valid, URL is allowed
                 } else {
                     cache.delete(normalizedUrl); // Cache expired, remove entry
-                    this.updateStorage();
+                    this.updateStorage(true);
                 }
             }
         } catch (error) {
@@ -95,7 +104,7 @@ class CacheManager {
                     return true; // Cache is valid, string is allowed
                 } else {
                     cache.delete(string); // Cache expired, remove entry
-                    this.updateStorage();
+                    this.updateStorage(true);
                 }
             }
         } catch (error) {
@@ -113,7 +122,7 @@ class CacheManager {
 
             // Clean expired entries and update storage
             if (this.cleanExpiredEntries() === 0) {
-                this.updateStorage();
+                this.updateStorage(true);
             }
 
             if (cacheName === "all") {
@@ -145,7 +154,7 @@ class CacheManager {
 
             // Clean expired entries and update storage
             if (this.cleanExpiredEntries() === 0) {
-                this.updateStorage();
+                this.updateStorage(true);
             }
 
             if (cacheName === "all") {
@@ -192,7 +201,7 @@ class CacheManager {
 
         if (entriesRemoved > 0) {
             console.debug(`Removed ${entriesRemoved} expired entries from caches.`);
-            this.updateStorage();
+            this.updateStorage(true);
         }
         return entriesRemoved;
     }
