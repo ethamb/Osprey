@@ -526,6 +526,11 @@
             browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
                 console.debug(`Notification created with ID: ${notificationId}`);
             });
+
+            // Reload the extension one second later
+            setTimeout(() => {
+                browserAPI.runtime.reload();
+            }, 100);
         }
     });
 
