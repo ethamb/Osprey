@@ -530,7 +530,7 @@
             // Reload the extension one second later
             setTimeout(() => {
                 browserAPI.runtime.reload();
-            }, 100);
+            }, 500);
         }
     });
 
