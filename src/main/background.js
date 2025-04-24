@@ -566,38 +566,48 @@
     });
 
     // Listen for clicks on the context menu items.
-    browserAPI.contextMenus.onClicked.addListener((info) => {
-        if (info.menuItemId === "toggleNotifications") {
-            Settings.set({notificationsEnabled: info.checked});
-            console.debug("Notifications: " + info.checked);
+    // Chrome uses browserAPI.contextMenus, and Firefox uses browserAPI.menus.
+    const handleMenuClick = (info) => {
+        switch (info.menuItemId) {
+            case "toggleNotifications":
+                Settings.set({notificationsEnabled: info.checked});
+                console.debug("Notifications: " + info.checked);
+                break;
+
+            case "toggleFrameNavigation":
+                Settings.set({ignoreFrameNavigation: info.checked});
+                console.debug("Ignoring frame navigation: " + info.checked);
+                break;
+
+            case "clearAllowedSites":
+                BrowserProtection.cacheManager.clearAllCaches();
+                console.debug("Cleared all allowed site caches.");
+
+                // Create a notification to inform the user.
+                const notificationOptions = {
+                    type: "basic",
+                    iconUrl: "assets/icons/icon128.png",
+                    title: "Allowed Sites Cleared",
+                    message: "All allowed sites have been cleared.",
+                    priority: 2,
+                };
+
+                const randomNumber = Math.floor(Math.random() * 100000000);
+                const notificationId = `cache-cleared-${randomNumber}`;
+
+                browserAPI.notifications.create(notificationId, notificationOptions, (id) => {
+                    console.debug(`Notification created with ID: ${id}`);
+                });
+                break;
+
+            default:
+                break;
         }
+    };
 
-        if (info.menuItemId === "toggleFrameNavigation") {
-            Settings.set({ignoreFrameNavigation: info.checked});
-            console.debug("Ignoring frame navigation: " + info.checked);
-        }
-
-        if (info.menuItemId === "clearAllowedSites") {
-            BrowserProtection.cacheManager.clearAllCaches();
-            console.debug("Cleared all allowed site caches.");
-
-            // Create a notification to inform the user.
-            const notificationOptions = {
-                type: "basic",
-                iconUrl: "assets/icons/icon128.png",
-                title: "Allowed Sites Cleared",
-                message: "All allowed sites have been cleared.",
-                priority: 2,
-            };
-
-            const randomNumber = Math.floor(Math.random() * 100000000);
-            const notificationId = `cache-cleared-${randomNumber}`;
-
-            browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
-                console.debug(`Notification created with ID: ${notificationId}`);
-            });
-        }
-    });
+    // Adds the context menu items.
+    const menuAPI = isFirefox ? browserAPI.menus : browserAPI.contextMenus;
+    menuAPI.onClicked.addListener(handleMenuClick);
 
     // Create the context menu with the current state.
     function createContextMenu() {
