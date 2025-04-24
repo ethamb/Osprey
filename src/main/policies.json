@@ -2,8 +2,7 @@
   "_comment_1": "https://chromium.org/administrators/configuring-policy-for-extensions",
   "_comment_2": "In Windows, these policies are stored under HKLM\\SOFTWARE\\Policies\\Google\\Chrome\\3rdParty\\Extensions\\<extensionID>\\policy",
   "_comment_3": "e.g. a REG_DWORD named 'DisableNotifications' with a value of 1 will result in the notifications being disabled.",
-  "_comment_4": "Firefox extension ID: osprey@foulest.net",
-  "_comment_5": "Chrome extension ID is found in the chrome://extensions page.",
+  "_comment_5": "The Chrome extension ID is found in the chrome://extensions page.",
   "type": "object",
   "properties": {
     "DisableNotifications": {
