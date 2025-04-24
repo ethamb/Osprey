@@ -485,11 +485,6 @@
 
     // When the extension is installed or updated...
     browserAPI.runtime.onInstalled.addListener(() => {
-        if (isFirefox) {
-            console.debug("Managed policies are not supported in Firefox.");
-            return;
-        }
-
         // Gather all policy keys needed for onInstalled
         const policyKeys = [
             "DisableContextMenu",
@@ -500,6 +495,13 @@
             "CacheExpirationSeconds",
             "LockProtectionOptions"
         ];
+
+        // Check if managed policies are supported in the browser.
+        if (typeof browserAPI.storage.managed === "undefined"
+            || typeof browserAPI.storage.managed.get(policyKeys) === "undefined") {
+            console.debug("Managed policies are not supported in this browser.");
+            return;
+        }
 
         browserAPI.storage.managed.get(policyKeys, (policies) => {
             let updatedSettings = {};
@@ -634,8 +636,10 @@
                     "IgnoreFrameNavigation"
                 ];
 
-                if (isFirefox) {
-                    console.debug("Managed policies are not supported in Firefox.");
+                // Check if managed policies are supported in the browser.
+                if (typeof browserAPI.storage.managed === "undefined"
+                    || typeof browserAPI.storage.managed.get(policyKeys) === "undefined") {
+                    console.debug("Managed policies are not supported in this browser.");
                     return;
                 }
 
