@@ -3,9 +3,8 @@
 
     // Browser API compatibility between Chrome and Firefox
     const browserAPI = typeof browser === 'undefined' ? chrome : browser;
-
-    // Check if we're running in Firefox
     const isFirefox = typeof browser !== 'undefined';
+    const contextMenuAPI = isFirefox ? browserAPI.menus : browserAPI.contextMenus;
 
     // Import necessary scripts for functionality
     try {
@@ -565,9 +564,8 @@
         });
     });
 
-    // Listen for clicks on the context menu items.
-    // Chrome uses browserAPI.contextMenus, and Firefox uses browserAPI.menus.
-    const handleMenuClick = (info) => {
+    // Listener for context menu creation.
+    contextMenuAPI.onClicked.addListener((info) => {
         switch (info.menuItemId) {
             case "toggleNotifications":
                 Settings.set({notificationsEnabled: info.checked});
@@ -603,19 +601,15 @@
             default:
                 break;
         }
-    };
-
-    // Adds the context menu items.
-    const menuAPI = isFirefox ? menus : browserAPI.contextMenus;
-    menuAPI.onClicked.addListener(handleMenuClick);
+    });
 
     // Create the context menu with the current state.
     function createContextMenu() {
         Settings.get((settings) => {
             // First remove existing menu items to avoid duplicates.
-            browserAPI.contextMenus.removeAll(() => {
+            contextMenuAPI.removeAll(() => {
                 // Create the toggle notifications menu item
-                browserAPI.contextMenus.create({
+                contextMenuAPI.create({
                     id: "toggleNotifications",
                     title: "Enable notifications",
                     type: "checkbox",
@@ -624,7 +618,7 @@
                 });
 
                 // Create the toggle frame navigation menu item
-                browserAPI.contextMenus.create({
+                contextMenuAPI.create({
                     id: "toggleFrameNavigation",
                     title: "Ignore frame navigation",
                     type: "checkbox",
@@ -633,7 +627,7 @@
                 });
 
                 // Create the clear allowed sites menu item
-                browserAPI.contextMenus.create({
+                contextMenuAPI.create({
                     id: "clearAllowedSites",
                     title: "Clear list of allowed sites",
                     contexts: ["action"],
@@ -658,7 +652,7 @@
 
                     // Check if the enable notifications button should be disabled.
                     if (policies.DisableNotifications !== undefined) {
-                        browserAPI.contextMenus.update("toggleNotifications", {
+                        contextMenuAPI.update("toggleNotifications", {
                             enabled: false,
                             checked: !policies.DisableNotifications,
                         });
@@ -669,7 +663,7 @@
 
                     // Check if the ignore frame navigation button should be disabled.
                     if (policies.IgnoreFrameNavigation !== undefined) {
-                        browserAPI.contextMenus.update("toggleFrameNavigation", {
+                        contextMenuAPI.update("toggleFrameNavigation", {
                             enabled: false,
                             checked: policies.IgnoreFrameNavigation,
                         });
@@ -680,7 +674,7 @@
 
                     // Check if the clear allowed sites button should be disabled.
                     if (policies.DisableClearAllowedSites !== undefined && policies.DisableClearAllowedSites) {
-                        browserAPI.contextMenus.update("clearAllowedSites", {
+                        contextMenuAPI.update("clearAllowedSites", {
                             enabled: false,
                         });
 

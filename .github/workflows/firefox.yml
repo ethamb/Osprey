@@ -33,6 +33,11 @@ jobs:
             jq 'del(.storage)' src/main/manifest.json > src/main/manifest_temp.json
             mv src/main/manifest_temp.json src/main/manifest.json
 
+      - name: 'Add menus permission'
+        run: |
+          jq '.permissions += ["menus"]' src/main/manifest.json > src/main/manifest_temp.json
+          mv src/main/manifest_temp.json src/main/manifest.json
+
       - name: 'Replace service_worker with page'
         run: |
           jq '.background = {"page": "background.html"}' src/main/manifest.json > src/main/manifest_temp.json
