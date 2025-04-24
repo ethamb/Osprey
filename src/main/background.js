@@ -2,8 +2,8 @@
     "use strict";
 
     // Browser API compatibility between Chrome and Firefox
-    const browserAPI = typeof browser === 'undefined' ? chrome : browser;
     const isFirefox = typeof browser !== 'undefined';
+    const browserAPI = isFirefox ? browser : chrome;
     const contextMenuAPI = isFirefox ? browserAPI.menus : browserAPI.contextMenus;
 
     // Import necessary scripts for functionality
@@ -495,15 +495,13 @@
             "LockProtectionOptions"
         ];
 
-        // Check if managed policies are supported in the browser.
-        if (typeof browserAPI.storage.managed === "undefined"
-            || typeof browserAPI.storage.managed.get(policyKeys) === "undefined") {
-            console.debug("Managed policies are not supported in this browser.");
-            return;
-        }
-
         browserAPI.storage.managed.get(policyKeys, (policies) => {
-            let updatedSettings = {};
+            if (policies === "undefined") {
+                console.debug("Managed policies are not supported in this browser.");
+                return;
+            }
+
+            let settings = {};
 
             // If the context menu is disabled by policy,
             // apply the related policy settings (do not create the menu).
@@ -512,13 +510,13 @@
 
                 // Update the notifications settings using the policy
                 if (policies.DisableNotifications !== undefined) {
-                    updatedSettings.notificationsEnabled = !policies.DisableNotifications;
+                    settings.notificationsEnabled = !policies.DisableNotifications;
                     console.debug("Notifications are managed by system policy.");
                 }
 
                 // Update the ignore frame navigation settings using the policy
                 if (policies.IgnoreFrameNavigation !== undefined) {
-                    updatedSettings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
+                    settings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
                     console.debug("Ignoring frame navigation is managed by system policy.");
                 }
             } else {
@@ -530,35 +528,35 @@
             if (policies.CacheExpirationSeconds !== undefined) {
                 if (typeof policies.CacheExpirationSeconds !== "number" || policies.CacheExpirationSeconds < 60) {
                     console.debug("Cache expiration time is invalid; using default value.");
-                    updatedSettings.cacheExpirationSeconds = 86400;
+                    settings.cacheExpirationSeconds = 86400;
                 } else {
-                    updatedSettings.cacheExpirationSeconds = policies.CacheExpirationSeconds;
+                    settings.cacheExpirationSeconds = policies.CacheExpirationSeconds;
                     console.debug("Cache expiration time set to: " + policies.CacheExpirationSeconds);
                 }
             }
 
             // Check and set the continue buttons settings using the policy.
             if (policies.HideContinueButtons !== undefined) {
-                updatedSettings.hideContinueButtons = policies.HideContinueButtons;
+                settings.hideContinueButtons = policies.HideContinueButtons;
                 console.debug("Continue buttons are managed by system policy.");
             }
 
             // Check and set the report button settings using the policy.
             if (policies.HideReportButton !== undefined) {
-                updatedSettings.hideReportButton = policies.HideReportButton;
+                settings.hideReportButton = policies.HideReportButton;
                 console.debug("Report button is managed by system policy.");
             }
 
             // Check and set the lock protection options using the policy.
             if (policies.LockProtectionOptions !== undefined) {
-                updatedSettings.lockProtectionOptions = policies.LockProtectionOptions;
+                settings.lockProtectionOptions = policies.LockProtectionOptions;
                 console.debug("Protection options are managed by system policy.");
             }
 
             // Finally, if there are any updates, update the stored settings in one go.
-            if (Object.keys(updatedSettings).length > 0) {
-                Settings.set(updatedSettings, () => {
-                    console.debug("Updated settings on install:", updatedSettings);
+            if (Object.keys(settings).length > 0) {
+                Settings.set(settings, () => {
+                    console.debug("Updated settings on install: ", settings);
                 });
             }
         });
@@ -614,7 +612,7 @@
                     title: "Enable notifications",
                     type: "checkbox",
                     checked: settings.notificationsEnabled,
-                    contexts: ["action"],
+                    contexts: ["action", "browser_action"],
                 });
 
                 // Create the toggle frame navigation menu item
@@ -623,14 +621,14 @@
                     title: "Ignore frame navigation",
                     type: "checkbox",
                     checked: settings.ignoreFrameNavigation,
-                    contexts: ["action"],
+                    contexts: ["action", "browser_action"],
                 });
 
                 // Create the clear allowed sites menu item
                 contextMenuAPI.create({
                     id: "clearAllowedSites",
                     title: "Clear list of allowed sites",
-                    contexts: ["action"],
+                    contexts: ["action", "browser_action"],
                 });
 
                 // Gather the policy values for updating the context menu.
