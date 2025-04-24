@@ -606,8 +606,11 @@
     };
 
     // Adds the context menu items.
-    const menuAPI = isFirefox ? browserAPI.menus : browserAPI.contextMenus;
-    menuAPI.onClicked.addListener(handleMenuClick);
+    if (isFirefox) {
+        browserAPI.menus.onClicked.addListener(handleMenuClick);
+    } else {
+        browserAPI.contextMenus.onClicked.addListener(handleMenuClick);
+    }
 
     // Create the context menu with the current state.
     function createContextMenu() {
