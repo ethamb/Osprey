@@ -28,7 +28,8 @@
     "storage",
     "webNavigation",
     "notifications",
-    "contextMenus"
+    "contextMenus",
+    "storage"
   ],
   "host_permissions": [
     "*://*/*"

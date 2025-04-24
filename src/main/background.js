@@ -496,7 +496,7 @@
         ];
 
         browserAPI.storage.managed.get(policyKeys, (policies) => {
-            if (policies === "undefined") {
+            if (typeof policies === 'undefined') {
                 console.debug("Managed policies are not supported in this browser.");
                 return;
             }
