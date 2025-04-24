@@ -612,7 +612,7 @@
                     title: "Enable notifications",
                     type: "checkbox",
                     checked: settings.notificationsEnabled,
-                    contexts: ["action", "browser_action"],
+                    contexts: ["all"],
                 });
 
                 // Create the toggle frame navigation menu item
@@ -621,14 +621,14 @@
                     title: "Ignore frame navigation",
                     type: "checkbox",
                     checked: settings.ignoreFrameNavigation,
-                    contexts: ["action", "browser_action"],
+                    contexts: ["action"],
                 });
 
                 // Create the clear allowed sites menu item
                 contextMenuAPI.create({
                     id: "clearAllowedSites",
                     title: "Clear list of allowed sites",
-                    contexts: ["action", "browser_action"],
+                    contexts: ["action"],
                 });
 
                 // Gather the policy values for updating the context menu.
