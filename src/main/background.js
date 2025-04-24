@@ -495,16 +495,9 @@
             'LockProtectionOptions'
         ];
 
-        // Firefox
-        browserAPI.storage.managed.get(['DisableNotifications','DisableContextMenu','HideContinueButtons'], function (data) {
-            console.log(data.DisableNotifications);
-            console.log(data.DisableContextMenu);
-            console.log(data.HideContinueButtons);
-        });
-
         browserAPI.storage.managed.get(policyKeys, (policies) => {
             if (typeof policies === 'undefined') {
-                console.debug("Managed policies are not supported in this browser.");
+                console.warn("Managed policies are not supported or setup correctly in this browser.");
                 return;
             }
 
@@ -619,7 +612,7 @@
                     title: "Enable notifications",
                     type: "checkbox",
                     checked: settings.notificationsEnabled,
-                    contexts: ["all"],
+                    contexts: ["action"],
                 });
 
                 // Create the toggle frame navigation menu item
