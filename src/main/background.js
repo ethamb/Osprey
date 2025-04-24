@@ -485,6 +485,11 @@
 
     // When the extension is installed or updated...
     browserAPI.runtime.onInstalled.addListener(() => {
+        if (isFirefox) {
+            console.debug("Managed policies are not supported in Firefox.");
+            return;
+        }
+
         // Gather all policy keys needed for onInstalled
         const policyKeys = [
             "DisableContextMenu",
@@ -628,6 +633,11 @@
                     "DisableClearAllowedSites",
                     "IgnoreFrameNavigation"
                 ];
+
+                if (isFirefox) {
+                    console.debug("Managed policies are not supported in Firefox.");
+                    return;
+                }
 
                 browserAPI.storage.managed.get(policyKeys, (policies) => {
                     let updatedSettings = {};
