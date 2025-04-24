@@ -173,13 +173,11 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
             // Checks for overrides to any HTML elements from settings
             if (!settings.hideContinueButtons) {
-                console.warn("showing continue buttons");
                 document.getElementById("allowSite").style.display = "";
                 document.getElementById("continueButton").style.display = "";
             }
 
             if (!settings.hideReportButton) {
-                console.warn("showing report button");
                 document.getElementById("reportSite").style.display = "";
                 document.getElementById("reportBreakpoint").style.display = "";
             }
