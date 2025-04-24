@@ -486,14 +486,21 @@
     browserAPI.runtime.onInstalled.addListener(() => {
         // Gather all policy keys needed for onInstalled
         const policyKeys = [
-            "DisableContextMenu",
-            "DisableNotifications",
-            "HideContinueButtons",
-            "HideReportButton",
-            "IgnoreFrameNavigation",
-            "CacheExpirationSeconds",
-            "LockProtectionOptions"
+            'DisableContextMenu',
+            'DisableNotifications',
+            'HideContinueButtons',
+            'HideReportButton',
+            'IgnoreFrameNavigation',
+            'CacheExpirationSeconds',
+            'LockProtectionOptions'
         ];
+
+        // Firefox
+        browserAPI.storage.managed.get(['DisableNotifications','DisableContextMenu','HideContinueButtons'], function (data) {
+            console.log(data.DisableNotifications);
+            console.log(data.DisableContextMenu);
+            console.log(data.HideContinueButtons);
+        });
 
         browserAPI.storage.managed.get(policyKeys, (policies) => {
             if (typeof policies === 'undefined') {
