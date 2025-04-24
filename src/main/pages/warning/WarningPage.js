@@ -137,31 +137,52 @@ window.WarningSingleton = window.WarningSingleton || (function () {
         };
 
         // Add event listener to "Report this website as safe" button
-        domElements.reportSite.addEventListener("click", async () => {
-            await sendMessage(Messages.MessageType.REPORT_SITE, {
-                reportUrl: getReportUrl()
+        Settings.get((settings) => {
+            domElements.reportSite.addEventListener("click", async () => {
+                if (!settings.hideReportButton) {
+                    await sendMessage(Messages.MessageType.REPORT_SITE, {
+                        reportUrl: getReportUrl()
+                    });
+                }
             });
-        });
 
-        // Add event listener to "Temporarily allow this website" button
-        domElements.allowSite.addEventListener("click", async () => {
-            await sendMessage(Messages.MessageType.ALLOW_SITE, {
-                continueUrl
+            // Add event listener to "Temporarily allow this website" button
+            domElements.allowSite.addEventListener("click", async () => {
+                if (!settings.hideContinueButtons) {
+                    await sendMessage(Messages.MessageType.ALLOW_SITE, {
+                        continueUrl
+                    });
+                }
             });
-        });
 
-        // Add event listener to "Back to safety" button
-        domElements.homepageButton.addEventListener("click", async () => {
-            await sendMessage(Messages.MessageType.CONTINUE_TO_SAFETY, {
-                hostUrl: continueUrl
+            // Add event listener to "Back to safety" button
+            domElements.homepageButton.addEventListener("click", async () => {
+                await sendMessage(Messages.MessageType.CONTINUE_TO_SAFETY, {
+                    hostUrl: continueUrl
+                });
             });
-        });
 
-        // Add event listener to "Continue anyway" button
-        domElements.continueButton.addEventListener("click", async () => {
-            await sendMessage(Messages.MessageType.CONTINUE_TO_SITE, {
-                continueUrl
+            // Add event listener to "Continue anyway" button
+            domElements.continueButton.addEventListener("click", async () => {
+                if (!settings.hideContinueButtons) {
+                    await sendMessage(Messages.MessageType.CONTINUE_TO_SITE, {
+                        continueUrl
+                    });
+                }
             });
+
+            // Checks for overrides to any HTML elements from settings
+            if (!settings.hideContinueButtons) {
+                console.warn("showing continue buttons");
+                document.getElementById("allowSite").style.display = "";
+                document.getElementById("continueButton").style.display = "";
+            }
+
+            if (!settings.hideReportButton) {
+                console.warn("showing report button");
+                document.getElementById("reportSite").style.display = "";
+                document.getElementById("reportBreakpoint").style.display = "";
+            }
         });
     };
 
@@ -174,12 +195,4 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 document.addEventListener("DOMContentLoaded", () => {
     // Initialize the singleton instance
     window.WarningSingleton.initialize();
-
-    // Shows the continue buttons if the setting is disabled
-    Settings.get((settings) => {
-        if (!settings.hideContinueButtons) {
-            document.getElementById("allowSite").style.display = "";
-            document.getElementById("continueButton").style.display = "";
-        }
-    });
 });

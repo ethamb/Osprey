@@ -23,7 +23,9 @@ const Settings = (function () {
 
         notificationsEnabled: true, // Default state for notifications
         ignoreFrameNavigation: true, // Default state for ignoring frame navigation
-        hideContinueButtons: false // Default state for hiding continue buttons
+        hideContinueButtons: false, // Default state for hiding continue buttons
+        hideReportButton: false, // Default state for hiding the report button
+        cacheExpirationSeconds: 86400, // Default cache expiration time in seconds
     };
 
     /**

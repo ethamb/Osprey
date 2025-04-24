@@ -154,7 +154,13 @@ window.PopupSingleton = window.PopupSingleton || (function () {
 
         updates.push(() => {
             if (elements.label) {
-                elements.label.textContent = isOn ? "On" : "Off";
+                Settings.get((settings) => {
+                    if (settings.lockProtectionOptions) {
+                        elements.label.textContent = isOn ? "On (Locked)" : "Off (Locked)";
+                    } else {
+                        elements.label.textContent = isOn ? "On" : "Off";
+                    }
+                });
             }
 
             if (elements.switchElement) {
@@ -227,7 +233,15 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             const elements = getSystemElements(system);
 
             if (elements.switchElement) {
-                elements.switchElement.onclick = () => toggleProtection(system);
+                elements.switchElement.onclick = () => {
+                    Settings.get((settings) => {
+                        if (settings.lockProtectionOptions) {
+                            console.debug("Protections are locked; cannot toggle.");
+                        } else {
+                            toggleProtection(system);
+                        }
+                    });
+                }
             }
         });
 

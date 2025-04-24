@@ -15,7 +15,6 @@ const Messages = {
         NORTON_TOGGLED: "nortonToggled",
         G_DATA_TOGGLED: "gDataToggled",
         CLOUDFLARE_TOGGLED: "cloudflareToggled",
-
         QUAD9_TOGGLED: "quad9Toggled",
         DNS0_TOGGLED: "dns0Toggled",
         CLEAN_BROWSING_TOGGLED: "cleanBrowsingToggled",

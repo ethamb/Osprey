@@ -483,12 +483,82 @@
         }
     });
 
-    // Create the context menu when the extension is installed or updated
+    // When the extension is installed or updated...
     browserAPI.runtime.onInstalled.addListener(() => {
-        createContextMenu();
+        // Gather all policy keys needed for onInstalled
+        const policyKeys = [
+            "DisableContextMenu",
+            "DisableNotifications",
+            "HideContinueButtons",
+            "HideReportButton",
+            "IgnoreFrameNavigation",
+            "CacheExpirationSeconds",
+            "LockProtectionOptions"
+        ];
+
+        browserAPI.storage.managed.get(policyKeys, (policies) => {
+            let updatedSettings = {};
+
+            // If the context menu is disabled by policy,
+            // apply the related policy settings (do not create the menu).
+            if (policies.DisableContextMenu) {
+                console.debug("Context menu is disabled by policy.");
+
+                // Update the notifications settings using the policy
+                if (policies.DisableNotifications !== undefined) {
+                    updatedSettings.notificationsEnabled = !policies.DisableNotifications;
+                    console.debug("Notifications are managed by system policy.");
+                }
+
+                // Update the ignore frame navigation settings using the policy
+                if (policies.IgnoreFrameNavigation !== undefined) {
+                    updatedSettings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
+                    console.debug("Ignoring frame navigation is managed by system policy.");
+                }
+            } else {
+                // If the context menu isn’t disabled, create it.
+                createContextMenu();
+            }
+
+            // Check and set the cache expiration time using the policy.
+            if (policies.CacheExpirationSeconds !== undefined) {
+                if (typeof policies.CacheExpirationSeconds !== "number" || policies.CacheExpirationSeconds < 60) {
+                    console.debug("Cache expiration time is invalid; using default value.");
+                    updatedSettings.cacheExpirationSeconds = 86400;
+                } else {
+                    updatedSettings.cacheExpirationSeconds = policies.CacheExpirationSeconds;
+                    console.debug("Cache expiration time set to: " + policies.CacheExpirationSeconds);
+                }
+            }
+
+            // Check and set the continue buttons settings using the policy.
+            if (policies.HideContinueButtons !== undefined) {
+                updatedSettings.hideContinueButtons = policies.HideContinueButtons;
+                console.debug("Continue buttons are managed by system policy.");
+            }
+
+            // Check and set the report button settings using the policy.
+            if (policies.HideReportButton !== undefined) {
+                updatedSettings.hideReportButton = policies.HideReportButton;
+                console.debug("Report button is managed by system policy.");
+            }
+
+            // Check and set the lock protection options using the policy.
+            if (policies.LockProtectionOptions !== undefined) {
+                updatedSettings.lockProtectionOptions = policies.LockProtectionOptions;
+                console.debug("Protection options are managed by system policy.");
+            }
+
+            // Finally, if there are any updates, update the stored settings in one go.
+            if (Object.keys(updatedSettings).length > 0) {
+                Settings.set(updatedSettings, () => {
+                    console.debug("Updated settings on install:", updatedSettings);
+                });
+            }
+        });
     });
 
-    // Listen for clicks on the context menu item
+    // Listen for clicks on the context menu items.
     browserAPI.contextMenus.onClicked.addListener((info) => {
         if (info.menuItemId === "toggleNotifications") {
             Settings.set({notificationsEnabled: info.checked});
@@ -500,16 +570,11 @@
             console.debug("Ignoring frame navigation: " + info.checked);
         }
 
-        if (info.menuItemId === "toggleContinueButtons") {
-            Settings.set({hideContinueButtons: info.checked});
-            console.debug("Hide continue buttons: " + info.checked);
-        }
-
         if (info.menuItemId === "clearAllowedSites") {
             BrowserProtection.cacheManager.clearAllCaches();
             console.debug("Cleared all allowed site caches.");
 
-            // Create a notification to inform the user
+            // Create a notification to inform the user.
             const notificationOptions = {
                 type: "basic",
                 iconUrl: "assets/icons/icon128.png",
@@ -518,23 +583,21 @@
                 priority: 2,
             };
 
-            // Create a unique notification ID based on a random number
             const randomNumber = Math.floor(Math.random() * 100000000);
-            const notificationId = `cache-cleared-` + randomNumber;
+            const notificationId = `cache-cleared-${randomNumber}`;
 
-            // Display the notification
             browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
                 console.debug(`Notification created with ID: ${notificationId}`);
             });
         }
     });
 
-    // Create the context menu with the current state
+    // Create the context menu with the current state.
     function createContextMenu() {
         Settings.get((settings) => {
-            // First remove existing menu items to avoid duplicates
+            // First remove existing menu items to avoid duplicates.
             browserAPI.contextMenus.removeAll(() => {
-                // Create the 'Enable notifications' context menu item with a checkbox
+                // Create the toggle notifications menu item
                 browserAPI.contextMenus.create({
                     id: "toggleNotifications",
                     title: "Enable notifications",
@@ -543,7 +606,7 @@
                     contexts: ["action"],
                 });
 
-                // Create the 'Ignore frame navigation' context menu item with a checkbox
+                // Create the toggle frame navigation menu item
                 browserAPI.contextMenus.create({
                     id: "toggleFrameNavigation",
                     title: "Ignore frame navigation",
@@ -552,26 +615,70 @@
                     contexts: ["action"],
                 });
 
-                // Create the 'Hide continue buttons' context menu item with a checkbox
-                browserAPI.contextMenus.create({
-                    id: "toggleContinueButtons",
-                    title: "Hide continue buttons",
-                    type: "checkbox",
-                    checked: settings.hideContinueButtons,
-                    contexts: ["action"],
-                });
-
-                // Create the 'Clear list of allowed sites' context menu item
+                // Create the clear allowed sites menu item
                 browserAPI.contextMenus.create({
                     id: "clearAllowedSites",
                     title: "Clear list of allowed sites",
                     contexts: ["action"],
                 });
+
+                // Gather the policy values for updating the context menu.
+                const policyKeys = [
+                    "DisableNotifications",
+                    "DisableClearAllowedSites",
+                    "IgnoreFrameNavigation"
+                ];
+
+                browserAPI.storage.managed.get(policyKeys, (policies) => {
+                    let updatedSettings = {};
+
+                    // Check if the enable notifications button should be disabled.
+                    if (policies.DisableNotifications !== undefined) {
+                        browserAPI.contextMenus.update("toggleNotifications", {
+                            enabled: false,
+                            checked: !policies.DisableNotifications,
+                        });
+
+                        updatedSettings.notificationsEnabled = !policies.DisableNotifications;
+                        console.debug("Notifications are managed by system policy.");
+                    }
+
+                    // Check if the ignore frame navigation button should be disabled.
+                    if (policies.IgnoreFrameNavigation !== undefined) {
+                        browserAPI.contextMenus.update("toggleFrameNavigation", {
+                            enabled: false,
+                            checked: policies.IgnoreFrameNavigation,
+                        });
+
+                        updatedSettings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
+                        console.debug("Ignoring frame navigation is managed by system policy.");
+                    }
+
+                    // Check if the clear allowed sites button should be disabled.
+                    if (policies.DisableClearAllowedSites !== undefined && policies.DisableClearAllowedSites) {
+                        browserAPI.contextMenus.update("clearAllowedSites", {
+                            enabled: false,
+                        });
+
+                        console.debug("Clear allowed sites button is managed by system policy.");
+                    }
+
+                    // Update settings cumulatively if any policy-based changes were made.
+                    if (Object.keys(updatedSettings).length > 0) {
+                        Settings.set(updatedSettings, () => {
+                            console.debug("Updated settings from context menu creation:", updatedSettings);
+                        });
+                    }
+                });
             });
         });
     }
 
-    // Function to send the user to the new tab page.
+    /**
+     * Function to send the user to the new tab page.
+     *
+     * @param {number} tabId - The ID of the tab to be closed. (Firefox only)
+     */
     function sendToNewTabPage(tabId) {
         if (isFirefox) {
             browserAPI.tabs.remove(tabId);
