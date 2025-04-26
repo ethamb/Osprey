@@ -498,6 +498,7 @@
         browserAPI.storage.managed.get(policyKeys, (policies) => {
             if (typeof policies === 'undefined') {
                 console.warn("Managed policies are not supported or setup correctly in this browser.");
+                createContextMenu();
                 return;
             }
 
