@@ -56,6 +56,13 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             messageType: Messages.MessageType.G_DATA_TOGGLED,
         },
         {
+            name: "malwareURLEnabled",
+            title: "MalwareURL Protection",
+            labelElementId: "malwareURLStatus",
+            switchElementId: "malwareURLSwitch",
+            messageType: Messages.MessageType.MALWAREURL_TOGGLED,
+        },
+        {
             name: "cloudflareEnabled",
             title: "Cloudflare Security DNS",
             labelElementId: "cloudflareStatus",
@@ -110,6 +117,13 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             labelElementId: "certEEStatus",
             switchElementId: "certEESwitch",
             messageType: Messages.MessageType.CERT_EE_TOGGLED,
+        },
+        {
+            name: "controlDEnabled",
+            title: "Control D Security DNS",
+            labelElementId: "controlDStatus",
+            switchElementId: "controlDSwitch",
+            messageType: Messages.MessageType.CONTROL_D_TOGGLED,
         }
     ];
 
@@ -263,22 +277,26 @@ window.PopupSingleton = window.PopupSingleton || (function () {
 
         const page1 = document.getElementById("page1");
         const page2 = document.getElementById("page2");
+        const page3 = document.getElementById("page3");
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
         const pageIndicator = document.getElementById("pageIndicator");
         let currentPage = 1;
-        const totalPages = 2;
+        const totalPages = 3;
 
         function updatePageDisplay() {
             // Hide all pages
             page1.classList.remove("active");
             page2.classList.remove("active");
+            page3.classList.remove("active");
 
             // Show current page
             if (currentPage === 1) {
                 page1.classList.add("active");
             } else if (currentPage === 2) {
                 page2.classList.add("active");
+            } else if (currentPage === 3) {
+                page3.classList.add("active");
             }
 
             // Update page indicator

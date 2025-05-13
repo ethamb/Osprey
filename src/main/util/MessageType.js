@@ -14,6 +14,7 @@ const Messages = {
         BITDEFENDER_TOGGLED: "bitdefenderToggled",
         NORTON_TOGGLED: "nortonToggled",
         G_DATA_TOGGLED: "gDataToggled",
+        MALWAREURL_TOGGLED: "malwareURLToggled",
         CLOUDFLARE_TOGGLED: "cloudflareToggled",
         QUAD9_TOGGLED: "quad9Toggled",
         DNS0_TOGGLED: "dns0Toggled",
@@ -22,5 +23,6 @@ const Messages = {
         ADGUARD_TOGGLED: "adGuardToggled",
         SWITCH_CH_TOGGLED: "switchCHToggled",
         CERT_EE_TOGGLED: "certEEToggled",
+        CONTROL_D_TOGGLED: "controlDToggled",
     }
 };

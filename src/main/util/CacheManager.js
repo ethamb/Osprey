@@ -10,6 +10,7 @@ class CacheManager {
             bitdefender: new Map(),
             norton: new Map(),
             gData: new Map(),
+            malwareURL: new Map(),
             cloudflare: new Map(),
             quad9: new Map(),
             dns0: new Map(),
@@ -18,6 +19,7 @@ class CacheManager {
             adGuard: new Map(),
             switchCH: new Map(),
             certEE: new Map(),
+            controlD: new Map(),
         };
 
         this.storageKey = storageKey;

@@ -20,6 +20,7 @@
             // Other
             "util/other/SmartScreenUtil.js",
             "util/other/EmsisoftUtil.js",
+            "util/other/UUIDUtil.js",
 
             // Hashing
             "util/hashing/MD5.js",
@@ -48,6 +49,7 @@
                 && !settings.bitdefenderEnabled
                 && !settings.nortonEnabled
                 && !settings.gDataEnabled
+                && !settings.malwareURLEnabled
                 && !settings.cloudflareEnabled
                 && !settings.quad9Enabled
                 && !settings.dns0Enabled
@@ -56,6 +58,7 @@
                 && !settings.adGuardEnabled
                 && !settings.switchCHEnabled
                 && !settings.certEEEnabled
+                && !settings.controlDEnabled
             ) {
                 console.warn("Protection is disabled; bailing out early.");
                 return;
@@ -329,43 +332,53 @@
                         break;
 
                     case "7":
+                        console.debug(`Added MalwareURL URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "malwareURL");
+                        break;
+
+                    case "8":
                         console.debug(`Added Cloudflare URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cloudflare");
                         break;
 
-                    case "8":
+                    case "9":
                         console.debug(`Added Quad9 URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "quad9");
                         break;
 
-                    case "9":
+                    case "10":
                         console.debug(`Added DNS0 URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "dns0");
                         break;
 
-                    case "10":
+                    case "11":
                         console.debug(`Added CleanBrowsing URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cleanBrowsing");
                         break;
 
-                    case "11":
+                    case "12":
                         console.debug(`Added CIRA URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cira");
                         break;
 
-                    case "12":
+                    case "13":
                         console.debug(`Added AdGuard URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "adGuard");
                         break;
 
-                    case "13":
+                    case "14":
                         console.debug(`Added Switch.ch URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "switchCH");
                         break;
 
-                    case "14":
+                    case "15":
                         console.debug(`Added CERT-EE URL to cache: ` + message.maliciousUrl);
                         BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "certEE");
+                        break;
+
+                    case "16":
+                        console.debug(`Added Control D URL to cache: ` + message.maliciousUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "controlD");
                         break;
 
                     default:
@@ -464,6 +477,7 @@
             case Messages.MessageType.BITDEFENDER_TOGGLED:
             case Messages.MessageType.NORTON_TOGGLED:
             case Messages.MessageType.G_DATA_TOGGLED:
+            case Messages.MessageType.MALWAREURL_TOGGLED:
             case Messages.MessageType.CLOUDFLARE_TOGGLED:
             case Messages.MessageType.QUAD9_TOGGLED:
             case Messages.MessageType.DNS0_TOGGLED:
@@ -472,6 +486,7 @@
             case Messages.MessageType.ADGUARD_TOGGLED:
             case Messages.MessageType.SWITCH_CH_TOGGLED:
             case Messages.MessageType.CERT_EE_TOGGLED:
+            case Messages.MessageType.CONTROL_D_TOGGLED:
                 console.debug(`${message.title} has been ${message.toggleState ? "enabled" : "disabled"}.`);
                 break;
 

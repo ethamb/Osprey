@@ -52,37 +52,38 @@ You can configure the extension's protection options in the settings:
 
 ## Protection Providers
 
-Osprey's protection providers and default settings were chosen based on this protection test:
+Osprey's protection providers and default settings were chosen based on:
 
-![Protection Test - 04/19/2025](https://i.imgur.com/BAwZarm.png)
+1. Their API is public and compatible with Osprey.
+2. They block at least 40% of the pages on the latest [OpenPhish feed](https://raw.githubusercontent.com/openphish/public_feed/refs/heads/main/feed.txt) list.
+3. They have working support emails or websites for reporting false positives.
 
-Due to their high scores, the following providers are **enabled** by default:
+The following providers are **enabled** by default:
 
-- [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
+- [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
 - [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
 - [Norton SafeWeb](https://safeweb.norton.com)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
-- [DNS0.eu Security DNS](https://dns0.eu/zero)
-- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-- [Switch.ch Security DNS](https://switch.ch/en/dns-firewall)
-
-Due to their low scores, the following providers are **disabled** by default:
-
-- [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
-- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
 - [Quad9 Security DNS](https://quad9.net)
 - [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
 - [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
+- [Switch.ch Security DNS](https://switch.ch/en/dns-firewall)
 - [CERT-EE Security DNS](https://ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
+- [Control D Security DNS](https://controld.com)
 
-The test was conducted on **April 19, 2025**, and the results may change over time. Of course, Osprey is designed to be
-customizable, so you can enable or disable any of the providers at any time. If a provider gives you false positives,
-report the links to them directly and disable them in the settings panel. Osprey does not have control over the
-providers' databases or how they classify URLs.
+The following providers are **disabled** by default:
 
-For clarity, the graph represents the following lines: the red line represents **OpenPhish**, the orange line represents **AA419**, the yellow line represents **PhishStats**, and the green line represents **Malicious Sites**.
-The grades were adjusted up to 100% to compensate for dead links, but this didn't significantly impact the results, as the highest curve given was a 3% increase.
+- [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
+- [MalwareURL Protection](https://malwareurl.com)
+- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
+- [DNS0.eu Security DNS](https://dns0.eu/zero)
+- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
+
+Providers disabled by default are due to frequent reports of false positives. If a provider gives you false positives,
+report the links to them directly and disable them in the settings panel. Osprey is designed to be customizable, so you
+can enable or disable any of the providers at any time. Osprey does not have control over the providers' databases or
+how they classify URLs.
 
 ## Privacy
 

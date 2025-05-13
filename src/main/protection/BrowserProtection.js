@@ -5,6 +5,9 @@ const BrowserProtection = function () {
 
     let tabAbortControllers = new Map();
 
+    // Create a unique UUID for the MalwareURL API.
+    const malwareURLUUID = UUIDUtil.createUUID();
+
     /**
      * Closes all open connections for a specific tab.
      */
@@ -565,6 +568,70 @@ const BrowserProtection = function () {
             };
 
             /**
+             * Checks the URL with the MalwareURL API.
+             */
+            const checkUrlWithMalwareURL = async function (settings) {
+                // Check if MalwareURL is enabled
+                if (!settings.malwareURLEnabled) {
+                    console.debug(`MalwareURL is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "malwareURL")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const apiUrl = `https://www.malwareurl.com/api/?api_key=a2xo64&api_domain=${urlHostname}&browse=action&URL=${encodeURIComponent(urlObject.href)}&version=2.3&uuid=${malwareURLUUID}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: "GET",
+                        mode: "cors",
+                        signal
+                    });
+
+                    // Return early if the response is not OK
+                    if (!response.ok) {
+                        console.warn(`MalwareURL returned early: ${response.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const data = await response.text();
+
+                    // Malicious
+                    if (data === "1") {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Safe/Trusted
+                    if (data === "0") {
+                        console.debug(`Added MalwareURL URL to cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "malwareURL");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // UUID is Expired
+                    if (data === "2") {
+                        console.warn(`MalwareURL UUID is expired: ${data}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Unexpected result
+                    console.warn(`MalwareURL returned an unexpected result for URL ${url}: ${data}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with MalwareURL: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
              * Checks the URL with Cloudflare's DNS APIs.
              */
             const checkUrlWithCloudflare = async function (settings) {
@@ -1116,6 +1183,74 @@ const BrowserProtection = function () {
             };
 
             /**
+             * Checks the URL with Control D's DNS API.
+             */
+            const checkUrlWithControlD = async function (settings) {
+                // Check if ControlD is enabled
+                if (!settings.controlDEnabled) {
+                    console.debug(`Control D is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the cache
+                if (isUrlInAnyCache(urlObject, urlHostname, "controlD")) {
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                const filteringURL = `https://freedns.controld.com/p1?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`Control D returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // ControlD's way of blocking the domain.
+                        if (filteringDataString.endsWith("0,4,0,0,0,0")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`Added Control D URL to cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "controlD");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`Failed to check URL with Control D: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
              * Encodes a DNS query for the given domain and type.
              *
              * @param {string} domain - The domain to encode.
@@ -1183,6 +1318,7 @@ const BrowserProtection = function () {
                 checkUrlWithNorton(settings);
                 checkUrlWithGDATA(settings);
                 checkUrlWithEmsisoft(settings);
+                checkUrlWithMalwareURL(settings);
 
                 // DNS APIs
                 checkUrlWithCloudflare(settings);
@@ -1193,6 +1329,7 @@ const BrowserProtection = function () {
                 checkUrlWithAdGuard(settings);
                 checkUrlWithSwitchCH(settings);
                 checkUrlWithCERTEE(settings);
+                checkUrlWithControlD(settings);
             });
 
             // Clean up controllers for tabs that no longer exist

@@ -19,6 +19,7 @@ When you navigate to a website, Osprey may send the URL to the following third-p
 - [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
 - [Norton SafeWeb](https://safeweb.norton.com)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
+- [MalwareURL Protection](https://malwareurl.com)
 - [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
 - [Quad9 Security DNS](https://quad9.net)
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
@@ -27,6 +28,7 @@ When you navigate to a website, Osprey may send the URL to the following third-p
 - [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
 - [Switch.ch Security DNS](https://switch.ch/en/dns-firewall)
 - [CERT-EE Security DNS](https://ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
+- [Control D Security DNS](https://controld.com)
 
 These services are designed to enhance your browsing security by identifying potential threats.
 Please be aware that the data sent to these services is limited to the URL you are visiting and is not stored by Osprey.

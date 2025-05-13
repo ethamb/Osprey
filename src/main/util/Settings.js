@@ -6,22 +6,24 @@ const Settings = (function () {
     const settingsKey = "Settings";
 
     let defaultSettings = {
-        smartScreenEnabled: false, // Default state for SmartScreen
-        symantecEnabled: true, // Default state for Symantec
+        smartScreenEnabled: true, // Default state for SmartScreen
+        symantecEnabled: false, // Default state for Symantec
         emsisoftEnabled: true, // Default state for Emsisoft
         bitdefenderEnabled: true, // Default state for Bitdefender
         nortonEnabled: true, // Default state for Norton
         gDataEnabled: true, // Default state for G DATA
+        malwareURLEnabled: false, // Default state for MalwareURL
         cloudflareEnabled: false, // Default state for Cloudflare
-        quad9Enabled: false, // Default state for Quad9
-        dns0Enabled: true, // Default state for DNS0
-        cleanBrowsingEnabled: true, // Default state for CleanBrowsing
-        ciraEnabled: false, // Default state for CIRA
-        adGuardEnabled: false, // Default state for AdGuard
+        quad9Enabled: true, // Default state for Quad9
+        dns0Enabled: false, // Default state for DNS0
+        cleanBrowsingEnabled: false, // Default state for CleanBrowsing
+        ciraEnabled: true, // Default state for CIRA
+        adGuardEnabled: true, // Default state for AdGuard
         switchCHEnabled: true, // Default state for Switch.ch
-        certEEEnabled: false, // Default state for CERT-EE
+        certEEEnabled: true, // Default state for CERT-EE
+        controlDEnabled: true, // Default state for Control D
 
-        notificationsEnabled: true, // Default state for notifications
+        notificationsEnabled: false, // Default state for notifications
         ignoreFrameNavigation: true, // Default state for ignoring frame navigation
         hideContinueButtons: false, // Default state for hiding continue buttons
         hideReportButton: false, // Default state for hiding the report button
