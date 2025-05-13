@@ -52,12 +52,6 @@ You can configure the extension's protection options in the settings:
 
 ## Protection Providers
 
-Osprey's protection providers and default settings were chosen based on:
-
-1. Their API is public and compatible with Osprey.
-2. They block at least 40% of the pages on the latest [OpenPhish feed](https://raw.githubusercontent.com/openphish/public_feed/refs/heads/main/feed.txt) list.
-3. They have working support emails or websites for reporting false positives.
-
 The following providers are **enabled** by default:
 
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
@@ -79,6 +73,12 @@ The following providers are **disabled** by default:
 - [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
+
+Osprey's protection providers and default settings were chosen based on:
+
+1. Their API is public and compatible with Osprey.
+2. They block at least 40% of the pages on the latest [OpenPhish feed](https://raw.githubusercontent.com/openphish/public_feed/refs/heads/main/feed.txt) list.
+3. They have working support emails or websites for reporting false positives.
 
 Providers disabled by default are due to frequent reports of false positives. If a provider gives you false positives,
 report the links to them directly and disable them in the settings panel. Osprey is designed to be customizable, so you
