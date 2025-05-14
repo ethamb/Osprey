@@ -2,17 +2,22 @@
    General Styles
 -------------------------------------------------- */
 html, body {
-    min-height: 597px;
-    min-width: 320px;
-    max-height: 597px;
-    max-width: 320px;
+    height: 597px;
+    width: 320px;
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
     font-weight: 400;
     position: relative;
     box-sizing: border-box;
+}
+
+html {
     overflow-x: hidden;
     overflow-y: auto;
+}
+
+body {
+    overflow: visible;
 }
 
 .gray {
