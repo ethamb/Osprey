@@ -2,13 +2,14 @@
    General Styles
 -------------------------------------------------- */
 html, body {
-    min-height: clamp(0px, 457px, calc(100vw + 117px));
-    min-width: clamp(0px, 320px, calc(100vh + 117px));
+    min-height: 457px;
+    min-width: 320px;
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
     font-weight: 400;
     position: relative;
     box-sizing: border-box;
+    overflow: auto;
 }
 
 .gray {
@@ -143,8 +144,8 @@ section {
 
 .page {
     display: none;
-    min-height: clamp(0px, 457px, calc(100vw + 117px));
-    min-width: clamp(0px, 320px, calc(100vh + 117px));
+    min-height: 457px;
+    min-width: 320px;
 }
 
 .page.active {
