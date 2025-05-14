@@ -2,14 +2,15 @@
    General Styles
 -------------------------------------------------- */
 html, body {
-    min-height: 457px;
-    min-width: 320px;
+    height: 597px;
+    width: 320px;
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
     font-weight: 400;
     position: relative;
     box-sizing: border-box;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .gray {
@@ -34,13 +35,11 @@ html, body {
     width: 50px;
     height: auto;
     margin-right: 15px;
-    overflow: auto;
 }
 
 .banner-text {
     font-size: 18px;
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-    overflow: auto;
 }
 
 /* --------------------------------------------------
@@ -70,7 +69,6 @@ section {
     line-height: 22px;
     font-weight: 400;
     margin: 0;
-    overflow: auto;
 }
 
 /* --------------------------------------------------
@@ -81,7 +79,6 @@ section {
     display: inline-block;
     font-size: 14px;
     margin: 5px 5px 15px 5px;
-    overflow: auto;
 }
 
 /* --------------------------------------------------
@@ -93,17 +90,14 @@ section {
     height: 17px;
     margin-top: 9px;
     display: inline-block;
-    overflow: auto;
 }
 
 .switch.on {
     background-image: url(../../assets/images/switch_on.png);
-    overflow: auto;
 }
 
 .switch.off {
     background-image: url(../../assets/images/switch_off.png);
-    overflow: auto;
 }
 
 /* --------------------------------------------------
@@ -120,7 +114,6 @@ section {
 
 #github:hover {
     text-decoration: underline;
-    overflow: auto;
 }
 
 /* --------------------------------------------------
@@ -130,7 +123,6 @@ section {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    overflow: auto;
 }
 
 .pagination {
@@ -149,17 +141,14 @@ section {
 
 .page-indicator {
     font-size: 16px;
-    overflow: auto;
 }
 
 .page {
     display: none;
     min-height: 457px;
     min-width: 320px;
-    overflow: auto;
 }
 
 .page.active {
     display: block;
-    overflow: auto;
 }
