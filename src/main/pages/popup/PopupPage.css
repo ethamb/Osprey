@@ -9,7 +9,7 @@ html, body {
     font-weight: 400;
     position: relative;
     box-sizing: border-box;
-    overflow: scroll;
+    overflow: auto !important;
 }
 
 .gray {
