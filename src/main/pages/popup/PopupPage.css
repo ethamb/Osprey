@@ -2,22 +2,11 @@
    General Styles
 -------------------------------------------------- */
 html, body {
-    height: 597px;
-    width: 320px;
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
     font-weight: 400;
     position: relative;
     box-sizing: border-box;
-}
-
-html {
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-body {
-    overflow: visible;
 }
 
 .gray {
@@ -40,7 +29,6 @@ body {
 
 .logo {
     width: 50px;
-    height: auto;
     margin-right: 15px;
 }
 
@@ -117,6 +105,7 @@ section {
     margin-top: 5px;
     margin-bottom: 5px;
     text-decoration: none;
+    overflow-y: visible;
 }
 
 #github:hover {
@@ -154,6 +143,8 @@ section {
     display: none;
     min-height: 457px;
     min-width: 320px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .page.active {
