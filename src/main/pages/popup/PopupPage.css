@@ -48,6 +48,7 @@ html, body {
 -------------------------------------------------- */
 .alternate {
     color: rgb(255, 255, 255);
+    overflow: auto;
 }
 
 /* --------------------------------------------------
@@ -111,7 +112,6 @@ section {
     margin-top: 5px;
     margin-bottom: 5px;
     text-decoration: none;
-    overflow: auto;
 }
 
 #github:hover {
