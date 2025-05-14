@@ -14,6 +14,7 @@ html, body {
 
 .gray {
     background-color: rgb(40, 40, 40);
+    overflow: auto;
 }
 
 .white {
@@ -47,7 +48,6 @@ html, body {
 -------------------------------------------------- */
 .alternate {
     color: rgb(255, 255, 255);
-    overflow: auto;
 }
 
 /* --------------------------------------------------
