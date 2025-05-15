@@ -13,7 +13,6 @@
 • [Firefox](https://addons.mozilla.org/en-US/firefox/addon/osprey-browser-protection)
 • [Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
-• [Discord](https://discord.gg/ujYcBCgkSr)
 
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
 
