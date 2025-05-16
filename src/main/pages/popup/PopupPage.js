@@ -168,7 +168,7 @@ window.PopupSingleton = window.PopupSingleton || (function () {
 
         updates.push(() => {
             if (elements.label) {
-                Settings.get((settings) => {
+                Settings.get(settings => {
                     if (settings.lockProtectionOptions) {
                         elements.label.textContent = isOn ? "On (Locked)" : "Off (Locked)";
                     } else {
@@ -197,7 +197,7 @@ window.PopupSingleton = window.PopupSingleton || (function () {
      * @param {Object} system - The system object being toggled.
      */
     const toggleProtection = function (system) {
-        Settings.get((settings) => {
+        Settings.get(settings => {
             const currentState = settings[system.name];
             const newState = !currentState;
 
@@ -218,7 +218,7 @@ window.PopupSingleton = window.PopupSingleton || (function () {
      */
     const reset = function () {
         // Remove click handlers from all switches
-        securitySystems.forEach((system) => {
+        securitySystems.forEach(system => {
             const elements = domElements[system.name];
 
             if (elements && elements.switchElement) {
@@ -243,12 +243,12 @@ window.PopupSingleton = window.PopupSingleton || (function () {
         isInitialized = true;
 
         // Set up switch elements and click handlers
-        securitySystems.forEach((system) => {
+        securitySystems.forEach(system => {
             const elements = getSystemElements(system);
 
             if (elements.switchElement) {
                 elements.switchElement.onclick = () => {
-                    Settings.get((settings) => {
+                    Settings.get(settings => {
                         if (settings.lockProtectionOptions) {
                             console.debug("Protections are locked; cannot toggle.");
                         } else {
@@ -260,8 +260,8 @@ window.PopupSingleton = window.PopupSingleton || (function () {
         });
 
         // Load and apply settings
-        Settings.get((settings) => {
-            securitySystems.forEach((system) => {
+        Settings.get(settings => {
+            securitySystems.forEach(system => {
                 const isEnabled = settings[system.name];
                 updateProtectionStatusUI(system, isEnabled);
             });

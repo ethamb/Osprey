@@ -198,7 +198,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
         };
 
         // Add event listener to "Report this website as safe" button
-        Settings.get((settings) => {
+        Settings.get(settings => {
             domElements.reportSite.addEventListener("click", async () => {
                 if (!settings.hideReportButton) {
                     await sendMessage(Messages.MessageType.REPORT_SITE, {

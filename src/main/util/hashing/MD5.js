@@ -233,7 +233,7 @@
         let i;
 
         // Initialize the word array to match the required size
-        const arrayLength = (input.length >> 2);
+        const arrayLength = input.length >> 2;
         for (i = 0; i < arrayLength; i += 1) {
             wordArray[i] = 0;
         }
@@ -242,7 +242,7 @@
 
         // Convert input string to word array
         for (i = 0; i < maxLength; i += 8) {
-            wordArray[i >> 5] |= (255 & input.charCodeAt(i / 8)) << (i % 32);
+            wordArray[i >> 5] |= (255 & input.charCodeAt(i / 8)) << i % 32;
         }
         return wordArray;
     }

@@ -58,7 +58,7 @@ const Settings = (function () {
          * @param {Function} callback - The function to call with the retrieved settings.
          */
         get: function (callback) {
-            Storage.getFromLocalStore(settingsKey, (function (storedSettings) {
+            Storage.getFromLocalStore(settingsKey, function (storedSettings) {
                 // Clone the default settings object
                 let mergedSettings = JSON.parse(JSON.stringify(defaultSettings));
 
@@ -67,7 +67,7 @@ const Settings = (function () {
 
                 // Invoke the callback with the merged settings
                 callback && callback(mergedSettings);
-            }));
+            });
         },
 
         /**
@@ -76,7 +76,7 @@ const Settings = (function () {
          * @param {Function} [callback] - Optional callback to call after settings are saved.
          */
         set: function (newSettings, callback) {
-            Storage.getFromLocalStore(settingsKey, (function (storedSettings) {
+            Storage.getFromLocalStore(settingsKey, function (storedSettings) {
                 // Clone the default settings object
                 let mergedSettings = JSON.parse(JSON.stringify(defaultSettings));
 
@@ -86,7 +86,7 @@ const Settings = (function () {
 
                 // Save the merged settings back to local storage
                 Storage.setToLocalStore(settingsKey, mergedSettings, callback);
-            }));
+            });
         }
     };
 })();

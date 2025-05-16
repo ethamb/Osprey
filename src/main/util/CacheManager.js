@@ -27,9 +27,9 @@ class CacheManager {
         this.timeoutId = null;
 
         // Retrieve cache from local storage when the service worker wakes up
-        Storage.getFromLocalStore(this.storageKey, (storedCaches) => {
+        Storage.getFromLocalStore(this.storageKey, storedCaches => {
             if (storedCaches) {
-                Object.keys(this.caches).forEach((cacheName) => {
+                Object.keys(this.caches).forEach(cacheName => {
                     if (storedCaches[cacheName]) {
                         this.caches[cacheName] = new Map(Object.entries(storedCaches[cacheName]));
                     }
@@ -45,7 +45,7 @@ class CacheManager {
                 this.timeoutId = null;
                 const cacheDataToStore = {};
 
-                Object.keys(this.caches).forEach((cacheName) => {
+                Object.keys(this.caches).forEach(cacheName => {
                     cacheDataToStore[cacheName] = Object.fromEntries(this.caches[cacheName]);
                 });
 
@@ -55,7 +55,7 @@ class CacheManager {
             // Immediate update without debounce
             const cacheDataToStore = {};
 
-            Object.keys(this.caches).forEach((cacheName) => {
+            Object.keys(this.caches).forEach(cacheName => {
                 cacheDataToStore[cacheName] = Object.fromEntries(this.caches[cacheName]);
             });
 
@@ -65,7 +65,7 @@ class CacheManager {
 
     // Function to clear all caches
     clearAllCaches() {
-        Object.keys(this.caches).forEach((cacheName) => {
+        Object.keys(this.caches).forEach(cacheName => {
             this.caches[cacheName].clear();
         });
 
@@ -129,7 +129,7 @@ class CacheManager {
 
             if (cacheName === "all") {
                 // Add to all caches
-                Object.keys(this.caches).forEach((cacheName) => {
+                Object.keys(this.caches).forEach(cacheName => {
                     const cache = this.caches[cacheName];
                     cache.set(normalizedUrl, expirationDate.getTime());
                 });
@@ -161,7 +161,7 @@ class CacheManager {
 
             if (cacheName === "all") {
                 // Add to all caches
-                Object.keys(this.caches).forEach((cacheName) => {
+                Object.keys(this.caches).forEach(cacheName => {
                     const cache = this.caches[cacheName];
                     cache.set(string, expirationDate.getTime());
                 });
@@ -185,7 +185,7 @@ class CacheManager {
         const now = Date.now();
         let entriesRemoved = 0;
 
-        Object.keys(this.caches).forEach((cacheName) => {
+        Object.keys(this.caches).forEach(cacheName => {
             const cache = this.caches[cacheName];
             const keysToDelete = [];
 
@@ -196,7 +196,7 @@ class CacheManager {
                 }
             });
 
-            keysToDelete.forEach((url) => {
+            keysToDelete.forEach(url => {
                 cache.delete(url);
             });
         });

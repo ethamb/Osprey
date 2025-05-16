@@ -26,7 +26,7 @@ const BrowserProtection = function () {
         const browserAPI = typeof browser === 'undefined' ? chrome : browser;
 
         // Remove controllers for tabs that no longer exist
-        browserAPI.tabs.query({}, (tabs) => {
+        browserAPI.tabs.query({}, tabs => {
             const activeTabIds = new Set(tabs.map(tab => tab.id));
 
             for (const tabId of tabAbortControllers.keys()) {
@@ -1310,7 +1310,7 @@ const BrowserProtection = function () {
             };
 
             // Call all the check functions asynchronously
-            Settings.get((settings) => {
+            Settings.get(settings => {
                 // HTTP APIs
                 checkUrlWithSymantec(settings);
                 checkUrlWithBitdefender(settings);

@@ -5,6 +5,7 @@
     const isFirefox = typeof browser !== 'undefined';
     const browserAPI = isFirefox ? browser : chrome;
     const contextMenuAPI = isFirefox ? browserAPI.menus : browserAPI.contextMenus;
+    let supportsManagedPolicies = true;
 
     // Import necessary scripts for functionality
     try {
@@ -40,8 +41,8 @@
     const validProtocols = ['http:', 'https:'];
 
     // Function to handle navigation checks.
-    const handleNavigation = (navigationDetails) => {
-        Settings.get((settings) => {
+    const handleNavigation = navigationDetails => {
+        Settings.get(settings => {
             // Retrieve settings to check if protection is enabled.
             if (!settings.smartScreenEnabled
                 && !settings.symantecEnabled
@@ -170,7 +171,7 @@
                     && resultType !== ProtectionResult.ResultType.ALLOWED) {
                     malicious = true;
 
-                    browserAPI.tabs.get(tabId, (tab) => {
+                    browserAPI.tabs.get(tabId, tab => {
                         if (!tab) {
                             console.debug(`tabs.get(${tabId}) failed '${browserAPI.runtime.lastError?.message}'; bailing out.`);
                             return;
@@ -208,7 +209,7 @@
                                 const notificationId = `warning-` + randomNumber;
 
                                 // Display the warning notification
-                                browserAPI.notifications.create(notificationId, notificationOptions, (notificationId) => {
+                                browserAPI.notifications.create(notificationId, notificationOptions, notificationId => {
                                     console.debug(`Notification created with ID: ${notificationId}`);
                                 });
                             }
@@ -222,13 +223,13 @@
     };
 
     // Listener for onBeforeNavigate events.
-    browserAPI.webNavigation.onBeforeNavigate.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onBeforeNavigate.addListener(navigationDetails => {
         console.debug(`[onBeforeNavigate] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onCommitted events.
-    browserAPI.webNavigation.onCommitted.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onCommitted.addListener(navigationDetails => {
         if (navigationDetails.transitionQualifiers.includes("server_redirect")) {
             console.debug(`[server_redirect] ${navigationDetails.url}`);
             handleNavigation(navigationDetails);
@@ -239,25 +240,25 @@
     });
 
     // // Listener for onCreatedNavigationTarget events.
-    // browserAPI.webNavigation.onCreatedNavigationTarget.addListener((navigationDetails) => {
+    // browserAPI.webNavigation.onCreatedNavigationTarget.addListener(navigationDetails => {
     //     console.debug(`[onCreatedNavigationTarget] ${navigationDetails.url}`);
     //     handleNavigation(navigationDetails);
     // });
 
     // Listener for onHistoryStateUpdated events.
-    browserAPI.webNavigation.onHistoryStateUpdated.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onHistoryStateUpdated.addListener(navigationDetails => {
         console.debug(`[onHistoryStateUpdated] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onReferenceFragmentUpdated events.
-    browserAPI.webNavigation.onReferenceFragmentUpdated.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onReferenceFragmentUpdated.addListener(navigationDetails => {
         console.debug(`[onReferenceFragmentUpdated] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onTabReplaced events.
-    browserAPI.webNavigation.onTabReplaced.addListener((navigationDetails) => {
+    browserAPI.webNavigation.onTabReplaced.addListener(navigationDetails => {
         console.debug(`[onTabReplaced] ${navigationDetails.url}`);
         handleNavigation(navigationDetails);
     });
@@ -510,8 +511,9 @@
             'LockProtectionOptions'
         ];
 
-        browserAPI.storage.managed.get(policyKeys, (policies) => {
+        browserAPI.storage.managed.get(policyKeys, policies => {
             if (typeof policies === 'undefined') {
+                supportsManagedPolicies = false;
                 console.warn("Managed policies are not supported or setup correctly in this browser.");
                 console.debug("Creating context menu (undefined managed)...");
                 createContextMenu();
@@ -581,7 +583,7 @@
     });
 
     // Listener for context menu creation.
-    contextMenuAPI.onClicked.addListener((info) => {
+    contextMenuAPI.onClicked.addListener(info => {
         switch (info.menuItemId) {
             case "toggleNotifications":
                 Settings.set({notificationsEnabled: info.checked});
@@ -609,7 +611,7 @@
                 const randomNumber = Math.floor(Math.random() * 100000000);
                 const notificationId = `cache-cleared-${randomNumber}`;
 
-                browserAPI.notifications.create(notificationId, notificationOptions, (id) => {
+                browserAPI.notifications.create(notificationId, notificationOptions, id => {
                     console.debug(`Notification created with ID: ${id}`);
                 });
                 break;
@@ -621,7 +623,7 @@
 
     // Create the context menu with the current state.
     function createContextMenu() {
-        Settings.get((settings) => {
+        Settings.get(settings => {
             // First remove existing menu items to avoid duplicates.
             console.debug("Removing all context menu items...");
             contextMenuAPI.removeAll();
@@ -654,6 +656,12 @@
                 contexts: ["action"],
             });
 
+            // Check if managed policies are supported in the browser.
+            if (!supportsManagedPolicies) {
+                console.debug("Managed policies are not supported in this browser.");
+                return;
+            }
+
             // Gather the policy values for updating the context menu.
             const policyKeys = [
                 "DisableNotifications",
@@ -661,14 +669,7 @@
                 "IgnoreFrameNavigation"
             ];
 
-            // Check if managed policies are supported in the browser.
-            if (typeof browserAPI.storage.managed === "undefined"
-                || typeof browserAPI.storage.managed.get(policyKeys) === "undefined") {
-                console.debug("Managed policies are not supported in this browser.");
-                return;
-            }
-
-            browserAPI.storage.managed.get(policyKeys, (policies) => {
+            browserAPI.storage.managed.get(policyKeys, policies => {
                 let updatedSettings = {};
 
                 // Check if the enable notifications button should be disabled.
