@@ -518,6 +518,9 @@
                 console.debug("Creating context menu... (managed policies unsupported)");
                 createContextMenu();
                 return;
+            } else {
+                supportsManagedPolicies = true;
+                console.debug("Managed policies are supported.");
             }
 
             let settings = {};
@@ -538,10 +541,6 @@
                     settings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
                     console.debug("Ignoring frame navigation is managed by system policy.");
                 }
-            } else {
-                // If the context menu isn’t disabled, create it.
-                console.debug("Creating context menu... (managed policies supported)");
-                createContextMenu();
             }
 
             // Check and set the cache expiration time using the policy.
@@ -579,6 +578,10 @@
                     console.debug("Updated settings on install: ", settings);
                 });
             }
+
+            // Create the context menu.
+            console.debug("Creating context menu... (managed policies supported)");
+            createContextMenu();
         });
     });
 
