@@ -33,7 +33,7 @@
         );
     } catch (error) {
         // In Firefox, importScripts is not available, but scripts are loaded via background.html
-        console.log("Running in Firefox or another environment without importScripts");
+        console.debug("Running in Firefox or another environment without importScripts");
         console.debug("Error: " + error);
     }
 
@@ -656,9 +656,8 @@
                 contexts: ["action"],
             });
 
-            // Check if managed policies are supported in the browser.
+            // Returns early if managed policies are not supported.
             if (!supportsManagedPolicies) {
-                console.debug("Managed policies are not supported in this browser.");
                 return;
             }
 
