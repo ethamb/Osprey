@@ -514,8 +514,8 @@
         browserAPI.storage.managed.get(policyKeys, policies => {
             if (typeof policies === 'undefined') {
                 supportsManagedPolicies = false;
-                console.warn("Managed policies are not supported or setup correctly in this browser.");
-                console.debug("Creating context menu (undefined managed)...");
+                console.log("Managed policies are not supported or setup correctly in this browser.");
+                console.debug("Creating context menu... (managed policies unsupported)");
                 createContextMenu();
                 return;
             }
@@ -540,7 +540,7 @@
                 }
             } else {
                 // If the context menu isn’t disabled, create it.
-                console.debug("Creating context menu (defined managed)...");
+                console.debug("Creating context menu... (managed policies supported)");
                 createContextMenu();
             }
 
