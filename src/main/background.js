@@ -222,6 +222,92 @@
         });
     };
 
+    // Gather all policy keys needed for managed policies
+    const policyKeys = [
+        'DisableContextMenu',
+        'DisableNotifications',
+        'HideContinueButtons',
+        'HideReportButton',
+        'IgnoreFrameNavigation',
+        'CacheExpirationSeconds',
+        'LockProtectionOptions'
+    ];
+
+    // Creates the context menu and sets managed policies
+    browserAPI.storage.managed.get(policyKeys, policies => {
+        if (typeof policies === 'undefined') {
+            supportsManagedPolicies = false;
+            console.warn("Managed policies are not supported or setup correctly in this browser.");
+
+            // Create the context menu.
+            console.debug("Creating context menu... (managed policies unsupported)");
+            createContextMenu();
+        } else {
+            supportsManagedPolicies = true;
+            console.debug("Managed policies are supported.");
+
+            let settings = {};
+
+            // If the context menu is disabled by policy,
+            // apply the related policy settings (do not create the menu).
+            if (policies.DisableContextMenu !== undefined && policies.DisableContextMenu) {
+                console.debug("Context menu is disabled by policy.");
+
+                // Update the notifications settings using the policy
+                if (policies.DisableNotifications !== undefined) {
+                    settings.notificationsEnabled = !policies.DisableNotifications;
+                    console.debug("Notifications are managed by system policy.");
+                }
+
+                // Update the ignore frame navigation settings using the policy
+                if (policies.IgnoreFrameNavigation !== undefined) {
+                    settings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
+                    console.debug("Ignoring frame navigation is managed by system policy.");
+                }
+            }
+
+            // Check and set the cache expiration time using the policy.
+            if (policies.CacheExpirationSeconds !== undefined) {
+                if (typeof policies.CacheExpirationSeconds !== "number" || policies.CacheExpirationSeconds < 60) {
+                    console.debug("Cache expiration time is invalid; using default value.");
+                    settings.cacheExpirationSeconds = 86400;
+                } else {
+                    settings.cacheExpirationSeconds = policies.CacheExpirationSeconds;
+                    console.debug("Cache expiration time set to: " + policies.CacheExpirationSeconds);
+                }
+            }
+
+            // Check and set the continue buttons settings using the policy.
+            if (policies.HideContinueButtons !== undefined) {
+                settings.hideContinueButtons = policies.HideContinueButtons;
+                console.debug("Continue buttons are managed by system policy.");
+            }
+
+            // Check and set the report button settings using the policy.
+            if (policies.HideReportButton !== undefined) {
+                settings.hideReportButton = policies.HideReportButton;
+                console.debug("Report button is managed by system policy.");
+            }
+
+            // Check and set the lock protection options using the policy.
+            if (policies.LockProtectionOptions !== undefined) {
+                settings.lockProtectionOptions = policies.LockProtectionOptions;
+                console.debug("Protection options are managed by system policy.");
+            }
+
+            // Finally, if there are any updates, update the stored settings in one go.
+            if (Object.keys(settings).length > 0) {
+                Settings.set(settings, () => {
+                    console.debug("Updated settings on install: ", settings);
+                });
+            }
+
+            // Create the context menu.
+            console.debug("Creating context menu... (managed policies supported)");
+            createContextMenu();
+        }
+    });
+
     // Listener for onBeforeNavigate events.
     browserAPI.webNavigation.onBeforeNavigate.addListener(navigationDetails => {
         console.debug(`[onBeforeNavigate] ${navigationDetails.url}`);
@@ -496,93 +582,6 @@
                 console.debug(`Message: ${JSON.stringify(message)}`);
                 break;
         }
-    });
-
-    // When the extension is installed or updated...
-    browserAPI.runtime.onInstalled.addListener(() => {
-        // Gather all policy keys needed for onInstalled
-        const policyKeys = [
-            'DisableContextMenu',
-            'DisableNotifications',
-            'HideContinueButtons',
-            'HideReportButton',
-            'IgnoreFrameNavigation',
-            'CacheExpirationSeconds',
-            'LockProtectionOptions'
-        ];
-
-        browserAPI.storage.managed.get(policyKeys, policies => {
-            if (typeof policies === 'undefined') {
-                supportsManagedPolicies = false;
-                console.log("Managed policies are not supported or setup correctly in this browser.");
-                console.debug("Creating context menu... (managed policies unsupported)");
-                createContextMenu();
-                return;
-            } else {
-                supportsManagedPolicies = true;
-                console.debug("Managed policies are supported.");
-            }
-
-            let settings = {};
-
-            // If the context menu is disabled by policy,
-            // apply the related policy settings (do not create the menu).
-            if (policies.DisableContextMenu !== undefined && policies.DisableContextMenu) {
-                console.debug("Context menu is disabled by policy.");
-
-                // Update the notifications settings using the policy
-                if (policies.DisableNotifications !== undefined) {
-                    settings.notificationsEnabled = !policies.DisableNotifications;
-                    console.debug("Notifications are managed by system policy.");
-                }
-
-                // Update the ignore frame navigation settings using the policy
-                if (policies.IgnoreFrameNavigation !== undefined) {
-                    settings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
-                    console.debug("Ignoring frame navigation is managed by system policy.");
-                }
-            }
-
-            // Check and set the cache expiration time using the policy.
-            if (policies.CacheExpirationSeconds !== undefined) {
-                if (typeof policies.CacheExpirationSeconds !== "number" || policies.CacheExpirationSeconds < 60) {
-                    console.debug("Cache expiration time is invalid; using default value.");
-                    settings.cacheExpirationSeconds = 86400;
-                } else {
-                    settings.cacheExpirationSeconds = policies.CacheExpirationSeconds;
-                    console.debug("Cache expiration time set to: " + policies.CacheExpirationSeconds);
-                }
-            }
-
-            // Check and set the continue buttons settings using the policy.
-            if (policies.HideContinueButtons !== undefined) {
-                settings.hideContinueButtons = policies.HideContinueButtons;
-                console.debug("Continue buttons are managed by system policy.");
-            }
-
-            // Check and set the report button settings using the policy.
-            if (policies.HideReportButton !== undefined) {
-                settings.hideReportButton = policies.HideReportButton;
-                console.debug("Report button is managed by system policy.");
-            }
-
-            // Check and set the lock protection options using the policy.
-            if (policies.LockProtectionOptions !== undefined) {
-                settings.lockProtectionOptions = policies.LockProtectionOptions;
-                console.debug("Protection options are managed by system policy.");
-            }
-
-            // Finally, if there are any updates, update the stored settings in one go.
-            if (Object.keys(settings).length > 0) {
-                Settings.set(settings, () => {
-                    console.debug("Updated settings on install: ", settings);
-                });
-            }
-
-            // Create the context menu.
-            console.debug("Creating context menu... (managed policies supported)");
-            createContextMenu();
-        });
     });
 
     // Listener for context menu creation.
