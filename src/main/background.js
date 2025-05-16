@@ -237,14 +237,10 @@
     browserAPI.storage.managed.get(policyKeys, policies => {
         if (typeof policies === 'undefined') {
             supportsManagedPolicies = false;
-            console.warn("Managed policies are not supported or setup correctly in this browser.");
-
-            // Create the context menu.
-            console.debug("Creating context menu... (managed policies unsupported)");
-            createContextMenu();
+            console.debug("Managed policies are not supported or setup correctly in this browser.");
         } else {
             supportsManagedPolicies = true;
-            console.debug("Managed policies are supported.");
+            console.debug("Managed policies are supported in this browser.");
 
             let settings = {};
 
@@ -301,11 +297,11 @@
                     console.debug("Updated settings on install: ", settings);
                 });
             }
-
-            // Create the context menu.
-            console.debug("Creating context menu... (managed policies supported)");
-            createContextMenu();
         }
+
+        // Create the context menu.
+        console.debug("Creating context menu...");
+        createContextMenu();
     });
 
     // Listener for onBeforeNavigate events.
