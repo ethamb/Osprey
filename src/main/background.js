@@ -513,6 +513,7 @@
         browserAPI.storage.managed.get(policyKeys, (policies) => {
             if (typeof policies === 'undefined') {
                 console.warn("Managed policies are not supported or setup correctly in this browser.");
+                console.debug("Creating context menu (undefined managed)...");
                 createContextMenu();
                 return;
             }
@@ -521,7 +522,7 @@
 
             // If the context menu is disabled by policy,
             // apply the related policy settings (do not create the menu).
-            if (policies.DisableContextMenu) {
+            if (policies.DisableContextMenu !== undefined && policies.DisableContextMenu) {
                 console.debug("Context menu is disabled by policy.");
 
                 // Update the notifications settings using the policy
@@ -537,6 +538,7 @@
                 }
             } else {
                 // If the context menu isn’t disabled, create it.
+                console.debug("Creating context menu (defined managed)...");
                 createContextMenu();
             }
 
@@ -621,87 +623,91 @@
     function createContextMenu() {
         Settings.get((settings) => {
             // First remove existing menu items to avoid duplicates.
-            contextMenuAPI.removeAll(() => {
-                // Create the toggle notifications menu item
-                contextMenuAPI.create({
-                    id: "toggleNotifications",
-                    title: "Enable notifications",
-                    type: "checkbox",
-                    checked: settings.notificationsEnabled,
-                    contexts: ["action"],
-                });
+            console.debug("Removing all context menu items...");
+            contextMenuAPI.removeAll();
 
-                // Create the toggle frame navigation menu item
-                contextMenuAPI.create({
-                    id: "toggleFrameNavigation",
-                    title: "Ignore frame navigation",
-                    type: "checkbox",
-                    checked: settings.ignoreFrameNavigation,
-                    contexts: ["action"],
-                });
+            // Create the toggle notifications menu item
+            console.debug("Creating toggleNotifications with value: " + settings.notificationsEnabled);
+            contextMenuAPI.create({
+                id: "toggleNotifications",
+                title: "Enable notifications",
+                type: "checkbox",
+                checked: settings.notificationsEnabled,
+                contexts: ["action"],
+            });
 
-                // Create the clear allowed sites menu item
-                contextMenuAPI.create({
-                    id: "clearAllowedSites",
-                    title: "Clear list of allowed sites",
-                    contexts: ["action"],
-                });
+            // Create the toggle frame navigation menu item
+            console.debug("Creating ignoreFrameNavigation with value: " + settings.ignoreFrameNavigation);
+            contextMenuAPI.create({
+                id: "toggleFrameNavigation",
+                title: "Ignore frame navigation",
+                type: "checkbox",
+                checked: settings.ignoreFrameNavigation,
+                contexts: ["action"],
+            });
 
-                // Gather the policy values for updating the context menu.
-                const policyKeys = [
-                    "DisableNotifications",
-                    "DisableClearAllowedSites",
-                    "IgnoreFrameNavigation"
-                ];
+            // Create the clear allowed sites menu item
+            console.debug("Creating clearAllowedSites with value: none");
+            contextMenuAPI.create({
+                id: "clearAllowedSites",
+                title: "Clear list of allowed sites",
+                contexts: ["action"],
+            });
 
-                // Check if managed policies are supported in the browser.
-                if (typeof browserAPI.storage.managed === "undefined"
-                    || typeof browserAPI.storage.managed.get(policyKeys) === "undefined") {
-                    console.debug("Managed policies are not supported in this browser.");
-                    return;
+            // Gather the policy values for updating the context menu.
+            const policyKeys = [
+                "DisableNotifications",
+                "DisableClearAllowedSites",
+                "IgnoreFrameNavigation"
+            ];
+
+            // Check if managed policies are supported in the browser.
+            if (typeof browserAPI.storage.managed === "undefined"
+                || typeof browserAPI.storage.managed.get(policyKeys) === "undefined") {
+                console.debug("Managed policies are not supported in this browser.");
+                return;
+            }
+
+            browserAPI.storage.managed.get(policyKeys, (policies) => {
+                let updatedSettings = {};
+
+                // Check if the enable notifications button should be disabled.
+                if (policies.DisableNotifications !== undefined) {
+                    contextMenuAPI.update("toggleNotifications", {
+                        enabled: false,
+                        checked: !policies.DisableNotifications,
+                    });
+
+                    updatedSettings.notificationsEnabled = !policies.DisableNotifications;
+                    console.debug("Notifications are managed by system policy.");
                 }
 
-                browserAPI.storage.managed.get(policyKeys, (policies) => {
-                    let updatedSettings = {};
+                // Check if the ignore frame navigation button should be disabled.
+                if (policies.IgnoreFrameNavigation !== undefined) {
+                    contextMenuAPI.update("toggleFrameNavigation", {
+                        enabled: false,
+                        checked: policies.IgnoreFrameNavigation,
+                    });
 
-                    // Check if the enable notifications button should be disabled.
-                    if (policies.DisableNotifications !== undefined) {
-                        contextMenuAPI.update("toggleNotifications", {
-                            enabled: false,
-                            checked: !policies.DisableNotifications,
-                        });
+                    updatedSettings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
+                    console.debug("Ignoring frame navigation is managed by system policy.");
+                }
 
-                        updatedSettings.notificationsEnabled = !policies.DisableNotifications;
-                        console.debug("Notifications are managed by system policy.");
-                    }
+                // Check if the clear allowed sites button should be disabled.
+                if (policies.DisableClearAllowedSites !== undefined && policies.DisableClearAllowedSites) {
+                    contextMenuAPI.update("clearAllowedSites", {
+                        enabled: false,
+                    });
 
-                    // Check if the ignore frame navigation button should be disabled.
-                    if (policies.IgnoreFrameNavigation !== undefined) {
-                        contextMenuAPI.update("toggleFrameNavigation", {
-                            enabled: false,
-                            checked: policies.IgnoreFrameNavigation,
-                        });
+                    console.debug("Clear allowed sites button is managed by system policy.");
+                }
 
-                        updatedSettings.ignoreFrameNavigation = policies.IgnoreFrameNavigation;
-                        console.debug("Ignoring frame navigation is managed by system policy.");
-                    }
-
-                    // Check if the clear allowed sites button should be disabled.
-                    if (policies.DisableClearAllowedSites !== undefined && policies.DisableClearAllowedSites) {
-                        contextMenuAPI.update("clearAllowedSites", {
-                            enabled: false,
-                        });
-
-                        console.debug("Clear allowed sites button is managed by system policy.");
-                    }
-
-                    // Update settings cumulatively if any policy-based changes were made.
-                    if (Object.keys(updatedSettings).length > 0) {
-                        Settings.set(updatedSettings, () => {
-                            console.debug("Updated settings from context menu creation:", updatedSettings);
-                        });
-                    }
-                });
+                // Update settings cumulatively if any policy-based changes were made.
+                if (Object.keys(updatedSettings).length > 0) {
+                    Settings.set(updatedSettings, () => {
+                        console.debug("Updated settings from context menu creation:", updatedSettings);
+                    });
+                }
             });
         });
     }
