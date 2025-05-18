@@ -68,7 +68,7 @@ The following providers are **enabled** by default:
 The following providers are **disabled** by default:
 
 - [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
-- [MalwareURL Protection](https://malwareurl.com)
+- [MalwareURL Protection](https://www.malwareurl.com)
 - [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
