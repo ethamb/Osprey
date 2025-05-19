@@ -18,7 +18,7 @@
 
 ## Detections
 
-**Osprey** blocks websites that are classified as:
+Osprey blocks websites that are classified as:
 
 - [Malicious](https://us.norton.com/blog/malware/what-are-malicious-websites)
 - [Phishing](https://f-secure.com/us-en/articles/what-is-phishing)
@@ -32,14 +32,14 @@
 
 ## Warning
 
-If the website is malicious, **Osprey** will block the page and display a warning:
+If the website is malicious, Osprey will block the page and display a warning:
 
 ![Osprey Warning](https://i.imgur.com/eu7BFrH.png)
 
 From this page, you can report the website as safe, temporarily allow the website, go back to safety, and continue
 anyway. By default, Osprey creates a browser notification for blocked pages that
 [you can toggle on and off](https://github.com/Foulest/Osprey/wiki/Toggling-Notifications) using the context menu.
-You can hide the continue buttons, report button, lock down the protection options, and even hide the context menu
+You can hide the continue and report buttons, lock down the protection options, and even hide the context menu
 entirely using [the system policies](https://github.com/Foulest/Osprey/wiki/Setting-Up-System-Policies).
 
 ## Settings
@@ -80,7 +80,7 @@ how they classify URLs.
 
 ## Privacy
 
-**Osprey** strips down each URL of tracking parameters before sending it to any APIs.
+Osprey strips down each URL of tracking parameters before sending it to any APIs.
 
 For example:
 
@@ -102,7 +102,7 @@ about URL page privacy, the DNS APIs are there for you.
 
 ## Installation
 
-You can install **Osprey** from the web stores listed at the top.
+You can install Osprey from the web stores listed at the top.
 
 For other installations, you can install the extension manually:
 
@@ -117,6 +117,8 @@ For other installations, you can install the extension manually:
 6. Select the downloaded ZIP file and click `Select Folder`.
 
 ### Firefox
+
+*(Developer Edition only - [click here for more information](https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox#w_what-are-my-options-if-i-want-to-use-an-unsigned-add-on-advanced-users))*
 
 1. Navigate to the [Actions section](https://github.com/Foulest/Osprey/actions/workflows) and click
    `Compile for Firefox`.
