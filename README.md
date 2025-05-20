@@ -118,7 +118,7 @@ For other installations, you can install the extension manually:
 
 ### Firefox
 
-*(Developer Edition only - [click here for more information](https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox#w_what-are-my-options-if-i-want-to-use-an-unsigned-add-on-advanced-users))*
+> Note: This only works for [builds of Firefox that allow unsigned addons.](https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox#w_what-are-my-options-if-i-want-to-use-an-unsigned-add-on-advanced-users)
 
 1. Navigate to the [Actions section](https://github.com/Foulest/Osprey/actions/workflows) and click
    `Compile for Firefox`.
