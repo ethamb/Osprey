@@ -59,7 +59,6 @@ The following providers are **enabled** by default:
 - [Norton SafeWeb](https://safeweb.norton.com)
 - [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
 - [Quad9 Security DNS](https://quad9.net)
-- [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
 - [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
 - [Switch.ch Security DNS](https://switch.ch/en/dns-firewall)
 - [CERT-EE Security DNS](https://ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
@@ -72,6 +71,7 @@ The following providers are **disabled** by default:
 - [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
 - [DNS0.eu Security DNS](https://dns0.eu/zero)
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
+- [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
 
 Providers disabled by default are due to frequent reports of false positives. If a provider gives you false positives,
 report the links to them directly and disable them in the settings panel. Osprey is designed to be customizable, so you
@@ -128,7 +128,7 @@ For other installations, you can install the extension manually:
 5. Click the gear icon and select `Install Add-on From File`.
 6. Select the downloaded ZIP file and click `Select Folder`.
 
-**Osprey** should now be installed in your browser.
+Osprey should now be installed in your browser.
 
 ## Getting Help
 

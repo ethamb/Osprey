@@ -47,6 +47,86 @@
       "minimum": 60,
       "maximum": 2592000,
       "default": 86400
+    },
+    "SmartScreenEnabled": {
+      "title": "SmartScreen Enabled",
+      "description": "If set to true, Microsoft will be enabled.",
+      "type": "boolean"
+    },
+    "SymantecEnabled": {
+      "title": "Symantec Enabled",
+      "description": "If set to true, Symantec will be enabled.",
+      "type": "boolean"
+    },
+    "EmsisoftEnabled": {
+      "title": "Emsisoft Enabled",
+      "description": "If set to true, Emsisoft will be enabled.",
+      "type": "boolean"
+    },
+    "BitdefenderEnabled": {
+      "title": "Bitdefender Enabled",
+      "description": "If set to true, Bitdefender will be enabled.",
+      "type": "boolean"
+    },
+    "NortonEnabled": {
+      "title": "Norton Enabled",
+      "description": "If set to true, Norton will be enabled.",
+      "type": "boolean"
+    },
+    "GDATAEnabled": {
+      "title": "G DATA Enabled",
+      "description": "If set to true, G DATA will be enabled.",
+      "type": "boolean"
+    },
+    "MalwareURLEnabled": {
+      "title": "MalwareURL Enabled",
+      "description": "If set to true, MalwareURL will be enabled.",
+      "type": "boolean"
+    },
+    "CloudflareEnabled": {
+      "title": "Cloudflare Enabled",
+      "description": "If set to true, Cloudflare will be enabled.",
+      "type": "boolean"
+    },
+    "Quad9Enabled": {
+      "title": "Quad9 Enabled",
+      "description": "If set to true, Quad9 will be enabled.",
+      "type": "boolean"
+    },
+    "DNS0Enabled": {
+      "title": "DNS0 Enabled",
+      "description": "If set to true, DNS0 will be enabled.",
+      "type": "boolean"
+    },
+    "CleanBrowsingEnabled": {
+      "title": "CleanBrowsing Enabled",
+      "description": "If set to true, CleanBrowsing will be enabled.",
+      "type": "boolean"
+    },
+    "CIRAEnabled": {
+      "title": "CIRA Enabled",
+      "description": "If set to true, CIRA will be enabled.",
+      "type": "boolean"
+    },
+    "AdGuardEnabled": {
+      "title": "AdGuard Enabled",
+      "description": "If set to true, AdGuard will be enabled.",
+      "type": "boolean"
+    },
+    "SwitchCHEnabled": {
+      "title": "Switch.ch Enabled",
+      "description": "If set to true, Switch.ch will be enabled.",
+      "type": "boolean"
+    },
+    "CERTEEEnabled": {
+      "title": "CERT-EE Enabled",
+      "description": "If set to true, CERT-EE will be enabled.",
+      "type": "boolean"
+    },
+    "ControlDEnabled": {
+      "title": "Control D Enabled",
+      "description": "If set to true, Control D will be enabled.",
+      "type": "boolean"
     }
   }
 }

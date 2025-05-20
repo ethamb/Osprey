@@ -27,16 +27,15 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
         domElements.reason.innerText = result;
 
-        // Extract the malicious & continue-to-site URLs from the current page URL
-        const maliciousUrl = UrlHelpers.extractMaliciousUrl(pageUrl);
-        const continueUrl = UrlHelpers.extractContinueUrl(pageUrl);
+        // Extract the blocked URL from the current page URL
+        const blockedUrl = UrlHelpers.extractBlockedUrl(pageUrl);
 
         // Encode the URLs for safe use in other contexts
-        const encodedMaliciousUrl = encodeURIComponent(maliciousUrl);
+        const encodedBlockedUrl = encodeURIComponent(blockedUrl);
         const encodedResult = encodeURIComponent(result);
 
         // Set the URL text to the current page URL
-        domElements.url.innerText = maliciousUrl;
+        domElements.url.innerText = blockedUrl;
 
         // Get origin information
         const origin = UrlHelpers.extractOrigin(pageUrl);
@@ -50,17 +49,17 @@ window.WarningSingleton = window.WarningSingleton || (function () {
         const getReportUrl = () => {
             switch (originInt) {
                 case ProtectionResult.ResultOrigin.MICROSOFT:
-                    return new URL("https://feedback.smartscreen.microsoft.com/feedback.aspx?t=16&url=" + maliciousUrl);
+                    return new URL("https://feedback.smartscreen.microsoft.com/feedback.aspx?t=16&url=" + blockedUrl);
 
                 case ProtectionResult.ResultOrigin.SYMANTEC:
-                    return new URL("https://sitereview.symantec.com/sitereview.jsp?referrer=sedsbp&url=" + encodedMaliciousUrl);
+                    return new URL("https://sitereview.symantec.com/sitereview.jsp?referrer=sedsbp&url=" + encodedBlockedUrl);
 
                 case ProtectionResult.ResultOrigin.EMSISOFT:
                     // Verified working as of: May 1, 2025
                     return new URL("mailto:fp@emsisoft.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20Emsisoft%20Browser%20Security"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
@@ -68,7 +67,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("https://bitdefender.com/consumer/support/answer/29358/#scroll-to-heading-2");
 
                 case ProtectionResult.ResultOrigin.NORTON:
-                    return new URL("https://safeweb.norton.com/report?url=" + encodedMaliciousUrl);
+                    return new URL("https://safeweb.norton.com/report?url=" + encodedBlockedUrl);
 
                 case ProtectionResult.ResultOrigin.G_DATA:
                     // Old URL: "https://submit.gdatasoftware.com/privacy"
@@ -76,7 +75,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("mailto:support-us@gdata-software.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20G%20DATA%20WebProtection"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
@@ -85,12 +84,12 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("mailto:team@malwareurl.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20MalwareURL%20Extension"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
                 case ProtectionResult.ResultOrigin.CLOUDFLARE:
-                    return new URL("https://radar.cloudflare.com/domains/feedback/" + encodedMaliciousUrl);
+                    return new URL("https://radar.cloudflare.com/domains/feedback/" + encodedBlockedUrl);
 
                 case ProtectionResult.ResultOrigin.QUAD9:
                     // Old URL: "https://quad9.net/support/contact"
@@ -98,28 +97,26 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("mailto:support@quad9.net?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20Quad9%20DNS"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
                 case ProtectionResult.ResultOrigin.DNS0:
-                    // Old URL: "https://dns0.eu/report"
                     // Alternate email: report@dns0.eu
                     // TODO: Needs verification of response from support team.
                     return new URL("mailto:contact@dns0.eu?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20DNS0%20ZERO%20DNS"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
                 case ProtectionResult.ResultOrigin.CLEANBROWSING:
-                    // Old URL: "https://categorify.org/recategorize?website=" + encodedMaliciousUrl
                     // Verified working as of: May 12, 2025
                     return new URL("mailto:support@cleanbrowsing.org?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20CleanBrowsing%20Security%20Filter"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
@@ -128,7 +125,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("mailto:info@cira.ca?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20CIRA%20Canadian%20Shield%20DNS"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
@@ -137,7 +134,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("mailto:support@adguard.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20AdGuard%20DNS"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
@@ -146,7 +143,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("mailto:info@switch.ch?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20Switch.ch%20DNS"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
@@ -155,7 +152,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("mailto:ria@ria.ee?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20CERT-EE%20DNS"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
@@ -164,7 +161,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                     return new URL("mailto:hello@controld.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20Control%20D%20DNS"
-                        + "%0AURL%3A%20" + encodedMaliciousUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
                         + "%0ADetected%20as%3A%20" + encodedResult
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
@@ -179,7 +176,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                 // Convert URL objects to strings before sending
                 const message = {
                     messageType,
-                    maliciousUrl: maliciousUrl instanceof URL ? maliciousUrl.toString() : maliciousUrl,
+                    blockedUrl: blockedUrl instanceof URL ? blockedUrl.toString() : blockedUrl,
                     origin: origin instanceof URL ? origin.toString() : origin,
                     ...additionalData
                 };
@@ -211,7 +208,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
             domElements.allowSite.addEventListener("click", async () => {
                 if (!settings.hideContinueButtons) {
                     await sendMessage(Messages.MessageType.ALLOW_SITE, {
-                        continueUrl
+                        blockedUrl: blockedUrl
                     });
                 }
             });
@@ -219,7 +216,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
             // Add event listener to "Back to safety" button
             domElements.homepageButton.addEventListener("click", async () => {
                 await sendMessage(Messages.MessageType.CONTINUE_TO_SAFETY, {
-                    hostUrl: continueUrl
+                    blockedUrl: blockedUrl
                 });
             });
 
@@ -227,7 +224,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
             domElements.continueButton.addEventListener("click", async () => {
                 if (!settings.hideContinueButtons) {
                     await sendMessage(Messages.MessageType.CONTINUE_TO_SITE, {
-                        continueUrl
+                        blockedUrl: blockedUrl
                     });
                 }
             });

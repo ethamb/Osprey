@@ -17,7 +17,7 @@ const Settings = (function () {
         quad9Enabled: true, // Default state for Quad9
         dns0Enabled: false, // Default state for DNS0
         cleanBrowsingEnabled: false, // Default state for CleanBrowsing
-        ciraEnabled: true, // Default state for CIRA
+        ciraEnabled: false, // Default state for CIRA
         adGuardEnabled: true, // Default state for AdGuard
         switchCHEnabled: true, // Default state for Switch.ch
         certEEEnabled: true, // Default state for CERT-EE

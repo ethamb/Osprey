@@ -61,7 +61,7 @@
                 && !settings.certEEEnabled
                 && !settings.controlDEnabled
             ) {
-                console.warn("Protection is disabled; bailing out early.");
+                console.debug("Protection is disabled; bailing out early.");
                 return;
             }
 
@@ -159,6 +159,7 @@
                 const systemName = ProtectionResult.ResultOriginNames[result.origin];
                 const resultType = result.result;
 
+                // Returns early if the result is already known as malicious.
                 if (malicious) {
                     BrowserProtection.abandonPendingRequests(tabId, "Malicious navigation already detected.");
                     return;
@@ -190,7 +191,7 @@
 
                         if (targetUrl) {
                             // Navigate to the block page
-                            const blockPageUrl = UrlHelpers.getBlockPageUrl(pendingUrl, result);
+                            const blockPageUrl = UrlHelpers.getBlockPageUrl(result);
                             console.debug(`[${systemName}] Navigating to block page: ${blockPageUrl}.`);
                             browserAPI.tabs.update(tab.id, {url: blockPageUrl});
 
@@ -230,7 +231,23 @@
         'HideReportButton',
         'IgnoreFrameNavigation',
         'CacheExpirationSeconds',
-        'LockProtectionOptions'
+        'LockProtectionOptions',
+        'SmartScreenEnabled',
+        'SymantecEnabled',
+        'EmsisoftEnabled',
+        'BitdefenderEnabled',
+        'NortonEnabled',
+        'GDATAEnabled',
+        'MalwareURLEnabled',
+        'CloudflareEnabled',
+        'Quad9Enabled',
+        'DNS0Enabled',
+        'CleanBrowsingEnabled',
+        'CIRAEnabled',
+        'AdGuardEnabled',
+        'SwitchCHEnabled',
+        'CERTEEEnabled',
+        'ControlDEnabled'
     ];
 
     // Creates the context menu and sets managed policies
@@ -289,6 +306,102 @@
             if (policies.LockProtectionOptions !== undefined) {
                 settings.lockProtectionOptions = policies.LockProtectionOptions;
                 console.debug("Protection options are managed by system policy.");
+            }
+
+            // Check and set the SmartScreen settings using the policy.
+            if (policies.SmartScreenEnabled !== undefined) {
+                settings.smartScreenEnabled = policies.SmartScreenEnabled;
+                console.debug("SmartScreen is managed by system policy.");
+            }
+
+            // Check and set the Symantec settings using the policy.
+            if (policies.SymantecEnabled !== undefined) {
+                settings.symantecEnabled = policies.SymantecEnabled;
+                console.debug("Symantec is managed by system policy.");
+            }
+
+            // Check and set the Emsisoft settings using the policy.
+            if (policies.EmsisoftEnabled !== undefined) {
+                settings.emsisoftEnabled = policies.EmsisoftEnabled;
+                console.debug("Emsisoft is managed by system policy.");
+            }
+
+            // Check and set the Bitdefender settings using the policy.
+            if (policies.BitdefenderEnabled !== undefined) {
+                settings.bitdefenderEnabled = policies.BitdefenderEnabled;
+                console.debug("Bitdefender is managed by system policy.");
+            }
+
+            // Check and set the Norton settings using the policy.
+            if (policies.NortonEnabled !== undefined) {
+                settings.nortonEnabled = policies.NortonEnabled;
+                console.debug("Norton is managed by system policy.");
+            }
+
+            // Check and set the G DATA settings using the policy.
+            if (policies.GDATAEnabled !== undefined) {
+                settings.gDataEnabled = policies.GDATAEnabled;
+                console.debug("G DATA is managed by system policy.");
+            }
+
+            // Check and set the MalwareURL settings using the policy.
+            if (policies.MalwareURLEnabled !== undefined) {
+                settings.malwareURLEnabled = policies.MalwareURLEnabled;
+                console.debug("MalwareURL is managed by system policy.");
+            }
+
+            // Check and set the Cloudflare settings using the policy.
+            if (policies.CloudflareEnabled !== undefined) {
+                settings.cloudflareEnabled = policies.CloudflareEnabled;
+                console.debug("Cloudflare is managed by system policy.");
+            }
+
+            // Check and set the Quad9 settings using the policy.
+            if (policies.Quad9Enabled !== undefined) {
+                settings.quad9Enabled = policies.Quad9Enabled;
+                console.debug("Quad9 is managed by system policy.");
+            }
+
+            // Check and set the DNS0 settings using the policy.
+            if (policies.DNS0Enabled !== undefined) {
+                settings.dns0Enabled = policies.DNS0Enabled;
+                console.debug("DNS0 is managed by system policy.");
+            }
+
+            // Check and set the CleanBrowsing settings using the policy.
+            if (policies.CleanBrowsingEnabled !== undefined) {
+                settings.cleanBrowsingEnabled = policies.CleanBrowsingEnabled;
+                console.debug("CleanBrowsing is managed by system policy.");
+            }
+
+            // Check and set the CIRA settings using the policy.
+            if (policies.CIRAEnabled !== undefined) {
+                settings.ciraEnabled = policies.CIRAEnabled;
+                console.debug("CIRA is managed by system policy.");
+            }
+
+            // Check and set the AdGuard settings using the policy.
+            if (policies.AdGuardEnabled !== undefined) {
+                settings.adGuardEnabled = policies.AdGuardEnabled;
+                console.debug("AdGuard is managed by system policy.");
+            }
+
+            // Check and set the Switch.ch settings using the policy.
+            if (policies.SwitchCHEnabled !== undefined) {
+                settings.switchCHEnabled = policies.SwitchCHEnabled;
+                console.debug("Switch.ch is managed by system policy.");
+            }
+
+            // Check and set the CERT-EE settings using the policy.
+            if (policies.CERTEEEnabled !== undefined) {
+                settings.certEEEnabled = policies.CERTEEEnabled;
+                console.debug("CERT-EE is managed by system policy.");
+            }
+
+            // Check and set the Control D settings using the policy.
+            if (policies.ControlDEnabled !== undefined) {
+                settings.controlDEnabled = policies.ControlDEnabled;
+                console.debug("Control D is managed by system policy.");
             }
 
             // Finally, if there are any updates, update the stored settings in one go.
@@ -354,8 +467,8 @@
 
         switch (message.messageType) {
             case Messages.MessageType.CONTINUE_TO_SITE: {
-                if (!message.continueUrl) {
-                    console.debug(`No continue URL was found; sending to new tab page.`);
+                if (!message.blockedUrl) {
+                    console.debug(`No blocked URL was found; sending to new tab page.`);
                     sendToNewTabPage(sender.tab.id);
                     return;
                 }
@@ -366,102 +479,94 @@
                     return;
                 }
 
-                let continueUrlObject = new URL(message.continueUrl);
+                let blockedUrlObject = new URL(message.blockedUrl);
 
-                // Redirects to the blocked URL if the continue URL is 'about:blank'.
-                // This fixes a strange bug in Firefox.
-                if (continueUrlObject.href === "about:blank") {
-                    console.debug(`Continue URL is 'about:blank'; sending to the blocked URL.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: message.maliciousUrl});
-                    return;
-                }
-
-                // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
-                if (!validProtocols.includes(continueUrlObject.protocol)) {
-                    console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
+                // Redirects to the new tab page if the blocked URL is not a valid HTTP(S) URL.
+                if (!validProtocols.includes(blockedUrlObject.protocol)) {
+                    console.debug(`Invalid protocol in blocked URL: ${message.blockedUrl}; sending to new tab page.`);
                     sendToNewTabPage(sender.tab.id);
                     return;
                 }
 
                 switch (message.origin) {
                     case "1":
-                        console.debug(`Added SmartScreen URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "smartScreen");
+                        console.debug(`Added SmartScreen URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "smartScreen");
                         break;
 
                     case "2":
-                        console.debug(`Added Symantec URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "symantec");
+                        console.debug(`Added Symantec URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "symantec");
                         break;
 
                     case "3":
-                        console.debug(`Added Emsisoft URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "emsisoft");
+                        console.debug(`Added Emsisoft URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "emsisoft");
                         break;
 
                     case "4":
-                        console.debug(`Added Bitdefender URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "bitdefender");
+                        console.debug(`Added Bitdefender URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "bitdefender");
                         break;
 
                     case "5":
-                        console.debug(`Added Norton URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "norton");
+                        console.debug(`Added Norton URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "norton");
                         break;
 
                     case "6":
-                        console.debug(`Added G DATA URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "gData");
+                        console.debug(`Added G DATA URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "gData");
                         break;
 
                     case "7":
-                        console.debug(`Added MalwareURL URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "malwareURL");
+                        console.debug(`Added MalwareURL URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "malwareURL");
                         break;
 
                     case "8":
-                        console.debug(`Added Cloudflare URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cloudflare");
+                        console.debug(`Added Cloudflare URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "cloudflare");
                         break;
 
                     case "9":
-                        console.debug(`Added Quad9 URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "quad9");
+                        console.debug(`Added Quad9 URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "quad9");
                         break;
 
                     case "10":
-                        console.debug(`Added DNS0 URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "dns0");
+                        console.debug(`Added DNS0 URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "dns0");
                         break;
 
                     case "11":
-                        console.debug(`Added CleanBrowsing URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cleanBrowsing");
+                        console.debug(`Added CleanBrowsing URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "cleanBrowsing");
                         break;
 
                     case "12":
-                        console.debug(`Added CIRA URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "cira");
+                        console.debug(`Added CIRA URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "cira");
                         break;
 
                     case "13":
-                        console.debug(`Added AdGuard URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "adGuard");
+                        console.debug(`Added AdGuard URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "adGuard");
                         break;
 
                     case "14":
-                        console.debug(`Added Switch.ch URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "switchCH");
+                        console.debug(`Added Switch.ch URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "switchCH");
                         break;
 
                     case "15":
-                        console.debug(`Added CERT-EE URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "certEE");
+                        console.debug(`Added CERT-EE URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "certEE");
                         break;
 
                     case "16":
-                        console.debug(`Added Control D URL to cache: ` + message.maliciousUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.maliciousUrl, "controlD");
+                        console.debug(`Added Control D URL to cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "controlD");
                         break;
 
                     default:
@@ -469,7 +574,7 @@
                         break;
                 }
 
-                browserAPI.tabs.update(sender.tab.id, {url: message.continueUrl});
+                browserAPI.tabs.update(sender.tab.id, {url: message.blockedUrl});
                 break;
             }
 
@@ -481,7 +586,7 @@
             }
 
             case Messages.MessageType.REPORT_SITE: {
-                // Ignores blank URLs.
+                // Ignores blank report URLs.
                 if (message.reportUrl === null || message.reportUrl === "") {
                     console.debug(`Report URL is blank.`);
                     break;
@@ -509,48 +614,33 @@
             }
 
             case Messages.MessageType.ALLOW_SITE: {
-                // Ignores blank URLs.
-                if (message.maliciousUrl === null || message.maliciousUrl === "") {
-                    console.debug(`Malicious URL is blank.`);
+                // Ignores blank blocked URLs.
+                if (message.blockedUrl === null || message.blockedUrl === "") {
+                    console.debug(`Blocked URL is blank.`);
                     break;
-                }
-
-                if (!message.continueUrl) {
-                    console.debug(`No continue URL was found; sending to the blocked URL.`);
-                    sendToNewTabPage(sender.tab.id);
-                    return;
                 }
 
                 if (!message.origin) {
-                    console.debug(`No origin was found; sending to the blocked URL.`);
+                    console.debug(`No origin was found; sending to the new tab page.`);
                     sendToNewTabPage(sender.tab.id);
                     break;
                 }
 
-                let continueUrlObject = new URL(message.continueUrl);
-                let hostnameUrlObject = new URL(message.maliciousUrl);
-                const hostnameString = hostnameUrlObject.hostname + " (allowed)";
+                let blockedUrl = new URL(message.blockedUrl);
+                const hostnameString = blockedUrl.hostname + " (allowed)";
 
                 // Adds the hostname to the every cache.
                 console.debug("Adding hostname to every cache: " + hostnameString);
                 BrowserProtection.cacheManager.addStringToCache(hostnameString, "all");
 
-                // Redirects to the blocked URL if the continue URL is 'about:blank'.
-                // This fixes a strange bug in Firefox.
-                if (continueUrlObject.href === "about:blank") {
-                    console.debug(`Continue URL is 'about:blank'; sending to the blocked URL.`);
-                    browserAPI.tabs.update(sender.tab.id, {url: message.maliciousUrl});
-                    return;
-                }
-
-                // Redirects to the new tab page if the continue URL is not a valid HTTP(S) URL.
-                if (!validProtocols.includes(continueUrlObject.protocol)) {
-                    console.debug(`Invalid protocol in continue URL: ${message.continueUrl}; sending to new tab page.`);
+                // Redirects to the new tab page if the blocked URL is not a valid HTTP(S) URL.
+                if (!validProtocols.includes(blockedUrl.protocol)) {
+                    console.debug(`Invalid protocol in blocked URL: ${message.blockedUrl}; sending to new tab page.`);
                     sendToNewTabPage(sender.tab.id);
                     return;
                 }
 
-                browserAPI.tabs.update(sender.tab.id, {url: message.continueUrl});
+                browserAPI.tabs.update(sender.tab.id, {url: message.blockedUrl});
                 break;
             }
 

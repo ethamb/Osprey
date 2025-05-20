@@ -1,6 +1,6 @@
 "use strict";
 
-// Manages the cache for the allowed security systems.
+// Manages the cache for the allowed protection providers.
 class CacheManager {
     constructor(storageKey = 'allowedCache', debounceDelay = 5000) {
         this.caches = {
