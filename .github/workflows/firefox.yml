@@ -28,6 +28,11 @@ jobs:
           jq 'del(.update_url)' src/main/manifest.json > src/main/manifest_temp.json
           mv src/main/manifest_temp.json src/main/manifest.json
 
+      - name: 'Remove incognito from manifest.json'
+        run: |
+          jq 'del(.incognito)' src/main/manifest.json > src/main/manifest_temp.json
+          mv src/main/manifest_temp.json src/main/manifest.json
+
       - name: 'Remove storage from manifest.json'
         run: |
             jq 'del(.storage)' src/main/manifest.json > src/main/manifest_temp.json

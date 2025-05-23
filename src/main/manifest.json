@@ -33,6 +33,7 @@
   "host_permissions": [
     "*://*/*"
   ],
+  "incognito": "split",
   "storage": {
     "managed_schema": "policies.json"
   },
