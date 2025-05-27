@@ -2,217 +2,386 @@
 
 // Manages the cache for the allowed protection providers.
 class CacheManager {
-    constructor(storageKey = 'allowedCache', debounceDelay = 5000) {
-        this.caches = {
-            smartScreen: new Map(),
-            symantec: new Map(),
-            emsisoft: new Map(),
-            bitdefender: new Map(),
-            norton: new Map(),
-            gData: new Map(),
-            malwareURL: new Map(),
-            cloudflare: new Map(),
-            quad9: new Map(),
-            dns0: new Map(),
-            cleanBrowsing: new Map(),
-            cira: new Map(),
-            adGuard: new Map(),
-            switchCH: new Map(),
-            certEE: new Map(),
-            controlD: new Map(),
-        };
+    constructor(allowedKey = 'allowedCache', processingKey = 'processingCache', debounceDelay = 5000) {
+        Settings.get(settings => {
+            this.expirationTime = settings.cacheExpirationSeconds;
+            this.allowedKey = allowedKey;
+            this.processingKey = processingKey;
+            this.debounceDelay = debounceDelay;
+            this.timeoutId = null;
 
-        this.storageKey = storageKey;
-        this.debounceDelay = debounceDelay;
-        this.timeoutId = null;
+            const providers = [
+                "smartScreen", "symantec", "emsisoft", "bitdefender",
+                "norton", "gData", "malwareURL", "cloudflare",
+                "quad9", "dns0", "cleanBrowsing", "cira",
+                "adGuard", "switchCH", "certEE", "controlD",
+            ];
 
-        // Retrieve cache from local storage when the service worker wakes up
-        Storage.getFromLocalStore(this.storageKey, storedCaches => {
-            if (storedCaches) {
-                Object.keys(this.caches).forEach(cacheName => {
-                    if (storedCaches[cacheName]) {
-                        this.caches[cacheName] = new Map(Object.entries(storedCaches[cacheName]));
+            this.allowedCaches = {};
+            this.processingCaches = {};
+
+            providers.forEach(name => {
+                this.allowedCaches[name] = new Map();
+                this.processingCaches[name] = new Map();
+            });
+
+            Storage.getFromLocalStore(this.allowedKey, stored => {
+                if (!stored) {
+                    return;
+                }
+
+                Object.keys(this.allowedCaches).forEach(name => {
+                    if (stored[name]) {
+                        this.allowedCaches[name] = new Map(Object.entries(stored[name]));
                     }
                 });
-            }
-        });
-    }
-
-    // Function to update local storage with all caches
-    updateStorage(debounced) {
-        if (debounced && !this.timeoutId) {
-            this.timeoutId = setTimeout(() => {
-                this.timeoutId = null;
-                const cacheDataToStore = {};
-
-                Object.keys(this.caches).forEach(cacheName => {
-                    cacheDataToStore[cacheName] = Object.fromEntries(this.caches[cacheName]);
-                });
-
-                Storage.setToLocalStore(this.storageKey, cacheDataToStore);
-            }, this.debounceDelay);
-        } else {
-            // Immediate update without debounce
-            const cacheDataToStore = {};
-
-            Object.keys(this.caches).forEach(cacheName => {
-                cacheDataToStore[cacheName] = Object.fromEntries(this.caches[cacheName]);
             });
 
-            Storage.setToLocalStore(this.storageKey, cacheDataToStore);
-        }
-    }
+            Storage.getFromSessionStore(this.processingKey, stored => {
+                if (!stored) {
+                    return;
+                }
 
-    // Function to clear all caches
-    clearAllCaches() {
-        Object.keys(this.caches).forEach(cacheName => {
-            this.caches[cacheName].clear();
+                Object.keys(this.processingCaches).forEach(name => {
+                    if (stored[name]) {
+                        this.processingCaches[name] = new Map(Object.entries(stored[name]));
+                    }
+                });
+            });
         });
-
-        this.updateStorage(false);
     }
 
-    // Function to check if the URL is in a specific cache and still valid
-    isUrlInCache(url, cacheName) {
-        try {
-            const normalizedUrl = this.normalizeUrl(url);
-            const cache = this.caches[cacheName];
+    updateLocalStorage(debounced) {
+        const write = () => {
+            const out = {};
 
-            if (cache && cache.has(normalizedUrl)) {
-                const expiration = cache.get(normalizedUrl);
+            Object.keys(this.allowedCaches).forEach(name => {
+                out[name] = Object.fromEntries(this.allowedCaches[name]);
+            });
 
-                if (expiration > Date.now()) {
-                    return true; // Cache is valid, URL is allowed
-                } else {
-                    cache.delete(normalizedUrl); // Cache expired, remove entry
-                    this.updateStorage(true);
-                }
+            Storage.setToLocalStore(this.allowedKey, out);
+        };
+
+        if (debounced) {
+            if (!this.timeoutId) {
+                this.timeoutId = setTimeout(() => {
+                    this.timeoutId = null;
+                    write();
+                }, this.debounceDelay);
             }
-        } catch (error) {
-            console.error(error);
-        }
-        return false; // Return false if URL is not in cache or an error occurred
-    }
-
-    // Function to check if a string is in a specific cache and still valid
-    isStringInCache(string, cacheName) {
-        try {
-            const cache = this.caches[cacheName];
-
-            if (cache && cache.has(string)) {
-                const expiration = cache.get(string);
-
-                if (expiration > Date.now()) {
-                    return true; // Cache is valid, string is allowed
-                } else {
-                    cache.delete(string); // Cache expired, remove entry
-                    this.updateStorage(true);
-                }
-            }
-        } catch (error) {
-            console.error(error);
-        }
-        return false; // Return false if string is not in cache or an error occurred
-    }
-
-    // Function to add a URL to a specific cache
-    addUrlToCache(url, cacheName) {
-        try {
-            const normalizedUrl = this.normalizeUrl(new URL(url));
-            const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() + 1); // Cache expires after 1 day
-
-            // Clean expired entries and update storage
-            if (this.cleanExpiredEntries() === 0) {
-                this.updateStorage(true);
-            }
-
-            if (cacheName === "all") {
-                // Add to all caches
-                Object.keys(this.caches).forEach(cacheName => {
-                    const cache = this.caches[cacheName];
-                    cache.set(normalizedUrl, expirationDate.getTime());
-                });
-            } else {
-                const cache = this.caches[cacheName];
-
-                // Add to specific cache
-                if (cache) {
-                    cache.set(normalizedUrl, expirationDate.getTime());
-                } else {
-                    console.warn(`Cache ${cacheName} does not exist.`);
-                }
-            }
-        } catch (error) {
-            console.error(error);
+        } else {
+            write();
         }
     }
 
-    // Function to add a string to a specific cache
-    addStringToCache(string, cacheName) {
-        try {
-            const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() + 1); // Cache expires after 1 day
+    updateSessionStorage(debounced) {
+        const write = () => {
+            const out = {};
 
-            // Clean expired entries and update storage
-            if (this.cleanExpiredEntries() === 0) {
-                this.updateStorage(true);
+            Object.keys(this.processingCaches).forEach(name => {
+                out[name] = Object.fromEntries(this.processingCaches[name]);
+            });
+
+            Storage.setToSessionStore(this.processingKey, out);
+        };
+
+        if (debounced) {
+            if (!this.timeoutId) {
+                this.timeoutId = setTimeout(() => {
+                    this.timeoutId = null;
+                    write();
+                }, this.debounceDelay);
             }
-
-            if (cacheName === "all") {
-                // Add to all caches
-                Object.keys(this.caches).forEach(cacheName => {
-                    const cache = this.caches[cacheName];
-                    cache.set(string, expirationDate.getTime());
-                });
-            } else {
-                const cache = this.caches[cacheName];
-
-                // Add to specific cache
-                if (cache) {
-                    cache.set(string, expirationDate.getTime());
-                } else {
-                    console.warn(`Cache ${cacheName} does not exist.`);
-                }
-            }
-        } catch (error) {
-            console.error(error);
+        } else {
+            write();
         }
     }
 
-    // Add a method to clean expired entries all at once
+    clearAllowedCache() {
+        Object.values(this.allowedCaches).forEach(m => m.clear());
+        this.updateLocalStorage(false);
+    }
+
+    clearProcessingCache() {
+        Object.values(this.processingCaches).forEach(m => m.clear());
+        this.updateSessionStorage(false);
+    }
+
     cleanExpiredEntries() {
         const now = Date.now();
-        let entriesRemoved = 0;
+        let removed = 0;
 
-        Object.keys(this.caches).forEach(cacheName => {
-            const cache = this.caches[cacheName];
-            const keysToDelete = [];
-
-            cache.forEach((expiration, url) => {
-                if (expiration < now) {
-                    keysToDelete.push(url);
-                    entriesRemoved++;
+        const cleanGroup = (group, onDirty) => {
+            Object.values(group).forEach(map => {
+                for (const [key, exp] of map.entries()) {
+                    if (exp < now) {
+                        map.delete(key);
+                        removed++;
+                    }
                 }
             });
 
-            keysToDelete.forEach(url => {
-                cache.delete(url);
-            });
-        });
+            if (removed > 0) {
+                onDirty(true);
+            }
+        };
 
-        if (entriesRemoved > 0) {
-            console.debug(`Removed ${entriesRemoved} expired entries from caches.`);
-            this.updateStorage(true);
-        }
-        return entriesRemoved;
+        cleanGroup(this.allowedCaches, () => this.updateLocalStorage(true));
+        cleanGroup(this.processingCaches, () => this.updateSessionStorage(true));
+        return removed;
     }
 
-    // Helper function to normalize URLs
     normalizeUrl(url) {
-        // Parse URL only if it's a string
-        const urlObj = typeof url === 'string' ? new URL(url) : url;
-        let normalizedUrl = UrlHelpers.normalizeHostname(urlObj.hostname + urlObj.pathname);
-        return normalizedUrl.endsWith("/") ? normalizedUrl.slice(0, -1) : normalizedUrl;
+        const u = typeof url === "string" ? new URL(url) : url;
+        let norm = UrlHelpers.normalizeHostname(u.hostname + u.pathname);
+        return norm.endsWith("/") ? norm.slice(0, -1) : norm;
+    }
+
+    isUrlInAllowedCache(url, name) {
+        try {
+            const key = this.normalizeUrl(url);
+            const map = this.allowedCaches[name];
+
+            if (!map) {
+                return false;
+            }
+
+            if (map.has(key)) {
+                const exp = map.get(key);
+
+                if (exp > Date.now()) {
+                    return true;
+                }
+
+                map.delete(key);
+                this.updateLocalStorage(true);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return false;
+    }
+
+    isStringInAllowedCache(str, name) {
+        try {
+            const map = this.allowedCaches[name];
+
+            if (!map) {
+                return false;
+            }
+
+            if (map.has(str)) {
+                const exp = map.get(str);
+
+                if (exp > Date.now()) {
+                    return true;
+                }
+
+                map.delete(str);
+                this.updateLocalStorage(true);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return false;
+    }
+
+    addUrlToAllowedCache(url, name) {
+        try {
+            const key = this.normalizeUrl(new URL(url));
+            const expTime = Date.now() + this.expirationTime * 1000;
+
+            if (this.cleanExpiredEntries() === 0) {
+                this.updateLocalStorage(true);
+            }
+
+            if (name === "all") {
+                Object.values(this.allowedCaches).forEach(m => m.set(key, expTime));
+            } else if (this.allowedCaches[name]) {
+                this.allowedCaches[name].set(key, expTime);
+            } else {
+                console.warn(`Cache "${name}" not found`);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    addStringToAllowedCache(str, name) {
+        try {
+            const expTime = Date.now() + this.expirationTime * 1000;
+
+            if (this.cleanExpiredEntries() === 0) {
+                this.updateLocalStorage(true);
+            }
+
+            if (name === "all") {
+                Object.values(this.allowedCaches).forEach(m => m.set(str, expTime));
+            } else if (this.allowedCaches[name]) {
+                this.allowedCaches[name].set(str, expTime);
+            } else {
+                console.warn(`Cache "${name}" not found`);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    removeUrlFromAllowedCache(url, name) {
+        try {
+            const key = this.normalizeUrl(new URL(url));
+
+            if (name === "all") {
+                Object.values(this.allowedCaches).forEach(m => m.delete(key));
+            } else if (this.allowedCaches[name]) {
+                this.allowedCaches[name].delete(key);
+            } else {
+                console.warn(`Cache "${name}" not found`);
+            }
+
+            this.updateLocalStorage(true);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    removeStringFromAllowedCache(str, name) {
+        try {
+            if (name === "all") {
+                Object.values(this.allowedCaches).forEach(m => m.delete(str));
+            } else if (this.allowedCaches[name]) {
+                this.allowedCaches[name].delete(str);
+            } else {
+                console.warn(`Cache "${name}" not found`);
+            }
+
+            this.updateLocalStorage(true);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    isUrlInProcessingCache(url, name) {
+        try {
+            const key = this.normalizeUrl(url);
+            const map = this.processingCaches[name];
+
+            if (!map) {
+                return false;
+            }
+
+            if (map.has(key)) {
+                const exp = map.get(key);
+
+                if (exp > Date.now()) {
+                    return true;
+                }
+
+                map.delete(key);
+                this.updateSessionStorage(true);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return false;
+    }
+
+    isStringInProcessingCache(str, name) {
+        try {
+            const map = this.processingCaches[name];
+
+            if (!map) {
+                return false;
+            }
+
+            if (map.has(str)) {
+                const exp = map.get(str);
+
+                if (exp > Date.now()) {
+                    return true;
+                }
+
+                map.delete(str);
+                this.updateSessionStorage(true);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return false;
+    }
+
+    addUrlToProcessingCache(url, name) {
+        try {
+            const key = this.normalizeUrl(new URL(url));
+            const expTime = Date.now() + this.expirationTime * 1000;
+
+            if (this.cleanExpiredEntries() === 0) {
+                this.updateSessionStorage(true);
+            }
+
+            if (name === "all") {
+                Object.values(this.processingCaches).forEach(m => m.set(key, expTime));
+            } else if (this.processingCaches[name]) {
+                this.processingCaches[name].set(key, expTime);
+            } else {
+                console.warn(`Processing cache "${name}" not found`);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    addStringToProcessingCache(str, name) {
+        try {
+            const expTime = Date.now() + this.expirationTime * 1000;
+
+            if (this.cleanExpiredEntries() === 0) {
+                this.updateSessionStorage(true);
+            }
+
+            if (name === "all") {
+                Object.values(this.processingCaches).forEach(m => m.set(str, expTime));
+            } else if (this.processingCaches[name]) {
+                this.processingCaches[name].set(str, expTime);
+            } else {
+                console.warn(`Processing cache "${name}" not found`);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    removeUrlFromProcessingCache(url, name) {
+        try {
+            const key = this.normalizeUrl(new URL(url));
+
+            if (name === "all") {
+                Object.values(this.processingCaches).forEach(m => m.delete(key));
+            } else if (this.processingCaches[name]) {
+                this.processingCaches[name].delete(key);
+            } else {
+                console.warn(`Processing cache "${name}" not found`);
+            }
+
+            this.updateSessionStorage(true);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    removeStringFromProcessingCache(str, name) {
+        try {
+            if (name === "all") {
+                Object.values(this.processingCaches).forEach(m => m.delete(str));
+            } else if (this.processingCaches[name]) {
+                this.processingCaches[name].delete(str);
+            } else {
+                console.warn(`Processing cache "${name}" not found`);
+            }
+
+            this.updateSessionStorage(true);
+        } catch (e) {
+            console.error(e);
+        }
     }
 }

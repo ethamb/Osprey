@@ -17,6 +17,7 @@ class ProtectionResult {
 ProtectionResult.ResultType = {
     KNOWN_SAFE: "Known Safe",
     FAILED: "Failed",
+    WAITING: "Waiting",
     ALLOWED: "Allowed",
     PHISHING: "Phishing",
     MALICIOUS: "Malicious",
@@ -67,4 +68,24 @@ ProtectionResult.ResultOriginNames = {
     14: "Switch.ch Security DNS",
     15: "CERT-EE Security DNS",
     16: "Control D Security DNS"
+};
+
+ProtectionResult.CacheOriginNames = {
+    0: "unknown",
+    1: "smartScreen",
+    2: "symantec",
+    3: "emsisoft",
+    4: "bitdefender",
+    5: "norton",
+    6: "gData",
+    7: "malwareURL",
+    8: "cloudflare",
+    9: "quad9",
+    10: "dns0",
+    11: "cleanBrowsing",
+    12: "cira",
+    13: "adGuard",
+    14: "switchCH",
+    15: "certEE",
+    16: "controlD"
 };

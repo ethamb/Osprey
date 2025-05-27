@@ -148,16 +148,20 @@
             // Set the hostname back to the URL object.
             urlObject.hostname = hostname;
 
-            // Abandon any pending requests.
-            BrowserProtection.abandonPendingRequests(tabId, "New navigation event detected.");
-
             let malicious = false;
             console.info(`Checking URL: ${currentUrl}`);
 
             // Check if the URL is malicious.
             BrowserProtection.checkIfUrlIsMalicious(tabId, currentUrl, (result, duration) => {
+                const cacheName = ProtectionResult.CacheOriginNames[result.origin];
                 const systemName = ProtectionResult.ResultOriginNames[result.origin];
                 const resultType = result.result;
+
+                // Remove the URL from the system's processing cache on every callback.
+                // Don't remove it if the result is still waiting for a response.
+                if (resultType !== ProtectionResult.ResultType.WAITING) {
+                    BrowserProtection.cacheManager.removeUrlFromProcessingCache(urlObject, cacheName);
+                }
 
                 // Returns early if the result is already known as malicious.
                 if (malicious) {
@@ -168,6 +172,7 @@
                 console.info(`[${systemName}] Result for ${currentUrl}: ${resultType} (${duration}ms)`);
 
                 if (resultType !== ProtectionResult.ResultType.FAILED
+                    && resultType !== ProtectionResult.ResultType.WAITING
                     && resultType !== ProtectionResult.ResultType.KNOWN_SAFE
                     && resultType !== ProtectionResult.ResultType.ALLOWED) {
                     malicious = true;
@@ -490,83 +495,83 @@
 
                 switch (message.origin) {
                     case "1":
-                        console.debug(`Added SmartScreen URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "smartScreen");
+                        console.debug(`Added SmartScreen URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "smartScreen");
                         break;
 
                     case "2":
-                        console.debug(`Added Symantec URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "symantec");
+                        console.debug(`Added Symantec URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "symantec");
                         break;
 
                     case "3":
-                        console.debug(`Added Emsisoft URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "emsisoft");
+                        console.debug(`Added Emsisoft URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "emsisoft");
                         break;
 
                     case "4":
-                        console.debug(`Added Bitdefender URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "bitdefender");
+                        console.debug(`Added Bitdefender URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "bitdefender");
                         break;
 
                     case "5":
-                        console.debug(`Added Norton URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "norton");
+                        console.debug(`Added Norton URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "norton");
                         break;
 
                     case "6":
-                        console.debug(`Added G DATA URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "gData");
+                        console.debug(`Added G DATA URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "gData");
                         break;
 
                     case "7":
-                        console.debug(`Added MalwareURL URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "malwareURL");
+                        console.debug(`Added MalwareURL URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "malwareURL");
                         break;
 
                     case "8":
-                        console.debug(`Added Cloudflare URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "cloudflare");
+                        console.debug(`Added Cloudflare URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cloudflare");
                         break;
 
                     case "9":
-                        console.debug(`Added Quad9 URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "quad9");
+                        console.debug(`Added Quad9 URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "quad9");
                         break;
 
                     case "10":
-                        console.debug(`Added DNS0 URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "dns0");
+                        console.debug(`Added DNS0 URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "dns0");
                         break;
 
                     case "11":
-                        console.debug(`Added CleanBrowsing URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "cleanBrowsing");
+                        console.debug(`Added CleanBrowsing URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cleanBrowsing");
                         break;
 
                     case "12":
-                        console.debug(`Added CIRA URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "cira");
+                        console.debug(`Added CIRA URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cira");
                         break;
 
                     case "13":
-                        console.debug(`Added AdGuard URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "adGuard");
+                        console.debug(`Added AdGuard URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "adGuard");
                         break;
 
                     case "14":
-                        console.debug(`Added Switch.ch URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "switchCH");
+                        console.debug(`Added Switch.ch URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "switchCH");
                         break;
 
                     case "15":
-                        console.debug(`Added CERT-EE URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "certEE");
+                        console.debug(`Added CERT-EE URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "certEE");
                         break;
 
                     case "16":
-                        console.debug(`Added Control D URL to cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToCache(message.blockedUrl, "controlD");
+                        console.debug(`Added Control D URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "controlD");
                         break;
 
                     default:
@@ -631,7 +636,7 @@
 
                 // Adds the hostname to the every cache.
                 console.debug("Adding hostname to every cache: " + hostnameString);
-                BrowserProtection.cacheManager.addStringToCache(hostnameString, "all");
+                BrowserProtection.cacheManager.addStringToAllowedCache(hostnameString, "all");
 
                 // Redirects to the new tab page if the blocked URL is not a valid HTTP(S) URL.
                 if (!validProtocols.includes(blockedUrl.protocol)) {
@@ -684,7 +689,7 @@
                 break;
 
             case "clearAllowedSites":
-                BrowserProtection.cacheManager.clearAllCaches();
+                BrowserProtection.cacheManager.clearAllowedCache();
                 console.debug("Cleared all allowed site caches.");
 
                 // Create a notification to inform the user.

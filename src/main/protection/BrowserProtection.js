@@ -88,11 +88,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "smartScreen")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "smartScreen")) {
+                    console.debug(`[SmartScreen] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "smartScreen")) {
+                    console.debug(`[SmartScreen] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "smartScreen");
 
                 // Prepare request data
                 const requestData = JSON.stringify({
@@ -145,8 +156,8 @@ const BrowserProtection = function () {
                             break;
 
                         case "Allowed":
-                            console.debug(`Added SmartScreen URL to cache: ${url}`);
-                            BrowserProtection.cacheManager.addUrlToCache(urlObject, "smartScreen");
+                            console.debug(`[SmartScreen] Added URL to allowed cache: ${url}`);
+                            BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "smartScreen");
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
                             break;
 
@@ -171,11 +182,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "symantec")) {
+                // Check if the URL is in the cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "symantec")) {
+                    console.debug(`[Symantec] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "symantec")) {
+                    console.debug(`[Symantec] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "symantec");
 
                 // Replaces the http:// and https:// with nothing
                 const trimmedUrl = url.replace(/^(http|https):\/\//, "");
@@ -249,8 +271,8 @@ const BrowserProtection = function () {
                     }
 
                     // Safe/Trusted
-                    console.debug(`Added Symantec URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "symantec");
+                    console.debug(`[Symantec] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "symantec");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Symantec: ${error}`);
@@ -268,11 +290,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "emsisoft")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "emsisoft")) {
+                    console.debug(`[Emsisoft] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "emsisoft")) {
+                    console.debug(`[Emsisoft] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "emsisoft");
 
                 const hostnameArray = EmsisoftUtil.createHostnameArray(urlHostname);
                 const stringOfHashes = EmsisoftUtil.getStringOfHashes(hostnameArray);
@@ -295,8 +328,8 @@ const BrowserProtection = function () {
 
                     // Allow if the hostname is in the bypass list
                     if (urlHostname.match(/alomar\.emsisoft\.com$/)) {
-                        console.info(`(This shouldn't happen) Added Emsisoft's own URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
+                        console.warn(`(This shouldn't happen) Added Emsisoft's own URL to allowed cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "emsisoft");
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -319,8 +352,8 @@ const BrowserProtection = function () {
                     }
 
                     // Safe/Trusted
-                    console.debug(`Added Emsisoft URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "emsisoft");
+                    console.debug(`[Emsisoft] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "emsisoft");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Emsisoft: ${error}`);
@@ -338,11 +371,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "bitdefender")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "bitdefender")) {
+                    console.debug(`[Bitdefender] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "bitdefender")) {
+                    console.debug(`[Bitdefender] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "bitdefender");
 
                 const apiUrl = "https://nimbus.bitdefender.net/url/status";
                 const payload = {url};
@@ -418,8 +462,8 @@ const BrowserProtection = function () {
 
                     // Safe/Trusted
                     if (status_message.includes("not found")) {
-                        console.debug(`Added Bitdefender URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "bitdefender");
+                        console.debug(`[Bitdefender] Added URL to allowed cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "bitdefender");
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.BITDEFENDER), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -443,11 +487,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "norton")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "norton")) {
+                    console.debug(`[Norton] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "norton")) {
+                    console.debug(`[Norton] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "norton");
 
                 const apiUrl = `https://ratings-wrs.norton.com/brief?url=${encodeURIComponent(url)}`;
 
@@ -477,8 +532,8 @@ const BrowserProtection = function () {
                         || data.includes('r="r"')
                         || data.includes('r="w"')
                         || data.includes('r="u"')) {
-                        console.debug(`Added Norton URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "norton");
+                        console.debug(`[Norton] Added URL to allowed cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "norton");
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -502,11 +557,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "gData")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "gData")) {
+                    console.debug(`[G DATA] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "gData")) {
+                    console.debug(`[G DATA] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "gData");
 
                 const apiUrl = "https://dlarray-bp-europ-secsrv069.gdatasecurity.de/url/v3";
 
@@ -552,8 +618,8 @@ const BrowserProtection = function () {
                     if (data.includes("\"TRUSTED\"")
                         || data.includes("\"WHITELIST\"")
                         || data.includes("\"URLS\":[{}]}")) {
-                        console.debug(`Added G DATA URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "gData");
+                        console.debug(`[G DATA] Added URL to allowed cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "gData");
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -577,11 +643,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "malwareURL")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "malwareURL")) {
+                    console.debug(`[MalwareURL] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "malwareURL")) {
+                    console.debug(`[MalwareURL] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "malwareURL");
 
                 const apiUrl = `https://www.malwareurl.com/api/?api_key=a2xo64&api_domain=${urlHostname}&browse=action&URL=${encodeURIComponent(urlObject.href)}&version=2.3&uuid=${malwareURLUUID}`;
 
@@ -609,8 +686,8 @@ const BrowserProtection = function () {
 
                     // Safe/Trusted
                     if (data === "0") {
-                        console.debug(`Added MalwareURL URL to cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToCache(urlObject, "malwareURL");
+                        console.debug(`[MalwareURL] URL to allowed cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "malwareURL");
                         callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
                         return;
                     }
@@ -641,11 +718,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "cloudflare")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "cloudflare")) {
+                    console.debug(`[Cloudflare] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "cloudflare")) {
+                    console.debug(`[Cloudflare] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cloudflare");
 
                 const filteringURL = `https://security.cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
@@ -691,8 +779,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added Cloudflare URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "cloudflare");
+                    console.debug(`[Cloudflare] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cloudflare");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Cloudflare: ${error}`);
@@ -710,11 +798,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "quad9")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "quad9")) {
+                    console.debug(`[Quad9] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "quad9")) {
+                    console.debug(`[Quad9] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "quad9");
 
                 const filteringURL = `https://dns.quad9.net:5053/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
@@ -758,8 +857,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added Quad9 URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "quad9");
+                    console.debug(`[Quad9] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "quad9");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Quad9: ${error}`);
@@ -777,11 +876,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "dns0")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "dns0")) {
+                    console.debug(`[DNS0] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "dns0")) {
+                    console.debug(`[DNS0] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "dns0");
 
                 const filteringURL = `https://zero.dns0.eu/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
@@ -825,8 +935,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added DNS0 URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "dns0");
+                    console.debug(`[DNS0] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "dns0");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with DNS0: ${error}`);
@@ -844,11 +954,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "cleanBrowsing")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "cleanBrowsing")) {
+                    console.debug(`[CleanBrowsing] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "cleanBrowsing")) {
+                    console.debug(`[CleanBrowsing] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cleanBrowsing");
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://doh.cleanbrowsing.org/doh/security-filter/dns-query?dns=${encodedQuery}`;
@@ -893,8 +1014,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added CleanBrowsing URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "cleanBrowsing");
+                    console.debug(`[CleanBrowsing] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cleanBrowsing");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with CleanBrowsing: ${error}`);
@@ -912,11 +1033,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "cira")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "cira")) {
+                    console.debug(`[CIRA] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "cira")) {
+                    console.debug(`[CIRA] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cira");
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://protected.canadianshield.cira.ca/dns-query?dns=${encodedQuery}`;
@@ -962,8 +1094,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added CIRA URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "cira");
+                    console.debug(`[CIRA] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cira");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with CIRA: ${error}`);
@@ -981,11 +1113,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "adGuard")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "adGuard")) {
+                    console.debug(`[AdGuard] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "adGuard")) {
+                    console.debug(`[AdGuard] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "adGuard");
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://dns.adguard-dns.com/dns-query?dns=${encodedQuery}`;
@@ -1031,8 +1174,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added AdGuard URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "adGuard");
+                    console.debug(`[AdGuard] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "adGuard");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with AdGuard: ${error}`);
@@ -1050,11 +1193,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "switchCH")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "switchCH")) {
+                    console.debug(`[Switch.ch] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.SWITCH_CH), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "switchCH")) {
+                    console.debug(`[Switch.ch] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.SWITCH_CH), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "switchCH");
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://dns.switch.ch/dns-query?dns=${encodedQuery}`;
@@ -1104,8 +1258,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added Switch.ch URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "switchCH");
+                    console.debug(`[Switch.ch] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "switchCH");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SWITCH_CH), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Switch.ch: ${error}`);
@@ -1123,11 +1277,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "certEE")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "certEE")) {
+                    console.debug(`[CERT-EE] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "certEE")) {
+                    console.debug(`[CERT-EE] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "certEE");
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://dns.cert.ee/dns-query?dns=${encodedQuery}`;
@@ -1173,8 +1338,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added CERT-EE URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "certEE");
+                    console.debug(`[CERT-EE] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "certEE");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with CERT-EE: ${error}`);
@@ -1192,11 +1357,22 @@ const BrowserProtection = function () {
                     return;
                 }
 
-                // Check if the URL is in the cache
-                if (isUrlInAnyCache(urlObject, urlHostname, "controlD")) {
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "controlD")) {
+                    console.debug(`[Control D] URL is already allowed: ${url}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
                     return;
                 }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "controlD")) {
+                    console.debug(`[Control D] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "controlD");
 
                 const filteringURL = `https://freedns.controld.com/p1?name=${encodeURIComponent(urlHostname)}`;
 
@@ -1241,8 +1417,8 @@ const BrowserProtection = function () {
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`Added Control D URL to cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToCache(urlObject, "controlD");
+                    console.debug(`[Control D] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "controlD");
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
                 } catch (error) {
                     console.debug(`Failed to check URL with Control D: ${error}`);
@@ -1297,16 +1473,29 @@ const BrowserProtection = function () {
             }
 
             /**
-             * Checks if the URL is in any cache.
+             * Checks if the URL is in the allowed caches.
              *
              * @param urlObject - The URL object.
              * @param hostname - The hostname of the URL.
-             * @param provider - The provider to check the cache against.
-             * @returns {boolean} - True if the URL is in the cache, false otherwise.
+             * @param provider - The provider to check the allowed cache against.
+             * @returns {boolean} - True if the URL is in the allowed cache, false otherwise.
              */
-            const isUrlInAnyCache = function (urlObject, hostname, provider) {
-                return BrowserProtection.cacheManager.isUrlInCache(urlObject, provider)
-                    || BrowserProtection.cacheManager.isStringInCache(hostname + " (allowed)", provider);
+            const isUrlInAllowedCache = function (urlObject, hostname, provider) {
+                return BrowserProtection.cacheManager.isUrlInAllowedCache(urlObject, provider)
+                    || BrowserProtection.cacheManager.isStringInAllowedCache(hostname + " (allowed)", provider);
+            };
+
+            /**
+             * Checks if the URL is in the allowed caches.
+             *
+             * @param urlObject - The URL object.
+             * @param hostname - The hostname of the URL.
+             * @param provider - The provider to check the allowed cache against.
+             * @returns {boolean} - True if the URL is in the allowed cache, false otherwise.
+             */
+            const isUrlInProcessingCache = function (urlObject, hostname, provider) {
+                return BrowserProtection.cacheManager.isUrlInProcessingCache(urlObject, provider)
+                    || BrowserProtection.cacheManager.isStringInProcessingCache(hostname, provider);
             };
 
             // Call all the check functions asynchronously
