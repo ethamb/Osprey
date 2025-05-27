@@ -262,8 +262,6 @@
             console.debug("Managed policies are not supported or setup correctly in this browser.");
         } else {
             supportsManagedPolicies = true;
-            console.debug("Managed policies are supported in this browser.");
-
             let settings = {};
 
             // If the context menu is disabled by policy,
@@ -418,7 +416,6 @@
         }
 
         // Create the context menu.
-        console.debug("Creating context menu...");
         createContextMenu();
     });
 
@@ -718,11 +715,9 @@
     function createContextMenu() {
         Settings.get(settings => {
             // First remove existing menu items to avoid duplicates.
-            console.debug("Removing all context menu items...");
             contextMenuAPI.removeAll();
 
             // Create the toggle notifications menu item
-            console.debug("Creating toggleNotifications with value: " + settings.notificationsEnabled);
             contextMenuAPI.create({
                 id: "toggleNotifications",
                 title: "Enable notifications",
@@ -732,7 +727,6 @@
             });
 
             // Create the toggle frame navigation menu item
-            console.debug("Creating ignoreFrameNavigation with value: " + settings.ignoreFrameNavigation);
             contextMenuAPI.create({
                 id: "toggleFrameNavigation",
                 title: "Ignore frame navigation",
@@ -742,7 +736,6 @@
             });
 
             // Create the clear allowed sites menu item
-            console.debug("Creating clearAllowedSites with value: none");
             contextMenuAPI.create({
                 id: "clearAllowedSites",
                 title: "Clear list of allowed sites",
