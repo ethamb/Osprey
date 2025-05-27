@@ -81,6 +81,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
                 case ProtectionResult.ResultOrigin.MALWAREURL:
                     // TODO: Needs verification of response from support team.
+                    //       Report sent on: May 12, 2025 - no response yet
                     return new URL("mailto:team@malwareurl.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20MalwareURL%20Extension"
@@ -102,9 +103,10 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
                 case ProtectionResult.ResultOrigin.DNS0:
-                    // Alternate email: report@dns0.eu
+                    // Non-working email: contact@dns0.eu
                     // TODO: Needs verification of response from support team.
-                    return new URL("mailto:contact@dns0.eu?subject=False%20Positive&body=Hello%2C"
+                    //       Report sent on: May 12, 2025 - no response yet
+                    return new URL("mailto:report@dns0.eu?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20DNS0%20ZERO%20DNS"
                         + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
@@ -113,6 +115,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
                 case ProtectionResult.ResultOrigin.CLEANBROWSING:
                     // Verified working as of: May 12, 2025
+                    // Response time: 1-2 days
                     return new URL("mailto:support@cleanbrowsing.org?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20CleanBrowsing%20Security%20Filter"
@@ -121,7 +124,9 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
                 case ProtectionResult.ResultOrigin.CIRA:
+                    // Alternate URL: "https://www.cira.ca/en/canadian-shield/support"
                     // TODO: Needs verification of response from support team.
+                    //       Report sent on: May 18, 2025 - no response yet
                     return new URL("mailto:info@cira.ca?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20CIRA%20Canadian%20Shield%20DNS"
@@ -130,7 +135,8 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
                 case ProtectionResult.ResultOrigin.ADGUARD:
-                    // TODO: Needs verification of response from support team.
+                    // Verified working as of: May 25, 2025
+                    // Response time: 1-2 days
                     return new URL("mailto:support@adguard.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20AdGuard%20DNS"
@@ -149,6 +155,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
                 case ProtectionResult.ResultOrigin.CERT_EE:
                     // Verified working as of: May 6, 2025
+                    // Response time: 2-3 days
                     return new URL("mailto:ria@ria.ee?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20CERT-EE%20DNS"
@@ -158,6 +165,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
                 case ProtectionResult.ResultOrigin.CONTROL_D:
                     // TODO: Needs verification of response from support team.
+                    //       Report sent on: May 13, 2025 - no response yet
                     return new URL("mailto:hello@controld.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20Control%20D%20DNS"
