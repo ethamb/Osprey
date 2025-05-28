@@ -232,11 +232,12 @@ const BrowserProtection = function () {
 
                     const data = await response.text();
 
-                    // Compromised Sites
-                    if (data.includes("<DomC>7C") || data.includes("7C</DomC>")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                        return;
-                    }
+                    // // Compromised Sites
+                    // // Disabled due to false positives
+                    // if (data.includes("<DomC>7C") || data.includes("7C</DomC>")) {
+                    //     callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
+                    //     return;
+                    // }
 
                     // Malicious Sources
                     if (data.includes("<DirC>2B") || data.includes("2B</DirC>")) {
