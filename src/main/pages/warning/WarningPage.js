@@ -49,7 +49,8 @@ window.WarningSingleton = window.WarningSingleton || (function () {
         const getReportUrl = () => {
             switch (originInt) {
                 case ProtectionResult.ResultOrigin.PRECISIONSEC:
-                    // TODO: Needs verification of response from support team.
+                    // Verified working as of: May 28, 2025
+                    // Response time: 1-2 days
                     return new URL("mailto:info@precisionsec.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20PrecisionSec%20Web%20Protection"
