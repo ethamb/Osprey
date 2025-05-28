@@ -70,6 +70,26 @@ ProtectionResult.ResultOriginNames = {
     16: "Control D Security DNS"
 };
 
+ProtectionResult.ShortOriginNames = {
+    0: "Unknown",
+    1: "SmartScreen",
+    2: "Symantec",
+    3: "Emsisoft",
+    4: "Bitdefender",
+    5: "Norton",
+    6: "G DATA",
+    7: "MalwareURL",
+    8: "Cloudflare",
+    9: "Quad9",
+    10: "DNS0",
+    11: "CleanBrowsing",
+    12: "CIRA",
+    13: "AdGuard",
+    14: "Switch.ch",
+    15: "CERT-EE",
+    16: "Control D"
+};
+
 ProtectionResult.CacheOriginNames = {
     0: "unknown",
     1: "smartScreen",

@@ -154,7 +154,7 @@
             // Check if the URL is malicious.
             BrowserProtection.checkIfUrlIsMalicious(tabId, currentUrl, (result, duration) => {
                 const cacheName = ProtectionResult.CacheOriginNames[result.origin];
-                const systemName = ProtectionResult.ResultOriginNames[result.origin];
+                const systemName = ProtectionResult.ShortOriginNames[result.origin];
                 const resultType = result.result;
 
                 // Remove the URL from the system's processing cache on every callback.
