@@ -21,7 +21,7 @@
 Osprey has **officially partnered** with industry-leading security companies to provide you with the best protection
 possible. Check out some of our partners below:
 
-[![PrecisionSec](https://i.imgur.com/7jfyHtR.png)](https://precisionsec.com)
+[![PrecisionSec](https://i.imgur.com/7jfyHtR.png)](https://precisionsec.com/?utm_source=osprey)
 
 ## Detections
 
@@ -60,7 +60,7 @@ You can configure the extension's protection options in the settings:
 
 The following providers are **enabled** by default:
 
-- [PrecisionSec Web Protection](https://precisionsec.com) (Official Partner)
+- [PrecisionSec Web Protection](https://precisionsec.com/?utm_source=osprey) (Official Partner)
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
 - [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)

@@ -13,7 +13,7 @@ We do not have access to your browsing history or any other data that can person
 
 When you navigate to a website, Osprey may send the URL to the following third-party technologies to check for malicious content:
 
-- [PrecisionSec Web Protection](https://precisionsec.com) (Official Partner)
+- [PrecisionSec Web Protection](https://precisionsec.com/?utm_source=osprey) (Official Partner)
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
 - [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
@@ -43,6 +43,11 @@ they use it. We encourage you to review their privacy policies for more informat
 
 We reserve the right to update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy
 on this page with a new effective date. We encourage you to review this Privacy Policy periodically for any updates.
+
+## Affiliate Disclosure
+
+Osprey may contain affiliate links to products or services. If you click on an affiliate link and make a purchase, we
+may receive a commission at no additional cost to you. This helps support the development of Osprey.
 
 ## Getting Help
 
