@@ -73,10 +73,10 @@ The following providers are **disabled** by default:
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
 - [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
 
-Providers disabled by default are due to frequent reports of false positives. If a provider gives you false positives,
-report the links to them directly and disable them in the settings panel. Osprey is designed to be customizable, so you
-can enable or disable any of the providers at any time. Osprey does not have control over the providers' databases or
-how they classify URLs.
+Providers disabled by default are either due to frequent reports of false positives or an unreliable support email or 
+website for reporting said false positives. If a provider gives you false positives, report the links to them directly 
+and disable them in the settings panel. Osprey is designed to be customizable, so you can enable or disable any of the 
+providers at any time. Osprey does not have control over the providers' databases or how they classify URLs.
 
 ## Privacy
 

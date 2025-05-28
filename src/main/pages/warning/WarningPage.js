@@ -56,6 +56,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
                 case ProtectionResult.ResultOrigin.EMSISOFT:
                     // Verified working as of: May 1, 2025
+                    // Response time: 1-2 days
                     return new URL("mailto:fp@emsisoft.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20Emsisoft%20Browser%20Security"
@@ -103,15 +104,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                         + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
 
                 case ProtectionResult.ResultOrigin.DNS0:
-                    // Non-working email: contact@dns0.eu
-                    // TODO: Needs verification of response from support team.
-                    //       Report sent on: May 12, 2025 - no response yet
-                    return new URL("mailto:report@dns0.eu?subject=False%20Positive&body=Hello%2C"
-                        + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
-                        + "%0A%0AProduct%3A%20DNS0%20ZERO%20DNS"
-                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
-                        + "%0ADetected%20as%3A%20" + encodedResult
-                        + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
+                    return new URL("https://www.dns0.eu/report");
 
                 case ProtectionResult.ResultOrigin.CLEANBROWSING:
                     // Verified working as of: May 12, 2025
@@ -126,7 +119,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                 case ProtectionResult.ResultOrigin.CIRA:
                     // Alternate URL: "https://www.cira.ca/en/canadian-shield/support"
                     // TODO: Needs verification of response from support team.
-                    //       Report sent on: May 18, 2025 - no response yet
+                    //       Report sent on: May 18, 2025 - no response yet; false positive still active
                     return new URL("mailto:info@cira.ca?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20CIRA%20Canadian%20Shield%20DNS"
@@ -165,8 +158,7 @@ window.WarningSingleton = window.WarningSingleton || (function () {
 
                 case ProtectionResult.ResultOrigin.CONTROL_D:
                     // TODO: Needs verification of response from support team.
-                    //       Report sent on: May 13, 2025 - no response yet
-                    return new URL("mailto:hello@controld.com?subject=False%20Positive&body=Hello%2C"
+                    return new URL("mailto:help@controld.com?subject=False%20Positive&body=Hello%2C"
                         + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
                         + "%0A%0AProduct%3A%20Control%20D%20DNS"
                         + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
