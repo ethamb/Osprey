@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Effective Date:** 04/19/2025
+**Effective Date:** 05/28/2025
 
 Osprey is committed to protecting your privacy. This Privacy Policy explains how our browser extension operates and how we handle your data.
 
@@ -13,6 +13,7 @@ We do not have access to your browsing history or any other data that can person
 
 When you navigate to a website, Osprey may send the URL to the following third-party technologies to check for malicious content:
 
+- [PrecisionSec Web Protection](https://precisionsec.com) (Official Partner)
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
 - [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)

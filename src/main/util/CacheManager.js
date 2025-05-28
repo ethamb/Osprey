@@ -11,10 +11,9 @@ class CacheManager {
             this.timeoutId = null;
 
             const providers = [
-                "smartScreen", "symantec", "emsisoft", "bitdefender",
-                "norton", "gData", "malwareURL", "cloudflare",
-                "quad9", "dns0", "cleanBrowsing", "cira",
-                "adGuard", "switchCH", "certEE", "controlD",
+                "precisionSec", "smartScreen", "symantec", "emsisoft", "bitdefender",
+                "norton", "gData", "malwareURL", "cloudflare", "quad9", "dns0",
+                "cleanBrowsing", "cira", "adGuard", "switchCH", "certEE", "controlD",
             ];
 
             this.allowedCaches = {};

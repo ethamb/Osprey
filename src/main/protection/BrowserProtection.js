@@ -79,6 +79,78 @@ const BrowserProtection = function () {
             const signal = tabAbortControllers.get(tabId).signal;
 
             /**
+             * Checks the URL with the PrecisionSec API.
+             */
+            const checkUrlWithPrecisionSec = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.precisionSecEnabled) {
+                    console.debug(`[PrecisionSec] Protection is disabled; bailing out early.`);
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "precisionSec")) {
+                    console.debug(`[PrecisionSec] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.PRECISIONSEC), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "precisionSec")) {
+                    console.debug(`[PrecisionSec] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.PRECISIONSEC), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "precisionSec");
+
+                const apiUrl = `https://api.precisionsec.com/check_url/${encodeURIComponent(url)}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "API-Key": "0b5b7628-382b-11f0-a59c-b3b5227b1076",
+                        },
+                        signal
+                    });
+
+                    // Return early if the response is not OK
+                    if (!response.ok) {
+                        console.warn(`[PrecisionSec] Returned early: ${response.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.PRECISIONSEC), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const data = await response.json();
+                    const {result} = data;
+
+                    // Malicious
+                    if (result === "Malicious") {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.PRECISIONSEC), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Safe/Trusted
+                    if (result === "No result") {
+                        console.debug(`[PrecisionSec] Added URL to allowed cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "precisionSec");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.PRECISIONSEC), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Unexpected result
+                    console.warn(`[PrecisionSec] Returned an unexpected result for URL ${url}: ${data}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.PRECISIONSEC), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[PrecisionSec] Failed to check URL: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.PRECISIONSEC), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
              * Checks the URL with the SmartScreen API.
              */
             const checkUrlWithSmartScreen = async function (settings) {
@@ -91,14 +163,14 @@ const BrowserProtection = function () {
                 // Check if the URL is in the allowed cache.
                 if (isUrlInAllowedCache(urlObject, urlHostname, "smartScreen")) {
                     console.debug(`[SmartScreen] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                     return;
                 }
 
                 // Check if the URL is in the processing cache.
                 if (isUrlInProcessingCache(urlObject, urlHostname, "smartScreen")) {
                     console.debug(`[SmartScreen] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                     return;
                 }
 
@@ -140,7 +212,7 @@ const BrowserProtection = function () {
                     // Return early if the response is not OK
                     if (!response.ok) {
                         console.warn(`[SmartScreen] Returned early: ${response.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                         return;
                     }
 
@@ -149,31 +221,31 @@ const BrowserProtection = function () {
 
                     switch (responseCategory) {
                         case "Phishing":
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                             break;
 
                         case "Malicious":
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                             break;
 
                         case "Untrusted":
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                             break;
 
                         case "Allowed":
                             console.debug(`[SmartScreen] Added URL to allowed cache: ${url}`);
                             BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "smartScreen");
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                             break;
 
                         default:
                             console.warn(`[SmartScreen] Returned an unexpected result for URL ${url}: ${JSON.stringify(data)}`);
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                             break;
                     }
                 } catch (error) {
                     console.debug(`[SmartScreen] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MICROSOFT), (new Date()).getTime() - startTime);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                 }
             };
 
@@ -1508,12 +1580,13 @@ const BrowserProtection = function () {
             // Call all the check functions asynchronously
             Settings.get(settings => {
                 // HTTP APIs
-                checkUrlWithSymantec(settings);
-                checkUrlWithBitdefender(settings);
+                checkUrlWithPrecisionSec(settings);
                 checkUrlWithSmartScreen(settings);
+                checkUrlWithSymantec(settings);
+                checkUrlWithEmsisoft(settings);
+                checkUrlWithBitdefender(settings);
                 checkUrlWithNorton(settings);
                 checkUrlWithGDATA(settings);
-                checkUrlWithEmsisoft(settings);
                 checkUrlWithMalwareURL(settings);
 
                 // DNS APIs

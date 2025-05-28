@@ -48,9 +48,14 @@
       "maximum": 2592000,
       "default": 86400
     },
+    "PrecisionSecEnabled": {
+      "title": "PrecisionSec Enabled",
+      "description": "If set to true, PrecisionSec will be enabled.",
+      "type": "boolean"
+    },
     "SmartScreenEnabled": {
       "title": "SmartScreen Enabled",
-      "description": "If set to true, Microsoft will be enabled.",
+      "description": "If set to true, SmartScreen will be enabled.",
       "type": "boolean"
     },
     "SymantecEnabled": {

@@ -48,7 +48,16 @@ window.WarningSingleton = window.WarningSingleton || (function () {
         // Create a function to get the report URL lazily when needed
         const getReportUrl = () => {
             switch (originInt) {
-                case ProtectionResult.ResultOrigin.MICROSOFT:
+                case ProtectionResult.ResultOrigin.PRECISIONSEC:
+                    // TODO: Needs verification of response from support team.
+                    return new URL("mailto:info@precisionsec.com?subject=False%20Positive&body=Hello%2C"
+                        + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
+                        + "%0A%0AProduct%3A%20PrecisionSec%20Web%20Protection"
+                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
+                        + "%0ADetected%20as%3A%20" + encodedResult
+                        + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
+
+                case ProtectionResult.ResultOrigin.SMARTSCREEN:
                     return new URL("https://feedback.smartscreen.microsoft.com/feedback.aspx?t=16&url=" + blockedUrl);
 
                 case ProtectionResult.ResultOrigin.SYMANTEC:

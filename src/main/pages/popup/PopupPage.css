@@ -149,3 +149,18 @@ section {
 .page.active {
     display: block;
 }
+
+/* --------------------------------------------------
+   Partner Labels
+-------------------------------------------------- */
+.partner-label {
+    position: relative;
+    bottom: 2px;
+    left: 2px;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+}
+
+.partner-label:hover {
+    text-decoration: underline;
+}

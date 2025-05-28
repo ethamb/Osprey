@@ -16,6 +16,13 @@
 
 ![Osprey Banner](https://i.imgur.com/K8m11GN.png)
 
+## Official Partners
+
+Osprey has **officially partnered** with industry-leading security companies to provide you with the best protection
+possible. Check out some of our partners below:
+
+[![PrecisionSec](https://i.imgur.com/7jfyHtR.png)](https://precisionsec.com)
+
 ## Detections
 
 Osprey blocks websites that are classified as:
@@ -53,6 +60,7 @@ You can configure the extension's protection options in the settings:
 
 The following providers are **enabled** by default:
 
+- [PrecisionSec Web Protection](https://precisionsec.com) (Official Partner)
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
 - [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
@@ -73,10 +81,11 @@ The following providers are **disabled** by default:
 - [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
 - [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
 
-Providers disabled by default are either due to frequent reports of false positives or an unreliable support email or 
-website for reporting said false positives. If a provider gives you false positives, report the links to them directly 
-and disable them in the settings panel. Osprey is designed to be customizable, so you can enable or disable any of the 
-providers at any time. Osprey does not have control over the providers' databases or how they classify URLs.
+Providers disabled by default are either due to frequent reports of false positives or an unreliable support email or
+website for reporting said false positives. If a provider gives you false positives, report the links to them directly
+and disable them in the Protection Options panel if needed. Osprey is designed to be customizable, so you can enable or
+disable any of the providers at any time. Osprey does not have control over the providers' databases or how they
+classify URLs.
 
 ## Privacy
 
@@ -118,7 +127,8 @@ For other installations, you can install the extension manually:
 
 ### Firefox
 
-> Note: This only works for [builds of Firefox that allow unsigned addons.](https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox#w_what-are-my-options-if-i-want-to-use-an-unsigned-add-on-advanced-users)
+> Note: This only works
+> for [builds of Firefox that allow unsigned addons.](https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox#w_what-are-my-options-if-i-want-to-use-an-unsigned-add-on-advanced-users)
 
 1. Navigate to the [Actions section](https://github.com/Foulest/Osprey/actions/workflows) and click
    `Compile for Firefox`.

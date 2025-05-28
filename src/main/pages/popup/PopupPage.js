@@ -14,6 +14,13 @@ window.PopupSingleton = window.PopupSingleton || (function () {
     // Security systems configuration - only defined once
     const securitySystems = [
         {
+            name: "precisionSecEnabled",
+            title: "PrecisionSec Web Protection",
+            labelElementId: "precisionSecStatus",
+            switchElementId: "precisionSecSwitch",
+            messageType: Messages.MessageType.PRECISIONSEC_TOGGLED,
+        },
+        {
             name: "smartScreenEnabled",
             title: "Microsoft SmartScreen",
             labelElementId: "smartScreenStatus",

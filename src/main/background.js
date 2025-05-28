@@ -44,7 +44,8 @@
     const handleNavigation = navigationDetails => {
         Settings.get(settings => {
             // Retrieve settings to check if protection is enabled.
-            if (!settings.smartScreenEnabled
+            if (!settings.precisionSecEnabled
+                && !settings.smartScreenEnabled
                 && !settings.symantecEnabled
                 && !settings.emsisoftEnabled
                 && !settings.bitdefenderEnabled
@@ -237,6 +238,7 @@
         'IgnoreFrameNavigation',
         'CacheExpirationSeconds',
         'LockProtectionOptions',
+        'PrecisionSecEnabled',
         'SmartScreenEnabled',
         'SymantecEnabled',
         'EmsisoftEnabled',
@@ -309,6 +311,12 @@
             if (policies.LockProtectionOptions !== undefined) {
                 settings.lockProtectionOptions = policies.LockProtectionOptions;
                 console.debug("Protection options are managed by system policy.");
+            }
+
+            // Check and set the PrecisionSec settings using the policy.
+            if (policies.PrecisionSecEnabled !== undefined) {
+                settings.precisionSecEnabled = policies.PrecisionSecEnabled;
+                console.debug("PrecisionSec is managed by system policy.");
             }
 
             // Check and set the SmartScreen settings using the policy.
@@ -492,81 +500,86 @@
 
                 switch (message.origin) {
                     case "1":
+                        console.debug(`Added PrecisionSec URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "precisionSec");
+                        break;
+
+                    case "2":
                         console.debug(`Added SmartScreen URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "smartScreen");
                         break;
 
-                    case "2":
+                    case "3":
                         console.debug(`Added Symantec URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "symantec");
                         break;
 
-                    case "3":
+                    case "4":
                         console.debug(`Added Emsisoft URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "emsisoft");
                         break;
 
-                    case "4":
+                    case "5":
                         console.debug(`Added Bitdefender URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "bitdefender");
                         break;
 
-                    case "5":
+                    case "6":
                         console.debug(`Added Norton URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "norton");
                         break;
 
-                    case "6":
+                    case "7":
                         console.debug(`Added G DATA URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "gData");
                         break;
 
-                    case "7":
+                    case "8":
                         console.debug(`Added MalwareURL URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "malwareURL");
                         break;
 
-                    case "8":
+                    case "9":
                         console.debug(`Added Cloudflare URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cloudflare");
                         break;
 
-                    case "9":
+                    case "10":
                         console.debug(`Added Quad9 URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "quad9");
                         break;
 
-                    case "10":
+                    case "11":
                         console.debug(`Added DNS0 URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "dns0");
                         break;
 
-                    case "11":
+                    case "12":
                         console.debug(`Added CleanBrowsing URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cleanBrowsing");
                         break;
 
-                    case "12":
+                    case "13":
                         console.debug(`Added CIRA URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cira");
                         break;
 
-                    case "13":
+                    case "14":
                         console.debug(`Added AdGuard URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "adGuard");
                         break;
 
-                    case "14":
+                    case "15":
                         console.debug(`Added Switch.ch URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "switchCH");
                         break;
 
-                    case "15":
+                    case "16":
                         console.debug(`Added CERT-EE URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "certEE");
                         break;
 
-                    case "16":
+                    case "17":
                         console.debug(`Added Control D URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "controlD");
                         break;
@@ -646,6 +659,7 @@
                 break;
             }
 
+            case Messages.MessageType.PRECISIONSEC_TOGGLED:
             case Messages.MessageType.SMARTSCREEN_TOGGLED:
             case Messages.MessageType.SYMANTEC_TOGGLED:
             case Messages.MessageType.EMSISOFT_TOGGLED:

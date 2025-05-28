@@ -6,6 +6,7 @@ const Settings = (function () {
     const settingsKey = "Settings";
 
     let defaultSettings = {
+        precisionSecEnabled: true, // Default state for PrecisionSec
         smartScreenEnabled: true, // Default state for SmartScreen
         symantecEnabled: false, // Default state for Symantec
         emsisoftEnabled: true, // Default state for Emsisoft

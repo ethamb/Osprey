@@ -8,6 +8,7 @@ const Messages = {
         ALLOW_SITE: "allowSite",
 
         // Protection provider toggles
+        PRECISIONSEC_TOGGLED: "precisionSecToggled",
         SMARTSCREEN_TOGGLED: "smartScreenToggled",
         SYMANTEC_TOGGLED: "symantecToggled",
         EMSISOFT_TOGGLED: "emsisoftToggled",
