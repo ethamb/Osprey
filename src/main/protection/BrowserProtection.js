@@ -820,13 +820,14 @@ const BrowserProtection = function () {
                 // Add the URL to the processing cache to prevent duplicate requests.
                 BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "quad9");
 
-                const filteringURL = `https://dns.quad9.net:5053/dns-query?name=${encodeURIComponent(urlHostname)}`;
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://dns.quad9.net/dns-query?dns=${encodedQuery}`;
 
                 try {
                     const filteringResponse = await fetch(filteringURL, {
                         method: "GET",
                         headers: {
-                            "Accept": "application/dns-json"
+                            "Accept": "application/dns-message"
                         },
                         signal
                     });
@@ -846,7 +847,7 @@ const BrowserProtection = function () {
                         return;
                     }
 
-                    const filteringData = await filteringResponse.json();
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
                     const nonFilteringData = await nonFilteringResponse.json();
 
                     // If the non-filtering domain returns NOERROR...
@@ -855,7 +856,7 @@ const BrowserProtection = function () {
                         && nonFilteringData.Answer.length > 0) {
 
                         // Quad9's way of blocking the domain.
-                        if (filteringData.Status === 3) {
+                        if (filteringData[3] === 3) {
                             callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
                             return;
                         }
