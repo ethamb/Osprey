@@ -15,7 +15,7 @@
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
 
 ###
-![Osprey Banner](https://i.imgur.com/2f6NBgz.png)
+![Osprey Banner](https://i.imgur.com/0Ccn9WW.png)
 
 ## Official Partners
 
