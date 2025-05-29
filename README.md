@@ -14,7 +14,7 @@
 • [Privacy Policy](https://github.com/Foulest/Osprey/blob/main/.github/PRIVACY.md)
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
 
-#
+###
 ![Osprey Banner](https://i.imgur.com/2f6NBgz.png)
 
 ## Official Partners
