@@ -54,8 +54,8 @@ entirely using [the system policies](https://github.com/Foulest/Osprey/wiki/Sett
 
 You can configure the extension's protection options in the settings:
 
-![Osprey Settings (Page 1)](https://i.imgur.com/bHaKequ.png)
-![Osprey Settings (Page 2)](https://i.imgur.com/IYsA85t.png)
+![Osprey Settings (Page 1)](https://i.imgur.com/urwoIO5.png)
+![Osprey Settings (Page 2)](https://i.imgur.com/JOwyz81.png)
 
 ## Protection Providers
 
