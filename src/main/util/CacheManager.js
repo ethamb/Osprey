@@ -12,8 +12,8 @@ class CacheManager {
 
             const providers = [
                 "precisionSec", "smartScreen", "symantec", "emsisoft", "bitdefender",
-                "norton", "gData", "malwareURL", "cloudflare", "quad9", "dns0",
-                "cleanBrowsing", "cira", "adGuard", "switchCH", "certEE", "controlD",
+                "norton", "gData", "cloudflare", "quad9", "dns0", "cleanBrowsing",
+                "cira", "adGuard", "switchCH", "certEE", "controlD",
             ];
 
             this.allowedCaches = {};

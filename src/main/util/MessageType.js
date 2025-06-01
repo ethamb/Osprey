@@ -15,7 +15,6 @@ const Messages = {
         BITDEFENDER_TOGGLED: "bitdefenderToggled",
         NORTON_TOGGLED: "nortonToggled",
         G_DATA_TOGGLED: "gDataToggled",
-        MALWAREURL_TOGGLED: "malwareURLToggled",
         CLOUDFLARE_TOGGLED: "cloudflareToggled",
         QUAD9_TOGGLED: "quad9Toggled",
         DNS0_TOGGLED: "dns0Toggled",

@@ -83,11 +83,6 @@
       "description": "If set to true, G DATA will be enabled.",
       "type": "boolean"
     },
-    "MalwareURLEnabled": {
-      "title": "MalwareURL Enabled",
-      "description": "If set to true, MalwareURL will be enabled.",
-      "type": "boolean"
-    },
     "CloudflareEnabled": {
       "title": "Cloudflare Enabled",
       "description": "If set to true, Cloudflare will be enabled.",

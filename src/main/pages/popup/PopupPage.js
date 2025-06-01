@@ -63,13 +63,6 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             messageType: Messages.MessageType.G_DATA_TOGGLED,
         },
         {
-            name: "malwareURLEnabled",
-            title: "MalwareURL Protection",
-            labelElementId: "malwareURLStatus",
-            switchElementId: "malwareURLSwitch",
-            messageType: Messages.MessageType.MALWAREURL_TOGGLED,
-        },
-        {
             name: "cloudflareEnabled",
             title: "Cloudflare Security DNS",
             labelElementId: "cloudflareStatus",

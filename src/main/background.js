@@ -21,7 +21,6 @@
             // Other
             "util/other/SmartScreenUtil.js",
             "util/other/EmsisoftUtil.js",
-            "util/other/UUIDUtil.js",
 
             // Hashing
             "util/hashing/MD5.js",
@@ -51,7 +50,6 @@
                 && !settings.bitdefenderEnabled
                 && !settings.nortonEnabled
                 && !settings.gDataEnabled
-                && !settings.malwareURLEnabled
                 && !settings.cloudflareEnabled
                 && !settings.quad9Enabled
                 && !settings.dns0Enabled
@@ -245,7 +243,6 @@
         'BitdefenderEnabled',
         'NortonEnabled',
         'GDATAEnabled',
-        'MalwareURLEnabled',
         'CloudflareEnabled',
         'Quad9Enabled',
         'DNS0Enabled',
@@ -353,12 +350,6 @@
             if (policies.GDATAEnabled !== undefined) {
                 settings.gDataEnabled = policies.GDATAEnabled;
                 console.debug("G DATA is managed by system policy.");
-            }
-
-            // Check and set the MalwareURL settings using the policy.
-            if (policies.MalwareURLEnabled !== undefined) {
-                settings.malwareURLEnabled = policies.MalwareURLEnabled;
-                console.debug("MalwareURL is managed by system policy.");
             }
 
             // Check and set the Cloudflare settings using the policy.
@@ -535,51 +526,46 @@
                         break;
 
                     case "8":
-                        console.debug(`Added MalwareURL URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "malwareURL");
-                        break;
-
-                    case "9":
                         console.debug(`Added Cloudflare URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cloudflare");
                         break;
 
-                    case "10":
+                    case "9":
                         console.debug(`Added Quad9 URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "quad9");
                         break;
 
-                    case "11":
+                    case "10":
                         console.debug(`Added DNS0 URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "dns0");
                         break;
 
-                    case "12":
+                    case "11":
                         console.debug(`Added CleanBrowsing URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cleanBrowsing");
                         break;
 
-                    case "13":
+                    case "12":
                         console.debug(`Added CIRA URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cira");
                         break;
 
-                    case "14":
+                    case "13":
                         console.debug(`Added AdGuard URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "adGuard");
                         break;
 
-                    case "15":
+                    case "14":
                         console.debug(`Added Switch.ch URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "switchCH");
                         break;
 
-                    case "16":
+                    case "15":
                         console.debug(`Added CERT-EE URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "certEE");
                         break;
 
-                    case "17":
+                    case "16":
                         console.debug(`Added Control D URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "controlD");
                         break;
@@ -666,7 +652,6 @@
             case Messages.MessageType.BITDEFENDER_TOGGLED:
             case Messages.MessageType.NORTON_TOGGLED:
             case Messages.MessageType.G_DATA_TOGGLED:
-            case Messages.MessageType.MALWAREURL_TOGGLED:
             case Messages.MessageType.CLOUDFLARE_TOGGLED:
             case Messages.MessageType.QUAD9_TOGGLED:
             case Messages.MessageType.DNS0_TOGGLED:

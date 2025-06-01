@@ -39,16 +39,15 @@ ProtectionResult.ResultOrigin = {
     BITDEFENDER: 5, // The result was determined via Bitdefender
     NORTON: 6, // The result was determined via Norton
     G_DATA: 7, // The result was determined via G DATA
-    MALWAREURL: 8, // The result was determined via MalwareURL
-    CLOUDFLARE: 9, // The result was determined via Cloudflare
-    QUAD9: 10, // The result was determined via Quad9
-    DNS0: 11, // The result was determined via DNS0
-    CLEANBROWSING: 12, // The result was determined via CleanBrowsing
-    CIRA: 13, // The result was determined via CIRA
-    ADGUARD: 14, // The result was determined via AdGuard
-    SWITCH_CH: 15, // The result was determined via Switch.ch
-    CERT_EE: 16, // The result was determined via CERT-EE
-    CONTROL_D: 17, // The result was determined via Control D
+    CLOUDFLARE: 8, // The result was determined via Cloudflare
+    QUAD9: 9, // The result was determined via Quad9
+    DNS0: 10, // The result was determined via DNS0
+    CLEANBROWSING: 11, // The result was determined via CleanBrowsing
+    CIRA: 12, // The result was determined via CIRA
+    ADGUARD: 13, // The result was determined via AdGuard
+    SWITCH_CH: 14, // The result was determined via Switch.ch
+    CERT_EE: 15, // The result was determined via CERT-EE
+    CONTROL_D: 16, // The result was determined via Control D
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -60,16 +59,15 @@ ProtectionResult.ResultOriginNames = {
     5: "Bitdefender TrafficLight",
     6: "Norton SafeWeb",
     7: "G DATA WebProtection",
-    8: "MalwareURL Protection",
-    9: "Cloudflare Security DNS",
-    10: "Quad9 Security DNS",
-    11: "DNS0.eu Security DNS",
-    12: "CleanBrowsing Security DNS",
-    13: "CIRA Canadian Shield DNS",
-    14: "AdGuard Security DNS",
-    15: "Switch.ch Security DNS",
-    16: "CERT-EE Security DNS",
-    17: "Control D Security DNS"
+    8: "Cloudflare Security DNS",
+    9: "Quad9 Security DNS",
+    10: "DNS0.eu Security DNS",
+    11: "CleanBrowsing Security DNS",
+    12: "CIRA Canadian Shield DNS",
+    13: "AdGuard Security DNS",
+    14: "Switch.ch Security DNS",
+    15: "CERT-EE Security DNS",
+    16: "Control D Security DNS"
 };
 
 ProtectionResult.ShortOriginNames = {
@@ -81,16 +79,15 @@ ProtectionResult.ShortOriginNames = {
     5: "Bitdefender",
     6: "Norton",
     7: "G DATA",
-    8: "MalwareURL",
-    9: "Cloudflare",
-    10: "Quad9",
-    11: "DNS0",
-    12: "CleanBrowsing",
-    13: "CIRA",
-    14: "AdGuard",
-    15: "Switch.ch",
-    16: "CERT-EE",
-    17: "Control D"
+    8: "Cloudflare",
+    9: "Quad9",
+    10: "DNS0",
+    11: "CleanBrowsing",
+    12: "CIRA",
+    13: "AdGuard",
+    14: "Switch.ch",
+    15: "CERT-EE",
+    16: "Control D"
 };
 
 ProtectionResult.CacheOriginNames = {
@@ -102,14 +99,13 @@ ProtectionResult.CacheOriginNames = {
     5: "bitdefender",
     6: "norton",
     7: "gData",
-    8: "malwareURL",
-    9: "cloudflare",
-    10: "quad9",
-    11: "dns0",
-    12: "cleanBrowsing",
-    13: "cira",
-    14: "adGuard",
-    15: "switchCH",
-    16: "certEE",
-    17: "controlD"
+    8: "cloudflare",
+    9: "quad9",
+    10: "dns0",
+    11: "cleanBrowsing",
+    12: "cira",
+    13: "adGuard",
+    14: "switchCH",
+    15: "certEE",
+    16: "controlD"
 };

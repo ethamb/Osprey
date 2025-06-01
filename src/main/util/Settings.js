@@ -13,7 +13,6 @@ const Settings = (function () {
         bitdefenderEnabled: true, // Default state for Bitdefender
         nortonEnabled: true, // Default state for Norton
         gDataEnabled: true, // Default state for G DATA
-        malwareURLEnabled: false, // Default state for MalwareURL
         cloudflareEnabled: false, // Default state for Cloudflare
         quad9Enabled: true, // Default state for Quad9
         dns0Enabled: false, // Default state for DNS0

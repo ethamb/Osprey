@@ -5,9 +5,6 @@ const BrowserProtection = function () {
 
     let tabAbortControllers = new Map();
 
-    // Create a unique UUID for the MalwareURL API.
-    const malwareURLUUID = UUIDUtil.createUUID();
-
     /**
      * Closes all open connections for a specific tab.
      */
@@ -708,81 +705,6 @@ const BrowserProtection = function () {
                 } catch (error) {
                     console.debug(`[G DATA] Failed to check URL ${url}: ${error}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.G_DATA), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with the MalwareURL API.
-             */
-            const checkUrlWithMalwareURL = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.malwareURLEnabled) {
-                    console.debug(`[MalwareURL] Protection is disabled; bailing out early.`);
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "malwareURL")) {
-                    console.debug(`[MalwareURL] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "malwareURL")) {
-                    console.debug(`[MalwareURL] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "malwareURL");
-
-                const apiUrl = `https://www.malwareurl.com/api/?api_key=a2xo64&api_domain=${urlHostname}&browse=action&URL=${encodeURIComponent(urlObject.href)}&version=2.3&uuid=${malwareURLUUID}`;
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: "GET",
-                        mode: "cors",
-                        signal
-                    });
-
-                    // Return early if the response is not OK
-                    if (!response.ok) {
-                        console.warn(`[MalwareURL] Returned early: ${response.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const data = await response.text();
-
-                    // Malicious
-                    if (data === "1") {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Safe/Trusted
-                    if (data === "0") {
-                        console.debug(`[MalwareURL] URL to allowed cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "malwareURL");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // UUID is Expired
-                    if (data === "2") {
-                        console.warn(`[MalwareURL] UUID is expired: ${data}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Unexpected result
-                    console.warn(`[MalwareURL] Returned an unexpected result for URL ${url}: ${data}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[MalwareURL] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.MALWAREURL), (new Date()).getTime() - startTime);
                 }
             };
 
@@ -1587,7 +1509,6 @@ const BrowserProtection = function () {
                 checkUrlWithBitdefender(settings);
                 checkUrlWithNorton(settings);
                 checkUrlWithGDATA(settings);
-                checkUrlWithMalwareURL(settings);
 
                 // DNS APIs
                 checkUrlWithCloudflare(settings);
