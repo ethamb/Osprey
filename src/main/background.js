@@ -144,6 +144,15 @@
                 return;
             }
 
+            // Purges previously cached/processed results for the tab.
+            if (frameId === 0) {
+                // Kills all pending requests for the main frame navigation.
+                BrowserProtection.abandonPendingRequests(tabId, "Cancelled by main frame navigation.");
+
+                // Removes all pending requests from the processing cache.
+                BrowserProtection.cacheManager.removeKeysByTabId(tabId);
+            }
+
             // Set the hostname back to the URL object.
             urlObject.hostname = hostname;
 
@@ -420,17 +429,17 @@
 
     // Listener for onBeforeNavigate events.
     browserAPI.webNavigation.onBeforeNavigate.addListener(navigationDetails => {
-        console.debug(`[onBeforeNavigate] ${navigationDetails.url}`);
+        console.debug(`[onBeforeNavigate] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onCommitted events.
     browserAPI.webNavigation.onCommitted.addListener(navigationDetails => {
         if (navigationDetails.transitionQualifiers.includes("server_redirect")) {
-            console.debug(`[server_redirect] ${navigationDetails.url}`);
+            console.debug(`[server_redirect] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
             handleNavigation(navigationDetails);
         } else if (navigationDetails.transitionQualifiers.includes("client_redirect")) {
-            console.debug(`[client_redirect] ${navigationDetails.url}`);
+            console.debug(`[client_redirect] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
             handleNavigation(navigationDetails);
         }
     });
@@ -443,19 +452,19 @@
 
     // Listener for onHistoryStateUpdated events.
     browserAPI.webNavigation.onHistoryStateUpdated.addListener(navigationDetails => {
-        console.debug(`[onHistoryStateUpdated] ${navigationDetails.url}`);
+        console.debug(`[onHistoryStateUpdated] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onReferenceFragmentUpdated events.
     browserAPI.webNavigation.onReferenceFragmentUpdated.addListener(navigationDetails => {
-        console.debug(`[onReferenceFragmentUpdated] ${navigationDetails.url}`);
+        console.debug(`[onReferenceFragmentUpdated] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
         handleNavigation(navigationDetails);
     });
 
     // Listener for onTabReplaced events.
     browserAPI.webNavigation.onTabReplaced.addListener(navigationDetails => {
-        console.debug(`[onTabReplaced] ${navigationDetails.url}`);
+        console.debug(`[onTabReplaced] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
         handleNavigation(navigationDetails);
     });
 

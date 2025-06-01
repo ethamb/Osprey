@@ -81,7 +81,6 @@ const BrowserProtection = function () {
             const checkUrlWithPrecisionSec = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.precisionSecEnabled) {
-                    console.debug(`[PrecisionSec] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -100,7 +99,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "precisionSec");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "precisionSec", tabId);
 
                 const apiUrl = `https://api.precisionsec.com/check_url/${encodeURIComponent(url)}`;
 
@@ -153,7 +152,6 @@ const BrowserProtection = function () {
             const checkUrlWithSmartScreen = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.smartScreenEnabled) {
-                    console.debug(`[SmartScreen] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -172,7 +170,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "smartScreen");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "smartScreen", tabId);
 
                 // Prepare request data
                 const requestData = JSON.stringify({
@@ -252,7 +250,6 @@ const BrowserProtection = function () {
             const checkUrlWithSymantec = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.symantecEnabled) {
-                    console.debug(`[Symantec] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -271,7 +268,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "symantec");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "symantec", tabId);
 
                 // Replaces the http:// and https:// with nothing
                 const trimmedUrl = url.replace(/^(http|https):\/\//, "");
@@ -361,7 +358,6 @@ const BrowserProtection = function () {
             const checkUrlWithEmsisoft = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.emsisoftEnabled) {
-                    console.debug(`[Emsisoft] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -380,7 +376,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "emsisoft");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "emsisoft", tabId);
 
                 const hostnameArray = EmsisoftUtil.createHostnameArray(urlHostname);
                 const stringOfHashes = EmsisoftUtil.getStringOfHashes(hostnameArray);
@@ -442,7 +438,6 @@ const BrowserProtection = function () {
             const checkUrlWithBitdefender = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.bitdefenderEnabled) {
-                    console.debug(`[Bitdefender] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -461,7 +456,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "bitdefender");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "bitdefender", tabId);
 
                 const apiUrl = "https://nimbus.bitdefender.net/url/status";
                 const payload = {url};
@@ -558,7 +553,6 @@ const BrowserProtection = function () {
             const checkUrlWithNorton = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.nortonEnabled) {
-                    console.debug(`[Norton] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -577,7 +571,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "norton");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "norton", tabId);
 
                 const apiUrl = `https://ratings-wrs.norton.com/brief?url=${encodeURIComponent(url)}`;
 
@@ -628,7 +622,6 @@ const BrowserProtection = function () {
             const checkUrlWithGDATA = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.gDataEnabled) {
-                    console.debug(`[G DATA] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -647,7 +640,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "gData");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "gData", tabId);
 
                 const apiUrl = "https://dlarray-bp-europ-secsrv069.gdatasecurity.de/url/v3";
 
@@ -714,7 +707,6 @@ const BrowserProtection = function () {
             const checkUrlWithCloudflare = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.cloudflareEnabled) {
-                    console.debug(`[Cloudflare] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -733,7 +725,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cloudflare");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cloudflare", tabId);
 
                 const filteringURL = `https://security.cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
@@ -794,7 +786,6 @@ const BrowserProtection = function () {
             const checkUrlWithQuad9 = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.quad9Enabled) {
-                    console.debug(`[Quad9] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -813,7 +804,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "quad9");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "quad9", tabId);
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://dns.quad9.net/dns-query?dns=${encodedQuery}`;
@@ -873,7 +864,6 @@ const BrowserProtection = function () {
             const checkUrlWithDNS0 = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.dns0Enabled) {
-                    console.debug(`[DNS0] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -892,7 +882,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "dns0");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "dns0", tabId);
 
                 const filteringURL = `https://zero.dns0.eu/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
@@ -951,7 +941,6 @@ const BrowserProtection = function () {
             const checkUrlWithCleanBrowsing = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.cleanBrowsingEnabled) {
-                    console.debug(`[CleanBrowsing] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -970,7 +959,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cleanBrowsing");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cleanBrowsing", tabId);
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://doh.cleanbrowsing.org/doh/security-filter/dns-query?dns=${encodedQuery}`;
@@ -1030,7 +1019,6 @@ const BrowserProtection = function () {
             const checkUrlWithCIRA = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.ciraEnabled) {
-                    console.debug(`[CIRA] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -1049,7 +1037,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cira");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cira", tabId);
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://protected.canadianshield.cira.ca/dns-query?dns=${encodedQuery}`;
@@ -1110,7 +1098,6 @@ const BrowserProtection = function () {
             const checkUrlWithAdGuard = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.adGuardEnabled) {
-                    console.debug(`[AdGuard] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -1129,7 +1116,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "adGuard");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "adGuard", tabId);
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://dns.adguard-dns.com/dns-query?dns=${encodedQuery}`;
@@ -1190,7 +1177,6 @@ const BrowserProtection = function () {
             const checkUrlWithSwitchCH = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.switchCHEnabled) {
-                    console.debug(`[Switch.ch] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -1209,7 +1195,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "switchCH");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "switchCH", tabId);
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://dns.switch.ch/dns-query?dns=${encodedQuery}`;
@@ -1274,7 +1260,6 @@ const BrowserProtection = function () {
             const checkUrlWithCERTEE = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.certEEEnabled) {
-                    console.debug(`[CERT-EE] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -1293,7 +1278,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "certEE");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "certEE", tabId);
 
                 const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
                 const filteringURL = `https://dns.cert.ee/dns-query?dns=${encodedQuery}`;
@@ -1354,7 +1339,6 @@ const BrowserProtection = function () {
             const checkUrlWithControlD = async function (settings) {
                 // Check if the provider is enabled.
                 if (!settings.controlDEnabled) {
-                    console.debug(`[Control D] Protection is disabled; bailing out early.`);
                     return;
                 }
 
@@ -1373,7 +1357,7 @@ const BrowserProtection = function () {
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "controlD");
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "controlD", tabId);
 
                 const filteringURL = `https://freedns.controld.com/p1?name=${encodeURIComponent(urlHostname)}`;
 
