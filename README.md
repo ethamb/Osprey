@@ -15,6 +15,7 @@
 • [Wiki (FAQs)](https://github.com/Foulest/Osprey/wiki)
 
 ###
+
 ![Osprey Banner](https://i.imgur.com/0Ccn9WW.png)
 
 ## Official Partners
@@ -34,15 +35,15 @@ Osprey blocks websites that are classified as:
 - [PUAs](https://us.norton.com/blog/malware/what-are-puas-potentially-unwanted-applications)
 - [Cryptojacking](https://kaspersky.com/resource-center/definitions/what-is-cryptojacking)
 - [Malvertising](https://malwarebytes.com/malvertising)
-- [Spam](https://developers.google.com/search/docs/essentials/spam-policies)
 - [Compromised](https://malwarebytes.com/glossary/compromised)
 - [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
+- [Restricted](https://library.fiveable.me/key-terms/mass-media-society/adult-content) (Adult Content)
 
 ## Warning
 
 If the website is malicious, Osprey will block the page and display a warning:
 
-![Osprey Warning](https://i.imgur.com/eu7BFrH.png)
+![Osprey Warning](https://i.imgur.com/FAx4lb9.png)
 
 From this page, you can report the website as safe, temporarily allow the website, go back to safety, and continue
 anyway. By default, Osprey creates a browser notification for blocked pages that
@@ -54,38 +55,50 @@ entirely using [the system policies](https://github.com/Foulest/Osprey/wiki/Sett
 
 You can configure the extension's protection options in the settings:
 
-![Osprey Settings (Page 1)](https://i.imgur.com/urwoIO5.png)
-![Osprey Settings (Page 2)](https://i.imgur.com/JOwyz81.png)
+![Osprey Settings (Page 1)](https://i.imgur.com/Zc0XnLb.png)
+![Osprey Settings (Page 2)](https://i.imgur.com/mjUN7rd.png)
 
 ## Protection Providers
 
 The following providers are **enabled** by default:
 
-- [PrecisionSec Web Protection](https://precisionsec.com/?utm_source=osprey) (Official Partner)
+- [PrecisionSec Web Protection](https://www.precisionsec.com/?utm_source=osprey) (Official Partner)
+- [Bitdefender TrafficLight](https://www.bitdefender.com/en-us/consumer/trafficlight)
+- [Emsisoft Web Protection](https://www.emsisoft.com/en/help/1636/web-protection)
+- [G DATA WebProtection](https://www.gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
-- [Emsisoft Web Protection](https://emsisoft.com/en/help/1636/web-protection)
-- [Bitdefender TrafficLight](https://bitdefender.com/en-us/consumer/trafficlight)
 - [Norton SafeWeb](https://safeweb.norton.com)
-- [G DATA WebProtection](https://gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
-- [Quad9 Security DNS](https://quad9.net)
-- [AdGuard Security DNS](https://adguard-dns.io/en/public-dns.html)
-- [Switch.ch Security DNS](https://switch.ch/en/dns-firewall)
-- [CERT-EE Security DNS](https://ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
-- [Control D Security DNS](https://controld.com)
+- [AdGuard Security DNS](https://www.adguard-dns.io/en/public-dns.html)
+- [CERT-EE Security DNS](https://www.ria.ee/en/news/application-developed-cert-ee-protects-against-phishing-and-malware)
+- [CleanBrowsing Security DNS](https://www.cleanbrowsing.org/filters/#step3)
+- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
+- [Control D Security DNS](https://www.controld.com/free-dns)
+- [Quad9 Security DNS](https://www.quad9.net)
+- [Switch.ch Security DNS](https://www.switch.ch/en/dns-firewall)
 
 The following providers are **disabled** by default:
 
-- [Symantec Browser Protection](https://chromewebstore.google.com/detail/symantec-browser-protecti/hielpjjagjimpgppnopiibaefhfpbpfn)
-- [Cloudflare Security DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/#two-flavors-1-1-1-2-no-malware-1-1-1-3-no-malware-or-adult-content)
-- [DNS0.eu Security DNS](https://dns0.eu/zero)
-- [CleanBrowsing Security DNS](https://cleanbrowsing.org/filters/#step3)
-- [CIRA Canadian Shield DNS](https://cira.ca/en/canadian-shield)
+- [AdGuard Family DNS](https://www.adguard-dns.io/en/public-dns.html)
+- [CIRA Security DNS](https://www.cira.ca/en/canadian-shield)
+- [CIRA Family DNS](https://www.cira.ca/en/canadian-shield)
+- [CleanBrowsing Family DNS](https://www.cleanbrowsing.org/filters/#step1)
+- [CleanBrowsing Adult DNS](https://www.cleanbrowsing.org/filters/#step2)
+- [Cloudflare Family DNS](https://blog.cloudflare.com/introducing-1-1-1-1-for-families)
+- [Control D Family DNS](https://www.controld.com/free-dns)
+- [DNS0.eu Security DNS](https://www.dns0.eu/zero)
+- [DNS0.eu Kids DNS](https://www.dns0.eu/kids)
+- [OpenDNS Security DNS](https://www.opendns.com/home-internet-security)
+- [OpenDNS Family Shield DNS](https://www.opendns.com/home-internet-security)
 
-Providers disabled by default are either due to frequent reports of false positives or an unreliable support email or
-website for reporting said false positives. If a provider gives you false positives, report the links to them directly
-and disable them in the Protection Options panel if needed. Osprey is designed to be customizable, so you can enable or
-disable any of the providers at any time. Osprey does not have control over the providers' databases or how they
-classify URLs.
+Providers disabled by default are either due to:
+
+- Frequent reports of false positives
+- Failure to respond to false positive reports
+- Being an optional adult content filter
+
+If a provider gives you false positives, report the links to them directly and disable them in the Protection Options
+panel if needed. Osprey is designed to be customizable, so you can enable or disable any of the providers at any time.
+Osprey does not have control over the providers' databases or how they classify URLs.
 
 ## Privacy
 
@@ -128,7 +141,7 @@ For other installations, you can install the extension manually:
 ### Firefox
 
 > Note: This only works
-> for [builds of Firefox that allow unsigned addons.](https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox#w_what-are-my-options-if-i-want-to-use-an-unsigned-add-on-advanced-users)
+> for [builds of Firefox that allow unsigned addons.](https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox)
 
 1. Navigate to the [Actions section](https://github.com/Foulest/Osprey/actions/workflows) and click
    `Compile for Firefox`.

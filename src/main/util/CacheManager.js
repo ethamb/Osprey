@@ -12,9 +12,25 @@ class CacheManager {
             this.timeoutId = null;
 
             const providers = [
-                "precisionSec", "smartScreen", "symantec", "emsisoft", "bitdefender",
-                "norton", "gData", "cloudflare", "quad9", "dns0", "cleanBrowsing",
-                "cira", "adGuard", "switchCH", "certEE", "controlD",
+                // HTTP-based providers
+                "precisionSec",
+                "bitdefender",
+                "emsisoft",
+                "gData",
+                "smartScreen",
+                "norton",
+
+                // DNS-based providers
+                "adGuardSecurity", "adGuardFamily",
+                "certEE",
+                "ciraSecurity", "ciraFamily",
+                "cleanBrowsingSecurity", "cleanBrowsingFamily", "cleanBrowsingAdult",
+                "cloudflareSecurity", "cloudflareFamily",
+                "controlDSecurity", "controlDFamily",
+                "dns0Security", "dns0Kids",
+                "openDNSSecurity", "openDNSFamilyShield",
+                "quad9",
+                "switchCH"
             ];
 
             this.allowedCaches = {};

@@ -53,14 +53,9 @@
       "description": "If set to true, PrecisionSec will be enabled.",
       "type": "boolean"
     },
-    "SmartScreenEnabled": {
-      "title": "SmartScreen Enabled",
-      "description": "If set to true, SmartScreen will be enabled.",
-      "type": "boolean"
-    },
-    "SymantecEnabled": {
-      "title": "Symantec Enabled",
-      "description": "If set to true, Symantec will be enabled.",
+    "BitdefenderEnabled": {
+      "title": "Bitdefender Enabled",
+      "description": "If set to true, Bitdefender will be enabled.",
       "type": "boolean"
     },
     "EmsisoftEnabled": {
@@ -68,9 +63,14 @@
       "description": "If set to true, Emsisoft will be enabled.",
       "type": "boolean"
     },
-    "BitdefenderEnabled": {
-      "title": "Bitdefender Enabled",
-      "description": "If set to true, Bitdefender will be enabled.",
+    "GDATAEnabled": {
+      "title": "G DATA Enabled",
+      "description": "If set to true, G DATA will be enabled.",
+      "type": "boolean"
+    },
+    "SmartScreenEnabled": {
+      "title": "SmartScreen Enabled",
+      "description": "If set to true, SmartScreen will be enabled.",
       "type": "boolean"
     },
     "NortonEnabled": {
@@ -78,44 +78,14 @@
       "description": "If set to true, Norton will be enabled.",
       "type": "boolean"
     },
-    "GDATAEnabled": {
-      "title": "G DATA Enabled",
-      "description": "If set to true, G DATA will be enabled.",
+    "AdGuardSecurityEnabled": {
+      "title": "AdGuard Security Enabled",
+      "description": "If set to true, AdGuard Security will be enabled.",
       "type": "boolean"
     },
-    "CloudflareEnabled": {
-      "title": "Cloudflare Enabled",
-      "description": "If set to true, Cloudflare will be enabled.",
-      "type": "boolean"
-    },
-    "Quad9Enabled": {
-      "title": "Quad9 Enabled",
-      "description": "If set to true, Quad9 will be enabled.",
-      "type": "boolean"
-    },
-    "DNS0Enabled": {
-      "title": "DNS0 Enabled",
-      "description": "If set to true, DNS0 will be enabled.",
-      "type": "boolean"
-    },
-    "CleanBrowsingEnabled": {
-      "title": "CleanBrowsing Enabled",
-      "description": "If set to true, CleanBrowsing will be enabled.",
-      "type": "boolean"
-    },
-    "CIRAEnabled": {
-      "title": "CIRA Enabled",
-      "description": "If set to true, CIRA will be enabled.",
-      "type": "boolean"
-    },
-    "AdGuardEnabled": {
-      "title": "AdGuard Enabled",
-      "description": "If set to true, AdGuard will be enabled.",
-      "type": "boolean"
-    },
-    "SwitchCHEnabled": {
-      "title": "Switch.ch Enabled",
-      "description": "If set to true, Switch.ch will be enabled.",
+    "AdGuardFamilyEnabled": {
+      "title": "AdGuard Family Enabled",
+      "description": "If set to true, AdGuard Family will be enabled.",
       "type": "boolean"
     },
     "CERTEEEnabled": {
@@ -123,9 +93,79 @@
       "description": "If set to true, CERT-EE will be enabled.",
       "type": "boolean"
     },
-    "ControlDEnabled": {
-      "title": "Control D Enabled",
-      "description": "If set to true, Control D will be enabled.",
+    "CIRASecurityEnabled": {
+      "title": "CIRA Security Enabled",
+      "description": "If set to true, CIRA Security will be enabled.",
+      "type": "boolean"
+    },
+    "CIRAFamilyEnabled": {
+      "title": "CIRA Family Enabled",
+      "description": "If set to true, CIRA Family will be enabled.",
+      "type": "boolean"
+    },
+    "CleanBrowsingSecurityEnabled": {
+      "title": "CleanBrowsing Security Enabled",
+      "description": "If set to true, CleanBrowsing Security will be enabled.",
+      "type": "boolean"
+    },
+    "CleanBrowsingFamilyEnabled": {
+      "title": "CleanBrowsing Family Enabled",
+      "description": "If set to true, CleanBrowsing Family will be enabled.",
+      "type": "boolean"
+    },
+    "CleanBrowsingAdultEnabled": {
+      "title": "CleanBrowsing Adult Enabled",
+      "description": "If set to true, CleanBrowsing Adult will be enabled.",
+      "type": "boolean"
+    },
+    "CloudflareSecurityEnabled": {
+      "title": "Cloudflare Security Enabled",
+      "description": "If set to true, Cloudflare Security will be enabled.",
+      "type": "boolean"
+    },
+    "CloudflareFamilyEnabled": {
+      "title": "Cloudflare Family Enabled",
+      "description": "If set to true, Cloudflare Family will be enabled.",
+      "type": "boolean"
+    },
+    "ControlDSecurityEnabled": {
+      "title": "Control D Security Enabled",
+      "description": "If set to true, Control D Security will be enabled.",
+      "type": "boolean"
+    },
+    "ControlDFamilyEnabled": {
+      "title": "Control D Family Enabled",
+      "description": "If set to true, Control D Family will be enabled.",
+      "type": "boolean"
+    },
+    "DNS0SecurityEnabled": {
+      "title": "DNS0 Security Enabled",
+      "description": "If set to true, DNS0 Security will be enabled.",
+      "type": "boolean"
+    },
+    "DNS0KidsEnabled": {
+      "title": "DNS0 Kids Enabled",
+      "description": "If set to true, DNS0 Kids will be enabled.",
+      "type": "boolean"
+    },
+    "OpenDNSSecurityEnabled": {
+      "title": "OpenDNS Security Enabled",
+      "description": "If set to true, OpenDNS Security will be enabled.",
+      "type": "boolean"
+    },
+    "OpenDNSFamilyShieldEnabled": {
+      "title": "OpenDNS Family Shield Enabled",
+      "description": "If set to true, OpenDNS Family Shield will be enabled.",
+      "type": "boolean"
+    },
+    "Quad9Enabled": {
+      "title": "Quad9 Enabled",
+      "description": "If set to true, Quad9 will be enabled.",
+      "type": "boolean"
+    },
+    "SwitchCHEnabled": {
+      "title": "Switch.ch Enabled",
+      "description": "If set to true, Switch.ch will be enabled.",
       "type": "boolean"
     }
   }

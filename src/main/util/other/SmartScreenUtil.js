@@ -2,6 +2,7 @@
 
 // Utility module for SmartScreen hashing operations.
 const SmartScreenUtil = function () {
+
     const hashConstants = [
         7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9,
         14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
@@ -54,6 +55,7 @@ const SmartScreenUtil = function () {
         }
 
         let numberOfWords = paddedInput.length / 4;
+
         let getWord = function (index) {
             const wordIndex = 4 * index;
             return paddedInput.charCodeAt(wordIndex)

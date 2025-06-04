@@ -6,28 +6,44 @@ const Settings = (function () {
     const settingsKey = "Settings";
 
     let defaultSettings = {
-        precisionSecEnabled: true, // Default state for PrecisionSec
-        smartScreenEnabled: true, // Default state for SmartScreen
-        symantecEnabled: false, // Default state for Symantec
-        emsisoftEnabled: true, // Default state for Emsisoft
-        bitdefenderEnabled: true, // Default state for Bitdefender
-        nortonEnabled: true, // Default state for Norton
-        gDataEnabled: true, // Default state for G DATA
-        cloudflareEnabled: false, // Default state for Cloudflare
-        quad9Enabled: true, // Default state for Quad9
-        dns0Enabled: false, // Default state for DNS0
-        cleanBrowsingEnabled: false, // Default state for CleanBrowsing
-        ciraEnabled: false, // Default state for CIRA
-        adGuardEnabled: true, // Default state for AdGuard
-        switchCHEnabled: true, // Default state for Switch.ch
-        certEEEnabled: true, // Default state for CERT-EE
-        controlDEnabled: true, // Default state for Control D
+        // Page 1
+        precisionSecEnabled: true,
+        bitdefenderEnabled: true,
+        emsisoftEnabled: true,
+        gDataEnabled: true,
+        smartScreenEnabled: true,
+        nortonEnabled: true,
 
-        notificationsEnabled: false, // Default state for notifications
-        ignoreFrameNavigation: true, // Default state for ignoring frame navigation
-        hideContinueButtons: false, // Default state for hiding continue buttons
-        hideReportButton: false, // Default state for hiding the report button
-        cacheExpirationSeconds: 86400, // Default cache expiration time in seconds
+        // Page 2
+        adGuardSecurityEnabled: true,
+        adGuardFamilyEnabled: false,
+        certEEEnabled: true,
+        ciraSecurityEnabled: false,
+        ciraFamilyEnabled: false,
+        cleanBrowsingSecurityEnabled: true,
+        cleanBrowsingFamilyEnabled: false,
+
+        // Page 3
+        cleanBrowsingAdultEnabled: false,
+        cloudflareSecurityEnabled: true,
+        cloudflareFamilyEnabled: false,
+        controlDSecurityEnabled: true,
+        controlDFamilyEnabled: false,
+        dns0SecurityEnabled: false,
+        dns0KidsEnabled: false,
+
+        // Page 4
+        openDNSSecurityEnabled: false,
+        openDNSFamilyShieldEnabled: false,
+        quad9Enabled: true,
+        switchCHEnabled: true,
+
+        // General Settings
+        notificationsEnabled: false,
+        ignoreFrameNavigation: true,
+        hideContinueButtons: false,
+        hideReportButton: false,
+        cacheExpirationSeconds: 86400,
     };
 
     /**

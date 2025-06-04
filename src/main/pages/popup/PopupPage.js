@@ -21,18 +21,11 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             messageType: Messages.MessageType.PRECISIONSEC_TOGGLED,
         },
         {
-            name: "smartScreenEnabled",
-            title: "Microsoft SmartScreen",
-            labelElementId: "smartScreenStatus",
-            switchElementId: "smartScreenSwitch",
-            messageType: Messages.MessageType.SMARTSCREEN_TOGGLED,
-        },
-        {
-            name: "symantecEnabled",
-            title: "Symantec Browser Protection",
-            labelElementId: "symantecStatus",
-            switchElementId: "symantecSwitch",
-            messageType: Messages.MessageType.SYMANTEC_TOGGLED,
+            name: "bitdefenderEnabled",
+            title: "Bitdefender TrafficLight",
+            labelElementId: "bitdefenderStatus",
+            switchElementId: "bitdefenderSwitch",
+            messageType: Messages.MessageType.BITDEFENDER_TOGGLED,
         },
         {
             name: "emsisoftEnabled",
@@ -42,11 +35,18 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             messageType: Messages.MessageType.EMSISOFT_TOGGLED,
         },
         {
-            name: "bitdefenderEnabled",
-            title: "Bitdefender TrafficLight",
-            labelElementId: "bitdefenderStatus",
-            switchElementId: "bitdefenderSwitch",
-            messageType: Messages.MessageType.BITDEFENDER_TOGGLED,
+            name: "gDataEnabled",
+            title: "G DATA WebProtection",
+            labelElementId: "gDataStatus",
+            switchElementId: "gDataSwitch",
+            messageType: Messages.MessageType.G_DATA_TOGGLED,
+        },
+        {
+            name: "smartScreenEnabled",
+            title: "Microsoft SmartScreen",
+            labelElementId: "smartScreenStatus",
+            switchElementId: "smartScreenSwitch",
+            messageType: Messages.MessageType.SMARTSCREEN_TOGGLED,
         },
         {
             name: "nortonEnabled",
@@ -56,60 +56,18 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             messageType: Messages.MessageType.NORTON_TOGGLED,
         },
         {
-            name: "gDataEnabled",
-            title: "G DATA WebProtection",
-            labelElementId: "gDataStatus",
-            switchElementId: "gDataSwitch",
-            messageType: Messages.MessageType.G_DATA_TOGGLED,
-        },
-        {
-            name: "cloudflareEnabled",
-            title: "Cloudflare Security DNS",
-            labelElementId: "cloudflareStatus",
-            switchElementId: "cloudflareSwitch",
-            messageType: Messages.MessageType.CLOUDFLARE_TOGGLED,
-        },
-        {
-            name: "quad9Enabled",
-            title: "Quad9 Security DNS",
-            labelElementId: "quad9Status",
-            switchElementId: "quad9Switch",
-            messageType: Messages.MessageType.QUAD9_TOGGLED,
-        },
-        {
-            name: "dns0Enabled",
-            title: "DNS0.eu Security DNS",
-            labelElementId: "dns0Status",
-            switchElementId: "dns0Switch",
-            messageType: Messages.MessageType.DNS0_TOGGLED,
-        },
-        {
-            name: "cleanBrowsingEnabled",
-            title: "CleanBrowsing Security DNS",
-            labelElementId: "cleanBrowsingStatus",
-            switchElementId: "cleanBrowsingSwitch",
-            messageType: Messages.MessageType.CLEAN_BROWSING_TOGGLED,
-        },
-        {
-            name: "ciraEnabled",
-            title: "CIRA Canadian Shield DNS",
-            labelElementId: "ciraStatus",
-            switchElementId: "ciraSwitch",
-            messageType: Messages.MessageType.CIRA_TOGGLED,
-        },
-        {
-            name: "adGuardEnabled",
+            name: "adGuardSecurityEnabled",
             title: "AdGuard Security DNS",
-            labelElementId: "adGuardStatus",
-            switchElementId: "adGuardSwitch",
-            messageType: Messages.MessageType.ADGUARD_TOGGLED,
+            labelElementId: "adGuardSecurityStatus",
+            switchElementId: "adGuardSecuritySwitch",
+            messageType: Messages.MessageType.ADGUARD_SECURITY_TOGGLED,
         },
         {
-            name: "switchCHEnabled",
-            title: "Switch.ch Security DNS",
-            labelElementId: "switchCHStatus",
-            switchElementId: "switchCHSwitch",
-            messageType: Messages.MessageType.SWITCH_CH_TOGGLED,
+            name: "adGuardFamilyEnabled",
+            title: "AdGuard Family DNS",
+            labelElementId: "adGuardFamilyStatus",
+            switchElementId: "adGuardFamilySwitch",
+            messageType: Messages.MessageType.ADGUARD_FAMILY_TOGGLED,
         },
         {
             name: "certEEEnabled",
@@ -119,12 +77,110 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             messageType: Messages.MessageType.CERT_EE_TOGGLED,
         },
         {
-            name: "controlDEnabled",
+            name: "ciraSecurityEnabled",
+            title: "CIRA Security DNS",
+            labelElementId: "ciraSecurityStatus",
+            switchElementId: "ciraSecuritySwitch",
+            messageType: Messages.MessageType.CIRA_SECURITY_TOGGLED,
+        },
+        {
+            name: "ciraFamilyEnabled",
+            title: "CIRA Family DNS",
+            labelElementId: "ciraFamilyStatus",
+            switchElementId: "ciraFamilySwitch",
+            messageType: Messages.MessageType.CIRA_FAMILY_TOGGLED,
+        },
+        {
+            name: "cleanBrowsingSecurityEnabled",
+            title: "CleanBrowsing Security DNS",
+            labelElementId: "cleanBrowsingSecurityStatus",
+            switchElementId: "cleanBrowsingSecuritySwitch",
+            messageType: Messages.MessageType.CLEANBROWSING_SECURITY_TOGGLED,
+        },
+        {
+            name: "cleanBrowsingFamilyEnabled",
+            title: "CleanBrowsing Family DNS",
+            labelElementId: "cleanBrowsingFamilyStatus",
+            switchElementId: "cleanBrowsingFamilySwitch",
+            messageType: Messages.MessageType.CLEANBROWSING_FAMILY_TOGGLED,
+        },
+        {
+            name: "cleanBrowsingAdultEnabled",
+            title: "CleanBrowsing Adult DNS",
+            labelElementId: "cleanBrowsingAdultStatus",
+            switchElementId: "cleanBrowsingAdultSwitch",
+            messageType: Messages.MessageType.CLEANBROWSING_ADULT_TOGGLED,
+        },
+        {
+            name: "cloudflareSecurityEnabled",
+            title: "Cloudflare Security DNS",
+            labelElementId: "cloudflareSecurityStatus",
+            switchElementId: "cloudflareSecuritySwitch",
+            messageType: Messages.MessageType.CLOUDFLARE_SECURITY_TOGGLED,
+        },
+        {
+            name: "cloudflareFamilyEnabled",
+            title: "Cloudflare Family DNS",
+            labelElementId: "cloudflareFamilyStatus",
+            switchElementId: "cloudflareFamilySwitch",
+            messageType: Messages.MessageType.CLOUDFLARE_FAMILY_TOGGLED,
+        },
+        {
+            name: "controlDSecurityEnabled",
             title: "Control D Security DNS",
-            labelElementId: "controlDStatus",
-            switchElementId: "controlDSwitch",
-            messageType: Messages.MessageType.CONTROL_D_TOGGLED,
-        }
+            labelElementId: "controlDSecurityStatus",
+            switchElementId: "controlDSecuritySwitch",
+            messageType: Messages.MessageType.CONTROL_D_SECURITY_TOGGLED,
+        },
+        {
+            name: "controlDFamilyEnabled",
+            title: "Control D Family DNS",
+            labelElementId: "controlDFamilyStatus",
+            switchElementId: "controlDFamilySwitch",
+            messageType: Messages.MessageType.CONTROL_D_FAMILY_TOGGLED,
+        },
+        {
+            name: "dns0SecurityEnabled",
+            title: "DNS0.eu Security DNS",
+            labelElementId: "dns0SecurityStatus",
+            switchElementId: "dns0SecuritySwitch",
+            messageType: Messages.MessageType.DNS0_SECURITY_TOGGLED,
+        },
+        {
+            name: "dns0KidsEnabled",
+            title: "DNS0.eu Kids DNS",
+            labelElementId: "dns0KidsStatus",
+            switchElementId: "dns0KidsSwitch",
+            messageType: Messages.MessageType.DNS0_KIDS_TOGGLED,
+        },
+        {
+            name: "openDNSSecurityEnabled",
+            title: "OpenDNS Security DNS",
+            labelElementId: "openDNSSecurityStatus",
+            switchElementId: "openDNSSecuritySwitch",
+            messageType: Messages.MessageType.OPENDNS_SECURITY_TOGGLED,
+        },
+        {
+            name: "openDNSFamilyShieldEnabled",
+            title: "OpenDNS Family Shield DNS",
+            labelElementId: "openDNSFamilyShieldStatus",
+            switchElementId: "openDNSFamilyShieldSwitch",
+            messageType: Messages.MessageType.OPENDNS_FAMILY_SHIELD_TOGGLED,
+        },
+        {
+            name: "quad9Enabled",
+            title: "Quad9 Security DNS",
+            labelElementId: "quad9Status",
+            switchElementId: "quad9Switch",
+            messageType: Messages.MessageType.QUAD9_TOGGLED,
+        },
+        {
+            name: "switchCHEnabled",
+            title: "Switch.ch Security DNS",
+            labelElementId: "switchCHStatus",
+            switchElementId: "switchCHSwitch",
+            messageType: Messages.MessageType.SWITCH_CH_TOGGLED,
+        },
     ];
 
     /**
@@ -278,17 +334,19 @@ window.PopupSingleton = window.PopupSingleton || (function () {
         const page1 = document.getElementById("page1");
         const page2 = document.getElementById("page2");
         const page3 = document.getElementById("page3");
+        const page4 = document.getElementById("page4");
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
         const pageIndicator = document.getElementById("pageIndicator");
         let currentPage = 1;
-        const totalPages = 3;
+        const totalPages = 4;
 
         function updatePageDisplay() {
             // Hide all pages
             page1.classList.remove("active");
             page2.classList.remove("active");
             page3.classList.remove("active");
+            page4.classList.remove("active");
 
             // Show current page
             if (currentPage === 1) {
@@ -297,6 +355,8 @@ window.PopupSingleton = window.PopupSingleton || (function () {
                 page2.classList.add("active");
             } else if (currentPage === 3) {
                 page3.classList.add("active");
+            } else if (currentPage === 4) {
+                page4.classList.add("active");
             }
 
             // Update page indicator

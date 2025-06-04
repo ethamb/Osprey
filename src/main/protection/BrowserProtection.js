@@ -76,7 +76,7 @@ const BrowserProtection = function () {
             const signal = tabAbortControllers.get(tabId).signal;
 
             /**
-             * Checks the URL with the PrecisionSec API.
+             * Checks the URL with PrecisionSec's API.
              */
             const checkUrlWithPrecisionSec = async function (settings) {
                 // Check if the provider is enabled.
@@ -147,293 +147,7 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with the SmartScreen API.
-             */
-            const checkUrlWithSmartScreen = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.smartScreenEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "smartScreen")) {
-                    console.debug(`[SmartScreen] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "smartScreen")) {
-                    console.debug(`[SmartScreen] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "smartScreen", tabId);
-
-                // Prepare request data
-                const requestData = JSON.stringify({
-                    destination: {
-                        uri: UrlHelpers.normalizeHostname(urlHostname + urlPathname)
-                    }
-                });
-
-                // Generate the hash and authorization header
-                const {hash, key} = SmartScreenUtil.hash(requestData);
-                const authHeader = `SmartScreenHash ${btoa(JSON.stringify({
-                    // Working Auth IDs (a.k.a. prodGuid):
-                    // - 6d2e7d9c-1334-4fc2-a549-5ec504f0e8f1 (default)
-                    // - 381ddd1e-e600-42de-94ed-8c34bf73f16d
-                    // - be432eec-9895-4194-963C-d24f4a15bfaa
-                    // - 41a438bc-1249-43d3-a26d-69cd62c08317
-                    authId: "6d2e7d9c-1334-4fc2-a549-5ec504f0e8f1",
-                    hash,
-                    key
-                }))}`;
-
-                try {
-                    const response = await fetch("https://bf.smartscreen.microsoft.com/api/browser/Navigate/1", {
-                        method: "POST",
-                        credentials: "omit",
-                        headers: {
-                            "Content-Type": "application/json; charset=utf-8",
-                            Authorization: authHeader
-                        },
-                        body: requestData,
-                        signal
-                    });
-
-                    // Return early if the response is not OK
-                    if (!response.ok) {
-                        console.warn(`[SmartScreen] Returned early: ${response.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const data = await response.json();
-                    const {responseCategory} = data;
-
-                    switch (responseCategory) {
-                        case "Phishing":
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                            break;
-
-                        case "Malicious":
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                            break;
-
-                        case "Untrusted":
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                            break;
-
-                        case "Allowed":
-                            console.debug(`[SmartScreen] Added URL to allowed cache: ${url}`);
-                            BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "smartScreen");
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                            break;
-
-                        default:
-                            console.warn(`[SmartScreen] Returned an unexpected result for URL ${url}: ${JSON.stringify(data)}`);
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                            break;
-                    }
-                } catch (error) {
-                    console.debug(`[SmartScreen] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with the Symantec API.
-             */
-            const checkUrlWithSymantec = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.symantecEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "symantec")) {
-                    console.debug(`[Symantec] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "symantec")) {
-                    console.debug(`[Symantec] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "symantec", tabId);
-
-                // Replaces the http:// and https:// with nothing
-                const trimmedUrl = url.replace(/^(http|https):\/\//, "");
-
-                // Adds "/80/" after the first "/" character it sees
-                // Example: malware.wicar.org/data/ms14_064_ole_xp.html becomes malware.wicar.org/80/data/ms14_064_ole_xp.html
-                const trimmedUrlWithPort = trimmedUrl.replace(/\//, "/80/");
-
-                // Checks if the URL has "/80/" in it. If it doesn't, it adds it to the end
-                // Example: wicar.org becomes wicar.org/80/
-                const trimmedUrlWithPortAndSlash = trimmedUrlWithPort.includes("/80/") ? trimmedUrlWithPort : trimmedUrlWithPort + "/80/";
-
-                const apiUrl = `https://ent-shasta-rrs.symantec.com/webpulse/2/R/CA45FE7076BBCE1812A859E0AB82B49F/BRDSBPNWA1/-/GET/https/${trimmedUrlWithPortAndSlash}`;
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: "GET",
-                        signal
-                    });
-
-                    // Return early if the response is not OK
-                    if (!response.ok) {
-                        console.warn(`[Symantec] Returned early: ${response.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const data = await response.text();
-
-                    // // Compromised Sites
-                    // // Disabled due to false positives
-                    // if (data.includes("<DomC>7C") || data.includes("7C</DomC>")) {
-                    //     callback(new ProtectionResult(url, ProtectionResult.ResultType.COMPROMISED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                    //     return;
-                    // }
-
-                    // Malicious Sources
-                    if (data.includes("<DirC>2B") || data.includes("2B</DirC>")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Malicious Outbound Data
-                    if (data.includes("<DirC>2C") || data.includes("2C</DirC>")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Phishing
-                    if (data.includes("<FileC>6C") || data.includes("6C</FileC>")
-                        || data.includes("<DomC>12") || data.includes("12</DomC>")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Potentially Unwanted Applications
-                    if (data.includes("<DomC>66") || data.includes("66</DomC>")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.PUA, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Scam/Questionable Legality
-                    if (data.includes("<DirC>09") || data.includes("09</DirC>")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FRAUD, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Spam
-                    if (data.includes("<DomC>65") || data.includes("65</DomC>")) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.SPAM, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Safe/Trusted
-                    console.debug(`[Symantec] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "symantec");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[Symantec] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SYMANTEC), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with the Emsisoft API.
-             */
-            const checkUrlWithEmsisoft = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.emsisoftEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "emsisoft")) {
-                    console.debug(`[Emsisoft] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "emsisoft")) {
-                    console.debug(`[Emsisoft] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "emsisoft", tabId);
-
-                const hostnameArray = EmsisoftUtil.createHostnameArray(urlHostname);
-                const stringOfHashes = EmsisoftUtil.getStringOfHashes(hostnameArray);
-                const apiUrl = `https://alomar.emsisoft.com/api/v1/url/get/${stringOfHashes}`;
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: "GET",
-                        signal
-                    });
-
-                    // Return early if the response is not OK
-                    if (!response.ok) {
-                        console.warn(`[Emsisoft] Returned early: ${response.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const data = await response.json();
-
-                    // Allow if the hostname is in the bypass list
-                    if (urlHostname.match(/alomar\.emsisoft\.com$/)) {
-                        console.warn(`(This shouldn't happen) Added Emsisoft's own URL to allowed cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "emsisoft");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Check if the URL should be blocked
-                    for (const match of data.matches) {
-                        const decoded = atob(match.regex);
-                        const perUrlSalt = decoded.slice(0, 8);
-                        const encryptedRegex = decoded.slice(8);
-                        const subdomain = EmsisoftUtil.findSubdomainByHash(urlHostname, match.hash);
-                        const key = MD5("Kd3fIjAq" + perUrlSalt + subdomain, null, true);
-                        const result = RC4(key, encryptedRegex);
-
-                        // Malicious
-                        if (result.split("\t").some(value => value
-                            && EmsisoftUtil.newRegExp(value, true)?.test(url))) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Safe/Trusted
-                    console.debug(`[Emsisoft] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "emsisoft");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[Emsisoft] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with the Bitdefender API.
+             * Checks the URL with Bitdefender's API.
              */
             const checkUrlWithBitdefender = async function (settings) {
                 // Check if the provider is enabled.
@@ -548,32 +262,34 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with the Norton API.
+             * Checks the URL with Emsisoft's API.
              */
-            const checkUrlWithNorton = async function (settings) {
+            const checkUrlWithEmsisoft = async function (settings) {
                 // Check if the provider is enabled.
-                if (!settings.nortonEnabled) {
+                if (!settings.emsisoftEnabled) {
                     return;
                 }
 
                 // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "norton")) {
-                    console.debug(`[Norton] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                if (isUrlInAllowedCache(urlObject, urlHostname, "emsisoft")) {
+                    console.debug(`[Emsisoft] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                     return;
                 }
 
                 // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "norton")) {
-                    console.debug(`[Norton] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                if (isUrlInProcessingCache(urlObject, urlHostname, "emsisoft")) {
+                    console.debug(`[Emsisoft] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                     return;
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "norton", tabId);
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "emsisoft", tabId);
 
-                const apiUrl = `https://ratings-wrs.norton.com/brief?url=${encodeURIComponent(url)}`;
+                const hostnameArray = EmsisoftUtil.createHostnameArray(urlHostname);
+                const stringOfHashes = EmsisoftUtil.getStringOfHashes(hostnameArray);
+                const apiUrl = `https://alomar.emsisoft.com/api/v1/url/get/${stringOfHashes}`;
 
                 try {
                     const response = await fetch(apiUrl, {
@@ -583,41 +299,50 @@ const BrowserProtection = function () {
 
                     // Return early if the response is not OK
                     if (!response.ok) {
-                        console.warn(`[Norton] Returned early: ${response.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                        console.warn(`[Emsisoft] Returned early: ${response.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                         return;
                     }
 
-                    const data = await response.text();
+                    const data = await response.json();
 
-                    // Malicious
-                    if (data.includes('r="b"')) {
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                    // Allow if the hostname is in the bypass list
+                    if (urlHostname.match(/alomar\.emsisoft\.com$/)) {
+                        console.warn(`(This shouldn't happen) Added Emsisoft's own URL to allowed cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "emsisoft");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                         return;
+                    }
+
+                    // Check if the URL should be blocked
+                    for (const match of data.matches) {
+                        const decoded = atob(match.regex);
+                        const perUrlSalt = decoded.slice(0, 8);
+                        const encryptedRegex = decoded.slice(8);
+                        const subdomain = EmsisoftUtil.findSubdomainByHash(urlHostname, match.hash);
+                        const key = MD5("Kd3fIjAq" + perUrlSalt + subdomain, null, true);
+                        const result = RC4(key, encryptedRegex);
+
+                        // Malicious
+                        if (result.split("\t").some(value => value
+                            && EmsisoftUtil.newRegExp(value, true)?.test(url))) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
+                            return;
+                        }
                     }
 
                     // Safe/Trusted
-                    if (data.includes('r="g"')
-                        || data.includes('r="r"')
-                        || data.includes('r="w"')
-                        || data.includes('r="u"')) {
-                        console.debug(`[Norton] Added URL to allowed cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "norton");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Unexpected result
-                    console.warn(`[Norton] Returned an unexpected result for URL ${url}: ${data}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                    console.debug(`[Emsisoft] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "emsisoft");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                 } catch (error) {
-                    console.debug(`[Norton] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                    console.debug(`[Emsisoft] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
                 }
             };
 
             /**
-             * Checks the URL with the G DATA API.
+             * Checks the URL with G DATA's API.
              */
             const checkUrlWithGDATA = async function (settings) {
                 // Check if the provider is enabled.
@@ -702,30 +427,823 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with Cloudflare's DNS APIs.
+             * Checks the URL with SmartScreen's API.
              */
-            const checkUrlWithCloudflare = async function (settings) {
+            const checkUrlWithSmartScreen = async function (settings) {
                 // Check if the provider is enabled.
-                if (!settings.cloudflareEnabled) {
+                if (!settings.smartScreenEnabled) {
                     return;
                 }
 
                 // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "cloudflare")) {
-                    console.debug(`[Cloudflare] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                if (isUrlInAllowedCache(urlObject, urlHostname, "smartScreen")) {
+                    console.debug(`[SmartScreen] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                     return;
                 }
 
                 // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "cloudflare")) {
-                    console.debug(`[Cloudflare] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                if (isUrlInProcessingCache(urlObject, urlHostname, "smartScreen")) {
+                    console.debug(`[SmartScreen] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
                     return;
                 }
 
                 // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cloudflare", tabId);
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "smartScreen", tabId);
+
+                // Prepare request data
+                const requestData = JSON.stringify({
+                    destination: {
+                        uri: UrlHelpers.normalizeHostname(urlHostname + urlPathname)
+                    }
+                });
+
+                // Generate the hash and authorization header
+                const {hash, key} = SmartScreenUtil.hash(requestData);
+                const authHeader = `SmartScreenHash ${btoa(JSON.stringify({
+                    authId: "381ddd1e-e600-42de-94ed-8c34bf73f16d",
+                    hash,
+                    key
+                }))}`;
+
+                try {
+                    const response = await fetch("https://bf.smartscreen.microsoft.com/api/browser/Navigate/1", {
+                        method: "POST",
+                        credentials: "omit",
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8",
+                            Authorization: authHeader
+                        },
+                        body: requestData,
+                        signal
+                    });
+
+                    // Return early if the response is not OK
+                    if (!response.ok) {
+                        console.warn(`[SmartScreen] Returned early: ${response.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const data = await response.json();
+                    const {responseCategory} = data;
+
+                    switch (responseCategory) {
+                        case "Phishing":
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.PHISHING, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
+                            break;
+
+                        case "Malicious":
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
+                            break;
+
+                        case "Untrusted":
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.UNTRUSTED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
+                            break;
+
+                        case "Allowed":
+                            console.debug(`[SmartScreen] Added URL to allowed cache: ${url}`);
+                            BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "smartScreen");
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
+                            break;
+
+                        default:
+                            console.warn(`[SmartScreen] Returned an unexpected result for URL ${url}: ${JSON.stringify(data)}`);
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
+                            break;
+                    }
+                } catch (error) {
+                    console.debug(`[SmartScreen] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.SMARTSCREEN), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with Norton's API.
+             */
+            const checkUrlWithNorton = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.nortonEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "norton")) {
+                    console.debug(`[Norton] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "norton")) {
+                    console.debug(`[Norton] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "norton", tabId);
+
+                const apiUrl = `https://ratings-wrs.norton.com/brief?url=${encodeURIComponent(url)}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: "GET",
+                        signal
+                    });
+
+                    // Return early if the response is not OK
+                    if (!response.ok) {
+                        console.warn(`[Norton] Returned early: ${response.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const data = await response.text();
+
+                    // Malicious
+                    if (data.includes('r="b"')) {
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Safe/Trusted
+                    if (data.includes('r="g"')
+                        || data.includes('r="r"')
+                        || data.includes('r="w"')
+                        || data.includes('r="u"')) {
+                        console.debug(`[Norton] Added URL to allowed cache: ` + url);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "norton");
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    // Unexpected result
+                    console.warn(`[Norton] Returned an unexpected result for URL ${url}: ${data}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[Norton] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.NORTON), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with AdGuard's Security DNS API.
+             */
+            const checkUrlWithAdGuardSecurity = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.adGuardSecurityEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "adGuardSecurity")) {
+                    console.debug(`[AdGuard Security] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.ADGUARD_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "adGuardSecurity")) {
+                    console.debug(`[AdGuard Security] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.ADGUARD_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "adGuardSecurity", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://dns.adguard-dns.com/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[AdGuard Security] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.ADGUARD_SECURITY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // AdGuard's way of blocking the domain.
+                        if (filteringDataString.includes("0,0,1,0,1,192,12,0,1,0,1,0,0,14,16,0,4,94,140,14,3")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.ADGUARD_SECURITY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[AdGuard Security] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "adGuardSecurity");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.ADGUARD_SECURITY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[AdGuard Security] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.ADGUARD_SECURITY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with AdGuard's Family DNS API.
+             */
+            const checkUrlWithAdGuardFamily = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.adGuardFamilyEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "adGuardFamily")) {
+                    console.debug(`[AdGuard Family] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.ADGUARD_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "adGuardFamily")) {
+                    console.debug(`[AdGuard Family] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.ADGUARD_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "adGuardFamily", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://family.adguard-dns.com/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[AdGuard Family] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.ADGUARD_FAMILY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        console.debug(`[AdGuard Family] Filtering data: ${filteringDataString}`);
+
+                        // AdGuard's way of blocking the domain.
+                        if (filteringDataString.includes("0,0,1,0,1,192,12,0,1,0,1,0,0,14,16,0,4,94,140,14,3")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.RESTRICTED, ProtectionResult.ResultOrigin.ADGUARD_FAMILY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[AdGuard Family] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "adGuardFamily");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.ADGUARD_FAMILY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[AdGuard Family] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.ADGUARD_FAMILY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with CERT-EE's DNS API.
+             */
+            const checkUrlWithCERTEE = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.certEEEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "certEE")) {
+                    console.debug(`[CERT-EE] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "certEE")) {
+                    console.debug(`[CERT-EE] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "certEE", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://dns.cert.ee/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[CERT-EE] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // CERT-EE's way of blocking the domain.
+                        if (filteringDataString.endsWith("180,0,0,9,58,128")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[CERT-EE] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "certEE");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[CERT-EE] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with CIRA's Security DNS API.
+             */
+            const checkUrlWithCIRASecurity = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.ciraSecurityEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "ciraSecurity")) {
+                    console.debug(`[CIRA Security] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CIRA_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "ciraSecurity")) {
+                    console.debug(`[CIRA Security] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CIRA_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "ciraSecurity", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://protected.canadianshield.cira.ca/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[CIRA Security] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CIRA_SECURITY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // CIRA's way of blocking the domain.
+                        if (filteringDataString.includes("0,1,0,1,0,0,0,0,0,4")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CIRA_SECURITY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[CIRA Security] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "ciraSecurity");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CIRA_SECURITY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[CIRA Security] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CIRA_SECURITY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with CIRA's Family DNS API.
+             */
+            const checkUrlWithCIRAFamily = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.ciraFamilyEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "ciraFamily")) {
+                    console.debug(`[CIRA Family] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CIRA_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "ciraFamily")) {
+                    console.debug(`[CIRA Family] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CIRA_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "ciraFamily", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://family.canadianshield.cira.ca/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[CIRA Family] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CIRA_FAMILY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // CIRA's way of blocking the domain.
+                        if (filteringDataString.includes("0,1,0,1,0,0,0,0,0,4")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.RESTRICTED, ProtectionResult.ResultOrigin.CIRA_FAMILY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[CIRA Family] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "ciraFamily");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CIRA_FAMILY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[CIRA Family] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CIRA_FAMILY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with CleanBrowsing's Security DNS API.
+             */
+            const checkUrlWithCleanBrowsingSecurity = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.cleanBrowsingSecurityEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "cleanBrowsingSecurity")) {
+                    console.debug(`[CleanBrowsing Security] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLEANBROWSING_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "cleanBrowsingSecurity")) {
+                    console.debug(`[CleanBrowsing Security] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLEANBROWSING_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cleanBrowsingSecurity", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://doh.cleanbrowsing.org/doh/security-filter/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[CleanBrowsing Security] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING_SECURITY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // CleanBrowsing's way of blocking the domain.
+                        if (filteringData[3] === 131) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLEANBROWSING_SECURITY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[CleanBrowsing Security] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cleanBrowsingSecurity");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLEANBROWSING_SECURITY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[CleanBrowsing Security] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING_SECURITY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with CleanBrowsing's Family DNS API.
+             */
+            const checkUrlWithCleanBrowsingFamily = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.cleanBrowsingFamilyEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "cleanBrowsingFamily")) {
+                    console.debug(`[CleanBrowsing Family] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLEANBROWSING_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "cleanBrowsingFamily")) {
+                    console.debug(`[CleanBrowsing Family] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLEANBROWSING_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cleanBrowsingFamily", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://doh.cleanbrowsing.org/doh/family-filter/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[CleanBrowsing Family] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING_FAMILY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // CleanBrowsing's way of blocking the domain.
+                        if (filteringData[3] === 131) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.RESTRICTED, ProtectionResult.ResultOrigin.CLEANBROWSING_FAMILY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[CleanBrowsing Family] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cleanBrowsingFamily");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLEANBROWSING_FAMILY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[CleanBrowsing Family] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING_FAMILY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with CleanBrowsing's Adult DNS API.
+             */
+            const checkUrlWithCleanBrowsingAdult = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.cleanBrowsingAdultEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "cleanBrowsingAdult")) {
+                    console.debug(`[CleanBrowsing Adult] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLEANBROWSING_ADULT), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "cleanBrowsingAdult")) {
+                    console.debug(`[CleanBrowsing Adult] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLEANBROWSING_ADULT), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cleanBrowsingAdult", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://doh.cleanbrowsing.org/doh/adult-filter/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[CleanBrowsing Adult] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING_ADULT), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // CleanBrowsing's way of blocking the domain.
+                        if (filteringData[3] === 131) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.RESTRICTED, ProtectionResult.ResultOrigin.CLEANBROWSING_ADULT), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[CleanBrowsing Adult] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cleanBrowsingAdult");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLEANBROWSING_ADULT), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[CleanBrowsing Adult] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING_ADULT), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with Cloudflare's Security DNS APIs.
+             */
+            const checkUrlWithCloudflareSecurity = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.cloudflareSecurityEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "cloudflareSecurity")) {
+                    console.debug(`[Cloudflare Security] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLOUDFLARE_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "cloudflareSecurity")) {
+                    console.debug(`[Cloudflare Security] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLOUDFLARE_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cloudflareSecurity", tabId);
 
                 const filteringURL = `https://security.cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
 
@@ -748,8 +1266,8 @@ const BrowserProtection = function () {
 
                     // Return early if one or more of the responses is not OK
                     if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`[Cloudflare] Returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                        console.warn(`[Cloudflare Security] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLOUDFLARE_SECURITY), (new Date()).getTime() - startTime);
                         return;
                     }
 
@@ -765,18 +1283,565 @@ const BrowserProtection = function () {
                         // Cloudflare's way of blocking the domain.
                         if (filteringDataString.includes("EDE(16): Censored")
                             || filteringDataString.includes("\"TTL\":60,\"data\":\"0.0.0.0\"")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLOUDFLARE_SECURITY), (new Date()).getTime() - startTime);
                             return;
                         }
                     }
 
                     // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`[Cloudflare] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cloudflare");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                    console.debug(`[Cloudflare Security] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cloudflareSecurity");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLOUDFLARE_SECURITY), (new Date()).getTime() - startTime);
                 } catch (error) {
-                    console.debug(`[Cloudflare] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLOUDFLARE), (new Date()).getTime() - startTime);
+                    console.debug(`[Cloudflare Security] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLOUDFLARE_SECURITY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with Cloudflare's Family DNS APIs.
+             */
+            const checkUrlWithCloudflareFamily = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.cloudflareFamilyEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "cloudflareFamily")) {
+                    console.debug(`[Cloudflare Family] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLOUDFLARE_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "cloudflareFamily")) {
+                    console.debug(`[Cloudflare Family] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLOUDFLARE_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cloudflareFamily", tabId);
+
+                const filteringURL = `https://family.cloudflare-dns.com/dns-query?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[Cloudflare Family] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLOUDFLARE_FAMILY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = await filteringResponse.json();
+                    const filteringDataString = JSON.stringify(filteringData);
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // Cloudflare's way of blocking the domain.
+                        if (filteringDataString.includes("EDE(16): Censored")
+                            || filteringDataString.includes("\"TTL\":60,\"data\":\"0.0.0.0\"")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.RESTRICTED, ProtectionResult.ResultOrigin.CLOUDFLARE_FAMILY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[Cloudflare Family] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cloudflareFamily");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLOUDFLARE_FAMILY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[Cloudflare Family] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLOUDFLARE_FAMILY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with Control D's DNS API.
+             */
+            const checkUrlWithControlDSecurity = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.controlDSecurityEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "controlDSecurity")) {
+                    console.debug(`[Control D Security] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CONTROL_D_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "controlDSecurity")) {
+                    console.debug(`[Control D Security] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CONTROL_D_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "controlDSecurity", tabId);
+
+                const filteringURL = `https://freedns.controld.com/p1?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[Control D Security] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D_SECURITY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // ControlD's way of blocking the domain.
+                        if (filteringDataString.endsWith("0,4,0,0,0,0")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D_SECURITY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[Control D Security] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "controlDSecurity");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D_SECURITY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[Control D Security] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D_SECURITY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with Control D's Family DNS API.
+             */
+            const checkUrlWithControlDFamily = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.controlDFamilyEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "controlDFamily")) {
+                    console.debug(`[Control D Family] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CONTROL_D_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "controlDFamily")) {
+                    console.debug(`[Control D Family] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CONTROL_D_FAMILY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "controlDFamily", tabId);
+
+                const filteringURL = `https://freedns.controld.com/family?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[Control D Family] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D_FAMILY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // ControlD's way of blocking the domain.
+                        if (filteringDataString.endsWith("0,4,0,0,0,0")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D_FAMILY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[Control D Family] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "controlDFamily");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D_FAMILY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[Control D Family] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D_FAMILY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with DNS0's Security DNS API.
+             */
+            const checkUrlWithDNS0Security = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.dns0SecurityEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "dns0Security")) {
+                    console.debug(`[DNS0 Security] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.DNS0_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "dns0Security")) {
+                    console.debug(`[DNS0 Security] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.DNS0_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "dns0Security", tabId);
+
+                const filteringURL = `https://zero.dns0.eu/dns-query?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[DNS0 Security] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.DNS0_SECURITY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = await filteringResponse.json();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // DNS0's way of blocking the domain.
+                        if (filteringData.Status === 3) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.DNS0_SECURITY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[DNS0 Security] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "dns0Security");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.DNS0_SECURITY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[DNS0 Security] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.DNS0_SECURITY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with DNS0's Kids DNS API.
+             */
+            const checkUrlWithDNS0Kids = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.dns0KidsEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "dns0Kids")) {
+                    console.debug(`[DNS0 Kids] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.DNS0_KIDS), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "dns0Kids")) {
+                    console.debug(`[DNS0 Kids] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.DNS0_KIDS), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "dns0Kids", tabId);
+
+                const filteringURL = `https://kids.dns0.eu/dns-query?name=${encodeURIComponent(urlHostname)}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[DNS0 Kids] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.DNS0_KIDS), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = await filteringResponse.json();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // DNS0's way of blocking the domain.
+                        if (filteringData.Status === 3) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.RESTRICTED, ProtectionResult.ResultOrigin.DNS0_KIDS), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[DNS0 Kids] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "dns0Kids");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.DNS0_KIDS), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[DNS0 Kids] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.DNS0_KIDS), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with OpenDNS's Security DNS API.
+             */
+            const checkUrlWithOpenDNSSecurity = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.openDNSSecurityEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "openDNSSecurity")) {
+                    console.debug(`[OpenDNS Security] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.OPENDNS_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "openDNSSecurity")) {
+                    console.debug(`[OpenDNS Security] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.OPENDNS_SECURITY), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "openDNSSecurity", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://doh.opendns.com/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[OpenDNS Security] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.OPENDNS_SECURITY), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // OpenDNS's way of blocking the domain.
+                        if (filteringDataString.includes("0,1,0,1,0,0,0,0,0,4")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.OPENDNS_SECURITY), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[OpenDNS Security] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "openDNSSecurity");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.OPENDNS_SECURITY), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[OpenDNS Security] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.OPENDNS_SECURITY), (new Date()).getTime() - startTime);
+                }
+            };
+
+            /**
+             * Checks the URL with OpenDNS's Family Shield DNS API.
+             */
+            const checkUrlWithOpenDNSFamilyShield = async function (settings) {
+                // Check if the provider is enabled.
+                if (!settings.openDNSFamilyShieldEnabled) {
+                    return;
+                }
+
+                // Check if the URL is in the allowed cache.
+                if (isUrlInAllowedCache(urlObject, urlHostname, "openDNSFamilyShield")) {
+                    console.debug(`[OpenDNS Family Shield] URL is already allowed: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.OPENDNS_FAMILY_SHIELD), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Check if the URL is in the processing cache.
+                if (isUrlInProcessingCache(urlObject, urlHostname, "openDNSFamilyShield")) {
+                    console.debug(`[OpenDNS Family Shield] URL is already processing: ${url}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.OPENDNS_FAMILY_SHIELD), (new Date()).getTime() - startTime);
+                    return;
+                }
+
+                // Add the URL to the processing cache to prevent duplicate requests.
+                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "openDNSFamilyShield", tabId);
+
+                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
+                const filteringURL = `https://doh.familyshield.opendns.com/dns-query?dns=${encodedQuery}`;
+
+                try {
+                    const filteringResponse = await fetch(filteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-message"
+                        },
+                        signal
+                    });
+
+                    const nonFilteringResponse = await fetch(nonFilteringURL, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/dns-json"
+                        },
+                        signal
+                    });
+
+                    // Return early if one or more of the responses is not OK
+                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
+                        console.warn(`[OpenDNS Family Shield] Returned early: ${filteringResponse.status}`);
+                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.OPENDNS_FAMILY_SHIELD), (new Date()).getTime() - startTime);
+                        return;
+                    }
+
+                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
+                    const filteringDataString = Array.from(filteringData).toString();
+                    const nonFilteringData = await nonFilteringResponse.json();
+
+                    // If the non-filtering domain returns NOERROR...
+                    if (nonFilteringData.Status === 0
+                        && nonFilteringData.Answer
+                        && nonFilteringData.Answer.length > 0) {
+
+                        // OpenDNS's way of blocking the domain.
+                        if (filteringDataString.includes("0,1,0,1,0,0,0,0,0,4")) {
+                            callback(new ProtectionResult(url, ProtectionResult.ResultType.RESTRICTED, ProtectionResult.ResultOrigin.OPENDNS_FAMILY_SHIELD), (new Date()).getTime() - startTime);
+                            return;
+                        }
+                    }
+
+                    // Otherwise, the domain is either invalid or not blocked.
+                    console.debug(`[OpenDNS Family Shield] Added URL to allowed cache: ` + url);
+                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "openDNSFamilyShield");
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.OPENDNS_FAMILY_SHIELD), (new Date()).getTime() - startTime);
+                } catch (error) {
+                    console.debug(`[OpenDNS Family Shield] Failed to check URL ${url}: ${error}`);
+                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.OPENDNS_FAMILY_SHIELD), (new Date()).getTime() - startTime);
                 }
             };
 
@@ -855,319 +1920,6 @@ const BrowserProtection = function () {
                 } catch (error) {
                     console.debug(`[Quad9] Failed to check URL ${url}: ${error}`);
                     callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.QUAD9), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with DNS0's DNS API.
-             */
-            const checkUrlWithDNS0 = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.dns0Enabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "dns0")) {
-                    console.debug(`[DNS0] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "dns0")) {
-                    console.debug(`[DNS0] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "dns0", tabId);
-
-                const filteringURL = `https://zero.dns0.eu/dns-query?name=${encodeURIComponent(urlHostname)}`;
-
-                try {
-                    const filteringResponse = await fetch(filteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-json"
-                        },
-                        signal
-                    });
-
-                    const nonFilteringResponse = await fetch(nonFilteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-json"
-                        },
-                        signal
-                    });
-
-                    // Return early if one or more of the responses is not OK
-                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`[DNS0] Returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const filteringData = await filteringResponse.json();
-                    const nonFilteringData = await nonFilteringResponse.json();
-
-                    // If the non-filtering domain returns NOERROR...
-                    if (nonFilteringData.Status === 0
-                        && nonFilteringData.Answer
-                        && nonFilteringData.Answer.length > 0) {
-
-                        // DNS0's way of blocking the domain.
-                        if (filteringData.Status === 3) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`[DNS0] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "dns0");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[DNS0] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.DNS0), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with CleanBrowsing's DNS API.
-             */
-            const checkUrlWithCleanBrowsing = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.cleanBrowsingEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "cleanBrowsing")) {
-                    console.debug(`[CleanBrowsing] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "cleanBrowsing")) {
-                    console.debug(`[CleanBrowsing] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cleanBrowsing", tabId);
-
-                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
-                const filteringURL = `https://doh.cleanbrowsing.org/doh/security-filter/dns-query?dns=${encodedQuery}`;
-
-                try {
-                    const filteringResponse = await fetch(filteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-message"
-                        },
-                        signal
-                    });
-
-                    const nonFilteringResponse = await fetch(nonFilteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-json"
-                        },
-                        signal
-                    });
-
-                    // Return early if one or more of the responses is not OK
-                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`[CleanBrowsing] Returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
-                    const nonFilteringData = await nonFilteringResponse.json();
-
-                    // If the non-filtering domain returns NOERROR...
-                    if (nonFilteringData.Status === 0
-                        && nonFilteringData.Answer
-                        && nonFilteringData.Answer.length > 0) {
-
-                        // CleanBrowsing's way of blocking the domain.
-                        if (filteringData[3] === 131) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`[CleanBrowsing] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cleanBrowsing");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[CleanBrowsing] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CLEANBROWSING), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with CIRA's DNS API.
-             */
-            const checkUrlWithCIRA = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.ciraEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "cira")) {
-                    console.debug(`[CIRA] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "cira")) {
-                    console.debug(`[CIRA] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "cira", tabId);
-
-                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
-                const filteringURL = `https://protected.canadianshield.cira.ca/dns-query?dns=${encodedQuery}`;
-
-                try {
-                    const filteringResponse = await fetch(filteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-message"
-                        },
-                        signal
-                    });
-
-                    const nonFilteringResponse = await fetch(nonFilteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-json"
-                        },
-                        signal
-                    });
-
-                    // Return early if one or more of the responses is not OK
-                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`[CIRA] Returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
-                    const filteringDataString = Array.from(filteringData).toString();
-                    const nonFilteringData = await nonFilteringResponse.json();
-
-                    // If the non-filtering domain returns NOERROR...
-                    if (nonFilteringData.Status === 0
-                        && nonFilteringData.Answer
-                        && nonFilteringData.Answer.length > 0) {
-
-                        // CIRA's way of blocking the domain.
-                        if (filteringDataString.includes("0,1,0,1,0,0,0,0,0,4")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`[CIRA] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "cira");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[CIRA] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CIRA), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with AdGuard's DNS API.
-             */
-            const checkUrlWithAdGuard = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.adGuardEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "adGuard")) {
-                    console.debug(`[AdGuard] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "adGuard")) {
-                    console.debug(`[AdGuard] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "adGuard", tabId);
-
-                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
-                const filteringURL = `https://dns.adguard-dns.com/dns-query?dns=${encodedQuery}`;
-
-                try {
-                    const filteringResponse = await fetch(filteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-message"
-                        },
-                        signal
-                    });
-
-                    const nonFilteringResponse = await fetch(nonFilteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-json"
-                        },
-                        signal
-                    });
-
-                    // Return early if one or more of the responses is not OK
-                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`[AdGuard] Returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
-                    const filteringDataString = Array.from(filteringData).toString();
-                    const nonFilteringData = await nonFilteringResponse.json();
-
-                    // If the non-filtering domain returns NOERROR...
-                    if (nonFilteringData.Status === 0
-                        && nonFilteringData.Answer
-                        && nonFilteringData.Answer.length > 0) {
-
-                        // AdGuard's way of blocking the domain.
-                        if (filteringDataString.endsWith("0,0,1,0,1,192,12,0,1,0,1,0,0,14,16,0,4,94,140,14,33")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`[AdGuard] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "adGuard");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[AdGuard] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.ADGUARD), (new Date()).getTime() - startTime);
                 }
             };
 
@@ -1255,163 +2007,6 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with Switch.ch's DNS API.
-             */
-            const checkUrlWithCERTEE = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.certEEEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "certEE")) {
-                    console.debug(`[CERT-EE] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "certEE")) {
-                    console.debug(`[CERT-EE] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "certEE", tabId);
-
-                const encodedQuery = encodeDnsQuery(encodeURIComponent(urlHostname));
-                const filteringURL = `https://dns.cert.ee/dns-query?dns=${encodedQuery}`;
-
-                try {
-                    const filteringResponse = await fetch(filteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-message"
-                        },
-                        signal
-                    });
-
-                    const nonFilteringResponse = await fetch(nonFilteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-json"
-                        },
-                        signal
-                    });
-
-                    // Return early if one or more of the responses is not OK
-                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`[CERT-EE] Returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
-                    const filteringDataString = Array.from(filteringData).toString();
-                    const nonFilteringData = await nonFilteringResponse.json();
-
-                    // If the non-filtering domain returns NOERROR...
-                    if (nonFilteringData.Status === 0
-                        && nonFilteringData.Answer
-                        && nonFilteringData.Answer.length > 0) {
-
-                        // CERT-EE's way of blocking the domain.
-                        if (filteringDataString.endsWith("180,0,0,9,58,128")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`[CERT-EE] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "certEE");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[CERT-EE] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CERT_EE), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
-             * Checks the URL with Control D's DNS API.
-             */
-            const checkUrlWithControlD = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.controlDEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "controlD")) {
-                    console.debug(`[Control D] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "controlD")) {
-                    console.debug(`[Control D] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "controlD", tabId);
-
-                const filteringURL = `https://freedns.controld.com/p1?name=${encodeURIComponent(urlHostname)}`;
-
-                try {
-                    const filteringResponse = await fetch(filteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-message"
-                        },
-                        signal
-                    });
-
-                    const nonFilteringResponse = await fetch(nonFilteringURL, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/dns-json"
-                        },
-                        signal
-                    });
-
-                    // Return early if one or more of the responses is not OK
-                    if (!filteringResponse.ok || !nonFilteringResponse.ok) {
-                        console.warn(`[Control D] Returned early: ${filteringResponse.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const filteringData = new Uint8Array(await filteringResponse.arrayBuffer());
-                    const filteringDataString = Array.from(filteringData).toString();
-                    const nonFilteringData = await nonFilteringResponse.json();
-
-                    // If the non-filtering domain returns NOERROR...
-                    if (nonFilteringData.Status === 0
-                        && nonFilteringData.Answer
-                        && nonFilteringData.Answer.length > 0) {
-
-                        // ControlD's way of blocking the domain.
-                        if (filteringDataString.endsWith("0,4,0,0,0,0")) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Otherwise, the domain is either invalid or not blocked.
-                    console.debug(`[Control D] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "controlD");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[Control D] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.CONTROL_D), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
              * Encodes a DNS query for the given domain and type.
              *
              * @param {string} domain - The domain to encode.
@@ -1487,23 +2082,31 @@ const BrowserProtection = function () {
             Settings.get(settings => {
                 // HTTP APIs
                 checkUrlWithPrecisionSec(settings);
-                checkUrlWithSmartScreen(settings);
-                checkUrlWithSymantec(settings);
-                checkUrlWithEmsisoft(settings);
                 checkUrlWithBitdefender(settings);
-                checkUrlWithNorton(settings);
+                checkUrlWithEmsisoft(settings);
                 checkUrlWithGDATA(settings);
+                checkUrlWithSmartScreen(settings);
+                checkUrlWithNorton(settings);
 
                 // DNS APIs
-                checkUrlWithCloudflare(settings);
-                checkUrlWithQuad9(settings);
-                checkUrlWithDNS0(settings);
-                checkUrlWithCleanBrowsing(settings);
-                checkUrlWithCIRA(settings);
-                checkUrlWithAdGuard(settings);
-                checkUrlWithSwitchCH(settings);
+                checkUrlWithAdGuardSecurity(settings);
+                checkUrlWithAdGuardFamily(settings);
                 checkUrlWithCERTEE(settings);
-                checkUrlWithControlD(settings);
+                checkUrlWithCIRASecurity(settings);
+                checkUrlWithCIRAFamily(settings);
+                checkUrlWithCleanBrowsingSecurity(settings);
+                checkUrlWithCleanBrowsingFamily(settings);
+                checkUrlWithCleanBrowsingAdult(settings);
+                checkUrlWithCloudflareSecurity(settings);
+                checkUrlWithCloudflareFamily(settings);
+                checkUrlWithControlDSecurity(settings);
+                checkUrlWithControlDFamily(settings);
+                checkUrlWithDNS0Security(settings);
+                checkUrlWithDNS0Kids(settings);
+                checkUrlWithOpenDNSSecurity(settings);
+                checkUrlWithOpenDNSFamilyShield(settings);
+                checkUrlWithQuad9(settings);
+                checkUrlWithSwitchCH(settings);
             });
 
             // Clean up controllers for tabs that no longer exist

@@ -44,21 +44,29 @@
         Settings.get(settings => {
             // Retrieve settings to check if protection is enabled.
             if (!settings.precisionSecEnabled
-                && !settings.smartScreenEnabled
-                && !settings.symantecEnabled
-                && !settings.emsisoftEnabled
                 && !settings.bitdefenderEnabled
-                && !settings.nortonEnabled
+                && !settings.emsisoftEnabled
                 && !settings.gDataEnabled
-                && !settings.cloudflareEnabled
-                && !settings.quad9Enabled
-                && !settings.dns0Enabled
-                && !settings.cleanBrowsingEnabled
-                && !settings.ciraEnabled
-                && !settings.adGuardEnabled
-                && !settings.switchCHEnabled
+                && !settings.smartScreenEnabled
+                && !settings.nortonEnabled
+                && !settings.adGuardSecurityEnabled
+                && !settings.adGuardFamilyEnabled
                 && !settings.certEEEnabled
-                && !settings.controlDEnabled
+                && !settings.ciraSecurityEnabled
+                && !settings.ciraFamilyEnabled
+                && !settings.cloudflareSecurityEnabled
+                && !settings.cloudflareFamilyEnabled
+                && !settings.cleanBrowsingSecurityEnabled
+                && !settings.cleanBrowsingFamilyEnabled
+                && !settings.cleanBrowsingAdultEnabled
+                && !settings.controlDSecurityEnabled
+                && !settings.controlDFamilyEnabled
+                && !settings.dns0SecurityEnabled
+                && !settings.dns0KidsEnabled
+                && !settings.openDNSSecurityEnabled
+                && !settings.openDNSFamilyShieldEnabled
+                && !settings.quad9Enabled
+                && !settings.switchCHEnabled
             ) {
                 console.debug("Protection is disabled; bailing out early.");
                 return;
@@ -78,14 +86,14 @@
                 return;
             }
 
-            // Remove query parameters from the URL.
-            currentUrl = currentUrl.replace(/\?.*$/, '');
-
             // Remove trailing slashes from the URL.
             currentUrl = currentUrl.replace(/\/+$/, '');
 
             // Remove www. from the start of the URL.
             currentUrl = currentUrl.replace(/https?:\/\/www\./, 'https://');
+
+            // Remove query parameters, fragments (#) and & tags from the URL.
+            currentUrl = currentUrl.replace(/[?#&].*$/, '');
 
             // Sanitize and encode the URL to handle spaces and special characters.
             try {
@@ -106,9 +114,6 @@
 
             const protocol = urlObject.protocol;
             let hostname = urlObject.hostname;
-            const pathname = urlObject.pathname;
-            const href = urlObject.href;
-            const origin = urlObject.origin;
 
             // Check for incomplete URLs missing the scheme.
             if (!protocol || currentUrl.startsWith('//')) {
@@ -138,25 +143,16 @@
                 return;
             }
 
-            // Ensure no fragment-only URL.
-            if (href === origin + pathname && currentUrl.includes('#')) {
-                console.warn(`Fragment-only URL detected: ${currentUrl}; bailing out.`);
-                return;
-            }
-
-            // Purges previously cached/processed results for the tab.
+            // Cancels all pending requests for the main frame navigation.
             if (frameId === 0) {
-                // Kills all pending requests for the main frame navigation.
                 BrowserProtection.abandonPendingRequests(tabId, "Cancelled by main frame navigation.");
-
-                // Removes all pending requests from the processing cache.
                 BrowserProtection.cacheManager.removeKeysByTabId(tabId);
             }
 
             // Set the hostname back to the URL object.
             urlObject.hostname = hostname;
 
-            let malicious = false;
+            let blocked = false;
             console.info(`Checking URL: ${currentUrl}`);
 
             // Check if the URL is malicious.
@@ -171,9 +167,9 @@
                     BrowserProtection.cacheManager.removeUrlFromProcessingCache(urlObject, cacheName);
                 }
 
-                // Returns early if the result is already known as malicious.
-                if (malicious) {
-                    BrowserProtection.abandonPendingRequests(tabId, "Malicious navigation already detected.");
+                // Returns early if the result is blocked or if the URL is already blocked.
+                if (blocked) {
+                    BrowserProtection.abandonPendingRequests(tabId, "Block page already shown.");
                     return;
                 }
 
@@ -183,7 +179,7 @@
                     && resultType !== ProtectionResult.ResultType.WAITING
                     && resultType !== ProtectionResult.ResultType.KNOWN_SAFE
                     && resultType !== ProtectionResult.ResultType.ALLOWED) {
-                    malicious = true;
+                    blocked = true;
 
                     browserAPI.tabs.get(tabId, tab => {
                         if (!tab) {
@@ -245,22 +241,38 @@
         'IgnoreFrameNavigation',
         'CacheExpirationSeconds',
         'LockProtectionOptions',
+
+        // Page 1
         'PrecisionSecEnabled',
-        'SmartScreenEnabled',
-        'SymantecEnabled',
-        'EmsisoftEnabled',
         'BitdefenderEnabled',
-        'NortonEnabled',
+        'EmsisoftEnabled',
         'GDATAEnabled',
-        'CloudflareEnabled',
-        'Quad9Enabled',
-        'DNS0Enabled',
-        'CleanBrowsingEnabled',
-        'CIRAEnabled',
-        'AdGuardEnabled',
-        'SwitchCHEnabled',
+        'SmartScreenEnabled',
+        'NortonEnabled',
+        'AdGuardSecurityEnabled',
+
+        // Page 2
+        'AdGuardFamilyEnabled',
         'CERTEEEnabled',
-        'ControlDEnabled'
+        'CIRASecurityEnabled',
+        'CIRAFamilyEnabled',
+        'CleanBrowsingSecurityEnabled',
+        'CleanBrowsingFamilyEnabled',
+        'CleanBrowsingAdultEnabled',
+
+        // Page 3
+        'CloudflareSecurityEnabled',
+        'CloudflareFamilyEnabled',
+        'ControlDSecurityEnabled',
+        'ControlDFamilyEnabled',
+        'DNS0SecurityEnabled',
+        'DNS0KidsEnabled',
+        'OpenDNSSecurityEnabled',
+
+        // Page 4
+        'OpenDNSFamilyShieldEnabled',
+        'Quad9Enabled',
+        'SwitchCHEnabled',
     ];
 
     // Creates the context menu and sets managed policies
@@ -325,16 +337,10 @@
                 console.debug("PrecisionSec is managed by system policy.");
             }
 
-            // Check and set the SmartScreen settings using the policy.
-            if (policies.SmartScreenEnabled !== undefined) {
-                settings.smartScreenEnabled = policies.SmartScreenEnabled;
-                console.debug("SmartScreen is managed by system policy.");
-            }
-
-            // Check and set the Symantec settings using the policy.
-            if (policies.SymantecEnabled !== undefined) {
-                settings.symantecEnabled = policies.SymantecEnabled;
-                console.debug("Symantec is managed by system policy.");
+            // Check and set the Bitdefender settings using the policy.
+            if (policies.BitdefenderEnabled !== undefined) {
+                settings.bitdefenderEnabled = policies.BitdefenderEnabled;
+                console.debug("Bitdefender is managed by system policy.");
             }
 
             // Check and set the Emsisoft settings using the policy.
@@ -343,10 +349,16 @@
                 console.debug("Emsisoft is managed by system policy.");
             }
 
-            // Check and set the Bitdefender settings using the policy.
-            if (policies.BitdefenderEnabled !== undefined) {
-                settings.bitdefenderEnabled = policies.BitdefenderEnabled;
-                console.debug("Bitdefender is managed by system policy.");
+            // Check and set the G DATA settings using the policy.
+            if (policies.GDATAEnabled !== undefined) {
+                settings.gDataEnabled = policies.GDATAEnabled;
+                console.debug("G DATA is managed by system policy.");
+            }
+
+            // Check and set the SmartScreen settings using the policy.
+            if (policies.SmartScreenEnabled !== undefined) {
+                settings.smartScreenEnabled = policies.SmartScreenEnabled;
+                console.debug("SmartScreen is managed by system policy.");
             }
 
             // Check and set the Norton settings using the policy.
@@ -355,52 +367,16 @@
                 console.debug("Norton is managed by system policy.");
             }
 
-            // Check and set the G DATA settings using the policy.
-            if (policies.GDATAEnabled !== undefined) {
-                settings.gDataEnabled = policies.GDATAEnabled;
-                console.debug("G DATA is managed by system policy.");
+            // Check and set the AdGuard Security settings using the policy.
+            if (policies.AdGuardSecurityEnabled !== undefined) {
+                settings.adGuardSecurityEnabled = policies.AdGuardSecurityEnabled;
+                console.debug("AdGuard Security is managed by system policy.");
             }
 
-            // Check and set the Cloudflare settings using the policy.
-            if (policies.CloudflareEnabled !== undefined) {
-                settings.cloudflareEnabled = policies.CloudflareEnabled;
-                console.debug("Cloudflare is managed by system policy.");
-            }
-
-            // Check and set the Quad9 settings using the policy.
-            if (policies.Quad9Enabled !== undefined) {
-                settings.quad9Enabled = policies.Quad9Enabled;
-                console.debug("Quad9 is managed by system policy.");
-            }
-
-            // Check and set the DNS0 settings using the policy.
-            if (policies.DNS0Enabled !== undefined) {
-                settings.dns0Enabled = policies.DNS0Enabled;
-                console.debug("DNS0 is managed by system policy.");
-            }
-
-            // Check and set the CleanBrowsing settings using the policy.
-            if (policies.CleanBrowsingEnabled !== undefined) {
-                settings.cleanBrowsingEnabled = policies.CleanBrowsingEnabled;
-                console.debug("CleanBrowsing is managed by system policy.");
-            }
-
-            // Check and set the CIRA settings using the policy.
-            if (policies.CIRAEnabled !== undefined) {
-                settings.ciraEnabled = policies.CIRAEnabled;
-                console.debug("CIRA is managed by system policy.");
-            }
-
-            // Check and set the AdGuard settings using the policy.
-            if (policies.AdGuardEnabled !== undefined) {
-                settings.adGuardEnabled = policies.AdGuardEnabled;
-                console.debug("AdGuard is managed by system policy.");
-            }
-
-            // Check and set the Switch.ch settings using the policy.
-            if (policies.SwitchCHEnabled !== undefined) {
-                settings.switchCHEnabled = policies.SwitchCHEnabled;
-                console.debug("Switch.ch is managed by system policy.");
+            // Check and set the AdGuard Family settings using the policy.
+            if (policies.AdGuardFamilyEnabled !== undefined) {
+                settings.adGuardFamilyEnabled = policies.AdGuardFamilyEnabled;
+                console.debug("AdGuard Family is managed by system policy.");
             }
 
             // Check and set the CERT-EE settings using the policy.
@@ -409,10 +385,94 @@
                 console.debug("CERT-EE is managed by system policy.");
             }
 
-            // Check and set the Control D settings using the policy.
-            if (policies.ControlDEnabled !== undefined) {
-                settings.controlDEnabled = policies.ControlDEnabled;
-                console.debug("Control D is managed by system policy.");
+            // Check and set the CIRA Security settings using the policy.
+            if (policies.CIRASecurityEnabled !== undefined) {
+                settings.ciraSecurityEnabled = policies.CIRASecurityEnabled;
+                console.debug("CIRA Security is managed by system policy.");
+            }
+
+            // Check and set the CIRA Family settings using the policy.
+            if (policies.CIRAFamilyEnabled !== undefined) {
+                settings.ciraFamilyEnabled = policies.CIRAFamilyEnabled;
+                console.debug("CIRA Family is managed by system policy.");
+            }
+
+            // Check and set the CleanBrowsing Security settings using the policy.
+            if (policies.CleanBrowsingSecurityEnabled !== undefined) {
+                settings.cleanBrowsingSecurityEnabled = policies.CleanBrowsingSecurityEnabled;
+                console.debug("CleanBrowsing Security is managed by system policy.");
+            }
+
+            // Check and set the CleanBrowsing Family settings using the policy.
+            if (policies.CleanBrowsingFamilyEnabled !== undefined) {
+                settings.cleanBrowsingFamilyEnabled = policies.CleanBrowsingFamilyEnabled;
+                console.debug("CleanBrowsing Family is managed by system policy.");
+            }
+
+            // Check and set the CleanBrowsing Adult settings using the policy.
+            if (policies.CleanBrowsingAdultEnabled !== undefined) {
+                settings.cleanBrowsingAdultEnabled = policies.CleanBrowsingAdultEnabled;
+                console.debug("CleanBrowsing Adult is managed by system policy.");
+            }
+
+            // Check and set the Cloudflare Security settings using the policy.
+            if (policies.CloudflareSecurityEnabled !== undefined) {
+                settings.cloudflareSecurityEnabled = policies.CloudflareSecurityEnabled;
+                console.debug("Cloudflare Security is managed by system policy.");
+            }
+
+            // Check and set the Cloudflare Family settings using the policy.
+            if (policies.CloudflareFamilyEnabled !== undefined) {
+                settings.cloudflareFamilyEnabled = policies.CloudflareFamilyEnabled;
+                console.debug("Cloudflare Family is managed by system policy.");
+            }
+
+            // Check and set the Control D Security settings using the policy.
+            if (policies.ControlDSecurityEnabled !== undefined) {
+                settings.controlDSecurityEnabled = policies.ControlDSecurityEnabled;
+                console.debug("Control D Security is managed by system policy.");
+            }
+
+            // Check and set the Control D Family settings using the policy.
+            if (policies.ControlDFamilyEnabled !== undefined) {
+                settings.controlDFamilyEnabled = policies.ControlDFamilyEnabled;
+                console.debug("Control D Family is managed by system policy.");
+            }
+
+            // Check and set the DNS0 Security settings using the policy.
+            if (policies.DNS0SecurityEnabled !== undefined) {
+                settings.dns0SecurityEnabled = policies.DNS0SecurityEnabled;
+                console.debug("DNS0 Security is managed by system policy.");
+            }
+
+            // Check and set the DNS0 Kids settings using the policy.
+            if (policies.DNS0KidsEnabled !== undefined) {
+                settings.dns0KidsEnabled = policies.DNS0KidsEnabled;
+                console.debug("DNS0 Kids is managed by system policy.");
+            }
+
+            // Check and set the OpenDNS Security settings using the policy.
+            if (policies.OpenDNSSecurityEnabled !== undefined) {
+                settings.openDNSSecurityEnabled = policies.OpenDNSSecurityEnabled;
+                console.debug("OpenDNS Security is managed by system policy.");
+            }
+
+            // Check and set the OpenDNS Family Shield settings using the policy.
+            if (policies.OpenDNSFamilyShieldEnabled !== undefined) {
+                settings.openDNSFamilyShieldEnabled = policies.OpenDNSFamilyShieldEnabled;
+                console.debug("OpenDNS Family Shield is managed by system policy.");
+            }
+
+            // Check and set the Quad9 settings using the policy.
+            if (policies.Quad9Enabled !== undefined) {
+                settings.quad9Enabled = policies.Quad9Enabled;
+                console.debug("Quad9 is managed by system policy.");
+            }
+
+            // Check and set the Switch.ch settings using the policy.
+            if (policies.SwitchCHEnabled !== undefined) {
+                settings.switchCHEnabled = policies.SwitchCHEnabled;
+                console.debug("Switch.ch is managed by system policy.");
             }
 
             // Finally, if there are any updates, update the stored settings in one go.
@@ -444,11 +504,11 @@
         }
     });
 
-    // // Listener for onCreatedNavigationTarget events.
-    // browserAPI.webNavigation.onCreatedNavigationTarget.addListener(navigationDetails => {
-    //     console.debug(`[onCreatedNavigationTarget] ${navigationDetails.url}`);
-    //     handleNavigation(navigationDetails);
-    // });
+    // Listener for onCreatedNavigationTarget events.
+    browserAPI.webNavigation.onCreatedNavigationTarget.addListener(navigationDetails => {
+        console.debug(`[onCreatedNavigationTarget] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
+        handleNavigation(navigationDetails);
+    });
 
     // Listener for onHistoryStateUpdated events.
     browserAPI.webNavigation.onHistoryStateUpdated.addListener(navigationDetails => {
@@ -505,23 +565,23 @@
                         break;
 
                     case "2":
-                        console.debug(`Added SmartScreen URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "smartScreen");
+                        console.debug(`Added Bitdefender URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "bitdefender");
                         break;
 
                     case "3":
-                        console.debug(`Added Symantec URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "symantec");
-                        break;
-
-                    case "4":
                         console.debug(`Added Emsisoft URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "emsisoft");
                         break;
 
+                    case "4":
+                        console.debug(`Added G DATA URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "gData");
+                        break;
+
                     case "5":
-                        console.debug(`Added Bitdefender URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "bitdefender");
+                        console.debug(`Added SmartScreen URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "smartScreen");
                         break;
 
                     case "6":
@@ -530,53 +590,93 @@
                         break;
 
                     case "7":
-                        console.debug(`Added G DATA URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "gData");
+                        console.debug(`Added AdGuard Security URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "adGuardSecurity");
                         break;
 
                     case "8":
-                        console.debug(`Added Cloudflare URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cloudflare");
+                        console.debug(`Added AdGuard Family URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "adGuardFamily");
                         break;
 
                     case "9":
-                        console.debug(`Added Quad9 URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "quad9");
-                        break;
-
-                    case "10":
-                        console.debug(`Added DNS0 URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "dns0");
-                        break;
-
-                    case "11":
-                        console.debug(`Added CleanBrowsing URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cleanBrowsing");
-                        break;
-
-                    case "12":
-                        console.debug(`Added CIRA URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cira");
-                        break;
-
-                    case "13":
-                        console.debug(`Added AdGuard URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "adGuard");
-                        break;
-
-                    case "14":
-                        console.debug(`Added Switch.ch URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "switchCH");
-                        break;
-
-                    case "15":
                         console.debug(`Added CERT-EE URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "certEE");
                         break;
 
+                    case "10":
+                        console.debug(`Added CIRA Security URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "ciraSecurity");
+                        break;
+
+                    case "11":
+                        console.debug(`Added CIRA Family URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "ciraFamily");
+                        break;
+
+                    case "12":
+                        console.debug(`Added CleanBrowsing Security URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cleanBrowsingSecurity");
+                        break;
+
+                    case "13":
+                        console.debug(`Added CleanBrowsing Family URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cleanBrowsingFamily");
+                        break;
+
+                    case "14":
+                        console.debug(`Added CleanBrowsing Adult URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cleanBrowsingAdult");
+                        break;
+
+                    case "15":
+                        console.debug(`Added Cloudflare Security URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cloudflareSecurity");
+                        break;
+
                     case "16":
-                        console.debug(`Added Control D URL to allowed cache: ` + message.blockedUrl);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "controlD");
+                        console.debug(`Added Cloudflare Family URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "cloudflareFamily");
+                        break;
+
+                    case "17":
+                        console.debug(`Added Control D Security URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "controlDSecurity");
+                        break;
+
+                    case "18":
+                        console.debug(`Added Control D Family URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "controlDFamily");
+                        break;
+
+                    case "19":
+                        console.debug(`Added DNS0 Security URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "dns0Security");
+                        break;
+
+                    case "20":
+                        console.debug(`Added DNS0 Kids URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "dns0Kids");
+                        break;
+
+                    case "21":
+                        console.debug(`Added OpenDNS Security URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "openDNSSecurity");
+                        break;
+
+                    case "22":
+                        console.debug(`Added OpenDNS Family Shield URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "openDNSFamilyShield");
+                        break;
+
+                    case "23":
+                        console.debug(`Added Quad9 URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "quad9");
+                        break;
+
+                    case "24":
+                        console.debug(`Added Switch.ch URL to allowed cache: ` + message.blockedUrl);
+                        BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "switchCH");
                         break;
 
                     default:
@@ -654,28 +754,36 @@
                 break;
             }
 
-            case Messages.MessageType.PRECISIONSEC_TOGGLED:
-            case Messages.MessageType.SMARTSCREEN_TOGGLED:
-            case Messages.MessageType.SYMANTEC_TOGGLED:
-            case Messages.MessageType.EMSISOFT_TOGGLED:
+            case Messages.MessageType.ADGUARD_FAMILY_TOGGLED:
+            case Messages.MessageType.ADGUARD_SECURITY_TOGGLED:
             case Messages.MessageType.BITDEFENDER_TOGGLED:
-            case Messages.MessageType.NORTON_TOGGLED:
-            case Messages.MessageType.G_DATA_TOGGLED:
-            case Messages.MessageType.CLOUDFLARE_TOGGLED:
-            case Messages.MessageType.QUAD9_TOGGLED:
-            case Messages.MessageType.DNS0_TOGGLED:
-            case Messages.MessageType.CLEAN_BROWSING_TOGGLED:
-            case Messages.MessageType.CIRA_TOGGLED:
-            case Messages.MessageType.ADGUARD_TOGGLED:
-            case Messages.MessageType.SWITCH_CH_TOGGLED:
             case Messages.MessageType.CERT_EE_TOGGLED:
-            case Messages.MessageType.CONTROL_D_TOGGLED:
-                console.debug(`${message.title} has been ${message.toggleState ? "enabled" : "disabled"}.`);
+            case Messages.MessageType.CIRA_FAMILY_TOGGLED:
+            case Messages.MessageType.CIRA_SECURITY_TOGGLED:
+            case Messages.MessageType.CLEANBROWSING_ADULT_TOGGLED:
+            case Messages.MessageType.CLEANBROWSING_FAMILY_TOGGLED:
+            case Messages.MessageType.CLEANBROWSING_SECURITY_TOGGLED:
+            case Messages.MessageType.CLOUDFLARE_FAMILY_TOGGLED:
+            case Messages.MessageType.CLOUDFLARE_SECURITY_TOGGLED:
+            case Messages.MessageType.CONTROL_D_FAMILY_TOGGLED:
+            case Messages.MessageType.CONTROL_D_SECURITY_TOGGLED:
+            case Messages.MessageType.DNS0_KIDS_TOGGLED:
+            case Messages.MessageType.DNS0_SECURITY_TOGGLED:
+            case Messages.MessageType.EMSISOFT_TOGGLED:
+            case Messages.MessageType.G_DATA_TOGGLED:
+            case Messages.MessageType.NORTON_TOGGLED:
+            case Messages.MessageType.OPENDNS_SECURITY_TOGGLED:
+            case Messages.MessageType.OPENDNS_FAMILY_SHIELD_TOGGLED:
+            case Messages.MessageType.PRECISIONSEC_TOGGLED:
+            case Messages.MessageType.QUAD9_TOGGLED:
+            case Messages.MessageType.SMARTSCREEN_TOGGLED:
+            case Messages.MessageType.SWITCH_CH_TOGGLED:
+                console.info(`${message.title} has been ${message.toggleState ? "enabled" : "disabled"}.`);
                 break;
 
             default:
                 console.warn(`Received unknown message type: ${message.messageType}`);
-                console.debug(`Message: ${JSON.stringify(message)}`);
+                console.warn(`Message: ${JSON.stringify(message)}`);
                 break;
         }
     });
