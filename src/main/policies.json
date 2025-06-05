@@ -58,11 +58,6 @@
       "description": "If set to true, Bitdefender will be enabled.",
       "type": "boolean"
     },
-    "EmsisoftEnabled": {
-      "title": "Emsisoft Enabled",
-      "description": "If set to true, Emsisoft will be enabled.",
-      "type": "boolean"
-    },
     "GDATAEnabled": {
       "title": "G DATA Enabled",
       "description": "If set to true, G DATA will be enabled.",

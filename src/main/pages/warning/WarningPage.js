@@ -61,16 +61,6 @@ window.WarningSingleton = window.WarningSingleton || (function () {
                 case ProtectionResult.ResultOrigin.BITDEFENDER:
                     return new URL("https://www.bitdefender.com/consumer/support/answer/29358/#scroll-to-heading-2");
 
-                case ProtectionResult.ResultOrigin.EMSISOFT:
-                    // Verified working as of: 05/01/2025
-                    // Response time: 1-2 days
-                    return new URL("mailto:fp@emsisoft.com?subject=False%20Positive&body=Hello%2C"
-                        + "%0A%0AI%20would%20like%20to%20report%20a%20false%20positive."
-                        + "%0A%0AProduct%3A%20Emsisoft%20Browser%20Security"
-                        + "%0AURL%3A%20" + encodedBlockedUrl + "%20%28or%20the%20hostname%20itself%29"
-                        + "%0ADetected%20as%3A%20" + encodedResult
-                        + "%0A%0AI%20believe%20this%20website%20is%20legitimate.%0A%0AThanks.");
-
                 case ProtectionResult.ResultOrigin.G_DATA:
                     // Old URL: "https://submit.gdatasoftware.com/privacy"
                     // TODO: Needs verification of response from support team.

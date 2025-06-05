@@ -262,86 +262,6 @@ const BrowserProtection = function () {
             };
 
             /**
-             * Checks the URL with Emsisoft's API.
-             */
-            const checkUrlWithEmsisoft = async function (settings) {
-                // Check if the provider is enabled.
-                if (!settings.emsisoftEnabled) {
-                    return;
-                }
-
-                // Check if the URL is in the allowed cache.
-                if (isUrlInAllowedCache(urlObject, urlHostname, "emsisoft")) {
-                    console.debug(`[Emsisoft] URL is already allowed: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.KNOWN_SAFE, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Check if the URL is in the processing cache.
-                if (isUrlInProcessingCache(urlObject, urlHostname, "emsisoft")) {
-                    console.debug(`[Emsisoft] URL is already processing: ${url}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.WAITING, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                    return;
-                }
-
-                // Add the URL to the processing cache to prevent duplicate requests.
-                BrowserProtection.cacheManager.addUrlToProcessingCache(urlObject, "emsisoft", tabId);
-
-                const hostnameArray = EmsisoftUtil.createHostnameArray(urlHostname);
-                const stringOfHashes = EmsisoftUtil.getStringOfHashes(hostnameArray);
-                const apiUrl = `https://alomar.emsisoft.com/api/v1/url/get/${stringOfHashes}`;
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: "GET",
-                        signal
-                    });
-
-                    // Return early if the response is not OK
-                    if (!response.ok) {
-                        console.warn(`[Emsisoft] Returned early: ${response.status}`);
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    const data = await response.json();
-
-                    // Allow if the hostname is in the bypass list
-                    if (urlHostname.match(/alomar\.emsisoft\.com$/)) {
-                        console.warn(`(This shouldn't happen) Added Emsisoft's own URL to allowed cache: ` + url);
-                        BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "emsisoft");
-                        callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                        return;
-                    }
-
-                    // Check if the URL should be blocked
-                    for (const match of data.matches) {
-                        const decoded = atob(match.regex);
-                        const perUrlSalt = decoded.slice(0, 8);
-                        const encryptedRegex = decoded.slice(8);
-                        const subdomain = EmsisoftUtil.findSubdomainByHash(urlHostname, match.hash);
-                        const key = MD5("Kd3fIjAq" + perUrlSalt + subdomain, null, true);
-                        const result = RC4(key, encryptedRegex);
-
-                        // Malicious
-                        if (result.split("\t").some(value => value
-                            && EmsisoftUtil.newRegExp(value, true)?.test(url))) {
-                            callback(new ProtectionResult(url, ProtectionResult.ResultType.MALICIOUS, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                            return;
-                        }
-                    }
-
-                    // Safe/Trusted
-                    console.debug(`[Emsisoft] Added URL to allowed cache: ` + url);
-                    BrowserProtection.cacheManager.addUrlToAllowedCache(urlObject, "emsisoft");
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.ALLOWED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                } catch (error) {
-                    console.debug(`[Emsisoft] Failed to check URL ${url}: ${error}`);
-                    callback(new ProtectionResult(url, ProtectionResult.ResultType.FAILED, ProtectionResult.ResultOrigin.EMSISOFT), (new Date()).getTime() - startTime);
-                }
-            };
-
-            /**
              * Checks the URL with G DATA's API.
              */
             const checkUrlWithGDATA = async function (settings) {
@@ -2080,17 +2000,16 @@ const BrowserProtection = function () {
 
             // Call all the check functions asynchronously
             Settings.get(settings => {
-                // HTTP APIs
+                // Page 1
                 checkUrlWithPrecisionSec(settings);
                 checkUrlWithBitdefender(settings);
-                checkUrlWithEmsisoft(settings);
                 checkUrlWithGDATA(settings);
                 checkUrlWithSmartScreen(settings);
                 checkUrlWithNorton(settings);
-
-                // DNS APIs
                 checkUrlWithAdGuardSecurity(settings);
                 checkUrlWithAdGuardFamily(settings);
+
+                // Page 2
                 checkUrlWithCERTEE(settings);
                 checkUrlWithCIRASecurity(settings);
                 checkUrlWithCIRAFamily(settings);
@@ -2098,6 +2017,8 @@ const BrowserProtection = function () {
                 checkUrlWithCleanBrowsingFamily(settings);
                 checkUrlWithCleanBrowsingAdult(settings);
                 checkUrlWithCloudflareSecurity(settings);
+
+                // Page 3
                 checkUrlWithCloudflareFamily(settings);
                 checkUrlWithControlDSecurity(settings);
                 checkUrlWithControlDFamily(settings);
@@ -2105,6 +2026,8 @@ const BrowserProtection = function () {
                 checkUrlWithDNS0Kids(settings);
                 checkUrlWithOpenDNSSecurity(settings);
                 checkUrlWithOpenDNSFamilyShield(settings);
+
+                // Page 4
                 checkUrlWithQuad9(settings);
                 checkUrlWithSwitchCH(settings);
             });

@@ -64,7 +64,6 @@ The following providers are **enabled** by default:
 
 - [PrecisionSec Web Protection](https://www.precisionsec.com/?utm_source=osprey) (Official Partner)
 - [Bitdefender TrafficLight](https://www.bitdefender.com/en-us/consumer/trafficlight)
-- [Emsisoft Web Protection](https://www.emsisoft.com/en/help/1636/web-protection)
 - [G DATA WebProtection](https://www.gdata.de/help/en/consumer/FAQ/webProtectionWinFAQ)
 - [Microsoft SmartScreen](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen)
 - [Norton SafeWeb](https://safeweb.norton.com)

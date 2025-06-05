@@ -15,7 +15,6 @@ class CacheManager {
                 // HTTP-based providers
                 "precisionSec",
                 "bitdefender",
-                "emsisoft",
                 "gData",
                 "smartScreen",
                 "norton",

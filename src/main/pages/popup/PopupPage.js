@@ -28,13 +28,6 @@ window.PopupSingleton = window.PopupSingleton || (function () {
             messageType: Messages.MessageType.BITDEFENDER_TOGGLED,
         },
         {
-            name: "emsisoftEnabled",
-            title: "Emsisoft Web Protection",
-            labelElementId: "emsisoftStatus",
-            switchElementId: "emsisoftSwitch",
-            messageType: Messages.MessageType.EMSISOFT_TOGGLED,
-        },
-        {
             name: "gDataEnabled",
             title: "G DATA WebProtection",
             labelElementId: "gDataStatus",

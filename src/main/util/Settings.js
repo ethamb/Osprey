@@ -9,32 +9,31 @@ const Settings = (function () {
         // Page 1
         precisionSecEnabled: true,
         bitdefenderEnabled: true,
-        emsisoftEnabled: true,
         gDataEnabled: true,
         smartScreenEnabled: true,
         nortonEnabled: true,
-
-        // Page 2
         adGuardSecurityEnabled: true,
         adGuardFamilyEnabled: false,
+
+        // Page 2
         certEEEnabled: true,
         ciraSecurityEnabled: false,
         ciraFamilyEnabled: false,
         cleanBrowsingSecurityEnabled: true,
         cleanBrowsingFamilyEnabled: false,
-
-        // Page 3
         cleanBrowsingAdultEnabled: false,
         cloudflareSecurityEnabled: true,
+
+        // Page 3
         cloudflareFamilyEnabled: false,
         controlDSecurityEnabled: true,
         controlDFamilyEnabled: false,
         dns0SecurityEnabled: false,
         dns0KidsEnabled: false,
-
-        // Page 4
         openDNSSecurityEnabled: false,
         openDNSFamilyShieldEnabled: false,
+
+        // Page 4
         quad9Enabled: true,
         switchCHEnabled: true,
 
