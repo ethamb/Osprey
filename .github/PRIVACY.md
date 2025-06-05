@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Effective Date:** 06/01/2025
+**Effective Date:** 06/02/2025
 
 Osprey is committed to protecting your privacy. This Privacy Policy explains how our browser extension operates and how
 we handle your data.
@@ -25,14 +25,13 @@ to review their privacy policies for more information.
 
 ## User Liability
 
-Some providers may require a valid license or API key. Although those options are disabled by default, if you enable any
-paid or restricted integration, you must ensure you have the right to do so. Osprey makes no guarantee that enabling a
-non-free integration complies with the provider’s Terms of Service. Any legal, financial, or technical issues arising
-from unauthorized use—such as service suspension, inaccurate threat data, or TOS violations—are solely your
+Some providers may require a valid license or API key. Although those options might be enabled by default, if you enable
+any integration, you must ensure you have the right to do so. Osprey makes no guarantee that enabling a non-free
+integration complies with the provider’s Terms of Service. Any legal, financial, or technical issues arising
+from unauthorized use, such as service suspension, inaccurate threat data, or TOS violations, are solely your
 responsibility. Osprey is provided "as-is." We are not liable for interruptions, errors, or claims resulting from
 unauthorized API calls. Use third-party services at your own risk. You agree to hold Osprey and its maintainers harmless
-from any claims, damages, or costs (including attorney fees) related to your enabling or use of integrations you are not
-licensed to use.
+from any claims, damages, or costs related to enabling or using integrations you are not licensed to use.
 
 ## Changes to This Privacy Policy
 
