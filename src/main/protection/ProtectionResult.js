@@ -61,8 +61,8 @@ ProtectionResult.ResultOrigin = {
     OPENDNS_FAMILY_SHIELD: 21,
 
     // Page 4
-    QUAD9: 23,
-    SWITCH_CH: 24,
+    QUAD9: 22,
+    SWITCH_CH: 23,
 };
 
 ProtectionResult.ResultOriginNames = {
@@ -131,8 +131,8 @@ ProtectionResult.ShortOriginNames = {
     21: "OpenDNS Family Shield",
 
     // Page 4
-    23: "Quad9",
-    24: "Switch.ch"
+    22: "Quad9",
+    23: "Switch.ch"
 };
 
 ProtectionResult.CacheOriginNames = {
@@ -166,6 +166,6 @@ ProtectionResult.CacheOriginNames = {
     21: "openDNSFamilyShield",
 
     // Page 4
-    23: "quad9",
-    24: "switchCH"
+    22: "quad9",
+    23: "switchCH"
 };

@@ -491,12 +491,6 @@
         }
     });
 
-    // Listener for onCreatedNavigationTarget events.
-    browserAPI.webNavigation.onCreatedNavigationTarget.addListener(navigationDetails => {
-        console.debug(`[onCreatedNavigationTarget] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
-        handleNavigation(navigationDetails);
-    });
-
     // Listener for onHistoryStateUpdated events.
     browserAPI.webNavigation.onHistoryStateUpdated.addListener(navigationDetails => {
         console.debug(`[onHistoryStateUpdated] ${navigationDetails.url} (frameId: ${navigationDetails.frameId}) (tabId: ${navigationDetails.tabId})`);
@@ -646,17 +640,17 @@
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "openDNSSecurity");
                         break;
 
-                    case "22":
+                    case "21":
                         console.debug(`Added OpenDNS Family Shield URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "openDNSFamilyShield");
                         break;
 
-                    case "23":
+                    case "22":
                         console.debug(`Added Quad9 URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "quad9");
                         break;
 
-                    case "24":
+                    case "23":
                         console.debug(`Added Switch.ch URL to allowed cache: ` + message.blockedUrl);
                         BrowserProtection.cacheManager.addUrlToAllowedCache(message.blockedUrl, "switchCH");
                         break;
