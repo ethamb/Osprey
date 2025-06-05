@@ -29,6 +29,8 @@ possible. Check out some of our partners below:
 
 Osprey blocks websites that are classified as:
 
+> Note: 'Restricted' refers to adult content blocked by optional filters. 
+
 - [Malicious](https://us.norton.com/blog/malware/what-are-malicious-websites)
 - [Phishing](https://f-secure.com/us-en/articles/what-is-phishing)
 - [Fraud](https://usa.kaspersky.com/resource-center/preemptive-safety/scam-websites)
@@ -37,7 +39,7 @@ Osprey blocks websites that are classified as:
 - [Malvertising](https://malwarebytes.com/malvertising)
 - [Compromised](https://malwarebytes.com/glossary/compromised)
 - [Untrusted](https://mcafee.com/blogs/internet-security/how-to-tell-whether-a-website-is-safe-or-unsafe)
-- [Restricted](https://library.fiveable.me/key-terms/mass-media-society/adult-content) (Adult Content)
+- [Restricted](https://library.fiveable.me/key-terms/mass-media-society/adult-content)
 
 ## Warning
 
