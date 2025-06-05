@@ -26,12 +26,12 @@ to review their privacy policies for more information.
 ## User Liability
 
 Some providers may require a valid license or API key. Although those options might be enabled by default, if you enable
-any integration, you must ensure you have the right to do so. Osprey makes no guarantee that enabling a non-free
-integration complies with the provider’s Terms of Service. Any legal, financial, or technical issues arising
-from unauthorized use, such as service suspension, inaccurate threat data, or TOS violations, are solely your
-responsibility. Osprey is provided "as-is." We are not liable for interruptions, errors, or claims resulting from
-unauthorized API calls. Use third-party services at your own risk. You agree to hold Osprey and its maintainers harmless
-from any claims, damages, or costs related to enabling or using integrations you are not licensed to use.
+any integration, you must ensure you have the right to do so. Osprey makes no guarantee that enabling an integration
+complies with the provider's Terms of Service. Any legal, financial, or technical issues arising from unauthorized use,
+such as service suspension, inaccurate threat data, or TOS violations, are solely your responsibility. Osprey is provided
+"as-is." We are not liable for interruptions, errors, or claims resulting from unauthorized API calls. Use third-party
+services at your own risk. You agree to hold Osprey and its maintainers harmless from any claims, damages, or costs
+related to enabling or using integrations you are not licensed to use.
 
 ## Changes to This Privacy Policy
 
